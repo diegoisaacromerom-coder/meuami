@@ -163,6 +163,14 @@ section{padding:48px 0 8px}
 .callout h3{margin-bottom:6px}
 
 /* Cronología */
+.tlgrid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:38px;align-items:start}
+.tlfoto{margin:0;position:sticky;top:78px}
+.tlfoto img{display:block;width:100%;height:auto;border-bottom:5px solid var(--izt)}
+.tlfoto figcaption{font-family:var(--mono);font-size:.78rem;line-height:1.5;color:var(--muted);padding-top:10px}
+@media (max-width:860px){
+  .tlgrid{grid-template-columns:1fr;gap:22px}
+  .tlfoto{position:static;order:-1}
+}
 .tl{list-style:none;margin:0;padding:0;border-left:2px solid var(--ink);margin-left:8px}
 .tl li{position:relative;padding:0 0 22px 24px}
 .tl li::before{content:"";position:absolute;left:-8px;top:5px;width:14px;height:14px;border-radius:50%;background:var(--c);border:2px solid var(--paper)}
@@ -290,8 +298,16 @@ footer .stripes{height:8px}
   <section id="cronologia">
     <h2>Cronología</h2>
     <p class="lede">Del primer día en Iztapalapa a hoy. Los puntos huecos son fechas próximas.</p>
-    <ol class="tl" id="tl"></ol>
-    <p class="empty" id="tl-empty">No hay eventos para esta unidad.</p>
+    <div class="tlgrid">
+      <div>
+        <ol class="tl" id="tl"></ol>
+        <p class="empty" id="tl-empty">No hay eventos para esta unidad.</p>
+      </div>
+      <figure class="tlfoto">
+        <img src="assets/izt-plaza.jpg" alt="Plaza central de la UAM Iztapalapa" loading="lazy">
+        <figcaption>Plaza central de la UAM Iztapalapa, la unidad donde comenzó el paro el 20 de octubre.</figcaption>
+      </figure>
+    </div>
   </section>
 
   <section id="comunicados">
