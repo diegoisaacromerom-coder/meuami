@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paro UAM 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* Plan: cartel de asamblea. Papel claro, tinta negra, una franja por unidad con sus colores institucionales.
+   Una columna de lectura; filtros por unidad que atraviesan pliego, cronología y comunicados. */
+:root{
+  --paper:#f4f3ef;
+  --ink:#141414;
+  --muted:#5b5a56;
+  --rule:#d6d4cc;
+  --card:#ffffff;
+  --accent:#c8102e;
+  --azc:#c8102e; --cua:#e5701b; --izt:#178a3c; --ler:#6b3fa0; --xoc:#1f5fbf; --gen:#141414;
+  --display:"Anton","Impact","Arial Narrow",sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#151514; --ink:#efeee9; --muted:#a8a69f; --rule:#34332f; --card:#1e1e1c;
+    --accent:#ff5a6e; --azc:#ff5a6e; --cua:#ff9a4d; --izt:#4cc472; --ler:#b18ae6; --xoc:#6aa4ff; --gen:#efeee9;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#151514; --ink:#efeee9; --muted:#a8a69f; --rule:#34332f; --card:#1e1e1c;
+  --accent:#ff5a6e; --azc:#ff5a6e; --cua:#ff9a4d; --izt:#4cc472; --ler:#b18ae6; --xoc:#6aa4ff; --gen:#efeee9;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55}
+a{color:inherit;text-underline-offset:2px}
+a:focus-visible,button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1040px;margin:0 auto;padding:0 20px}
+h1,h2,h3{text-wrap:balance}
+h2{font-family:var(--display);font-weight:400;font-size:clamp(2rem,5vw,2.8rem);line-height:1;letter-spacing:.01em;text-transform:uppercase;margin:0 0 6px}
+h3{font-size:1.05rem;margin:0}
+.lede{color:var(--muted);max-width:65ch;margin:0 0 24px}
+
+/* Cabecera */
+.stripes{display:grid;grid-template-columns:repeat(5,1fr);height:10px}
+.stripes span:nth-child(1){background:var(--azc)}
+.stripes span:nth-child(2){background:var(--cua)}
+.stripes span:nth-child(3){background:var(--izt)}
+.stripes span:nth-child(4){background:var(--ler)}
+.stripes span:nth-child(5){background:var(--xoc)}
+header.top{padding:36px 0 28px;border-bottom:2px solid var(--ink)}
+.kicker{font-family:var(--mono);font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:0 0 10px}
+h1{font-family:var(--display);font-weight:400;font-size:clamp(3.2rem,11vw,7rem);line-height:.9;margin:0;text-transform:uppercase}
+h1 em{font-style:normal;color:var(--accent)}
+.sub{font-size:1.15rem;max-width:58ch;margin:16px 0 0}
+.facts{display:flex;flex-wrap:wrap;gap:10px 28px;margin:22px 0 0;padding:0;list-style:none;font-family:var(--mono);font-size:.9rem}
+.facts b{font-family:var(--display);font-weight:400;font-size:1.9rem;display:block;line-height:1}
+nav.sec{position:sticky;top:0;z-index:5;background:var(--paper);border-bottom:1px solid var(--rule)}
+nav.sec .wrap{display:flex;gap:4px 20px;flex-wrap:wrap;padding-top:10px;padding-bottom:10px}
+nav.sec a{font-weight:600;text-decoration:none;font-size:.95rem;padding:4px 0;border-bottom:2px solid transparent}
+nav.sec a:hover{border-bottom-color:var(--ink)}
+
+.notice{margin:24px 0 0;padding:12px 16px;border-left:4px solid var(--ink);background:var(--card);font-size:.92rem;max-width:80ch}
+
+section{padding:48px 0 8px}
+
+/* Filtros */
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin:28px 0 0;align-items:center}
+.filters .lbl{font-family:var(--mono);font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-right:4px}
+.chip{font:600 .88rem var(--body);border:2px solid var(--ink);background:transparent;color:var(--ink);padding:5px 12px;border-radius:999px;cursor:pointer;display:inline-flex;align-items:center;gap:7px}
+.chip i{width:10px;height:10px;border-radius:50%;background:var(--c,var(--ink));display:inline-block}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.chip:hover{background:var(--rule)}
+.chip[aria-pressed="true"]:hover{background:var(--ink)}
+
+/* Estado por unidad */
+.units{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px}
+.unit{background:var(--card);border-top:8px solid var(--c);padding:16px 16px 18px;display:flex;flex-direction:column;gap:8px}
+.unit .name{font-family:var(--display);font-size:1.6rem;line-height:1;text-transform:uppercase}
+.pill{align-self:flex-start;font:600 .75rem var(--mono);text-transform:uppercase;letter-spacing:.05em;padding:3px 8px;background:var(--ink);color:var(--paper)}
+.unit dl{margin:0;display:grid;gap:6px;font-size:.9rem}
+.unit dt{font-family:var(--mono);font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.unit dd{margin:0}
+
+.next{margin-top:22px;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.next > div{border:2px solid var(--ink);padding:14px 16px}
+.next .d{font-family:var(--display);font-size:1.5rem;line-height:1;text-transform:uppercase}
+.next p{margin:6px 0 0;font-size:.92rem}
+
+/* Pliego */
+.common{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:0;border-top:2px solid var(--ink);margin-bottom:28px}
+.common div{padding:14px 16px 14px 0;border-bottom:1px solid var(--rule)}
+.common b{display:block}
+.common span{color:var(--muted);font-size:.92rem}
+.pliegos{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.pl{background:var(--card);border-left:8px solid var(--c);padding:16px 18px}
+.pl header{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.pl .meta{font-family:var(--mono);font-size:.78rem;color:var(--muted)}
+.pl ul{margin:10px 0;padding-left:20px}
+.pl li{margin:2px 0}
+.pl .st{font-size:.9rem;border-top:1px solid var(--rule);padding-top:8px;margin:0}
+.callout{margin-top:22px;background:var(--card);padding:16px 18px;border:1px dashed var(--muted);max-width:80ch;font-size:.95rem}
+.callout h3{margin-bottom:6px}
+
+/* Cronología */
+.tl{list-style:none;margin:0;padding:0;border-left:2px solid var(--ink);margin-left:8px}
+.tl li{position:relative;padding:0 0 22px 24px}
+.tl li::before{content:"";position:absolute;left:-8px;top:5px;width:14px;height:14px;border-radius:50%;background:var(--c);border:2px solid var(--paper)}
+.tl .when{font-family:var(--mono);font-size:.82rem;font-weight:600;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.tag{font:600 .7rem var(--mono);text-transform:uppercase;letter-spacing:.05em;color:var(--c);border:1.5px solid var(--c);padding:1px 6px}
+.tl p{margin:4px 0 0;max-width:70ch}
+.src{font-family:var(--mono);font-size:.75rem;color:var(--muted)}
+.src a{color:var(--muted)}
+.tl li.future::before{background:var(--paper);border:2px dashed var(--c)}
+
+/* Comunicados */
+.coms{display:grid;gap:12px}
+.com{background:var(--card);display:grid;grid-template-columns:120px 1fr;gap:4px 18px;padding:16px 18px;border-left:8px solid var(--c)}
+.com .date{font-family:var(--display);font-size:1.4rem;line-height:1.05;text-transform:uppercase}
+.com .who{font-weight:700}
+.com .type{font-family:var(--mono);font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.com p{margin:4px 0 6px;max-width:70ch}
+@media (max-width:560px){.com{grid-template-columns:1fr}}
+.empty{color:var(--muted);font-style:italic;display:none}
+.empty.show{display:block}
+
+footer{margin-top:56px;border-top:2px solid var(--ink);padding:24px 0 40px;font-size:.88rem;color:var(--muted)}
+footer ol{padding-left:20px;columns:2 320px;column-gap:32px}
+footer li{margin:0 0 6px;break-inside:avoid}
+[hidden]{display:none !important}
+</style>
+</head>
+<body>
+<div class="stripes" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+
+<header class="top">
+  <div class="wrap">
+    <p class="kicker">Micrositio estudiantil · actualizado el 15 de noviembre de 2026</p>
+    <h1>Paro <em>UAM</em> 2026</h1>
+    <p class="sub">Lo que pasa en las cinco unidades, qué pedimos y qué ha respondido la universidad, en un solo lugar y con fuentes.</p>
+    <ul class="facts">
+      <li><b>26</b>días desde el 20 de octubre</li>
+      <li><b>5 de 5</b>unidades en paro total</li>
+      <li><b>Sin fecha</b>de regreso a clases</li>
+    </ul>
+    <p class="notice">Este sitio reúne información pública: notas de prensa y comunicados. <strong>No es la página oficial de ninguna asamblea ni de la UAM.</strong> Cada dato enlaza a su fuente; si algo cambió, la decisión de tu asamblea es la que cuenta.</p>
+  </div>
+</header>
+
+<nav class="sec" aria-label="Secciones">
+  <div class="wrap">
+    <a href="#estado">Estado por unidad</a>
+    <a href="#pliego">Pliego petitorio</a>
+    <a href="#cronologia">Cronología</a>
+    <a href="#comunicados">Comunicados</a>
+    <a href="#fuentes">Fuentes</a>
+  </div>
+</nav>
+
+<main class="wrap">
+
+  <div class="filters" role="group" aria-label="Filtrar por unidad">
+    <span class="lbl">Ver unidad</span>
+    <button class="chip" data-u="all" aria-pressed="true" id="f-all">Todas</button>
+    <button class="chip" data-u="azc" aria-pressed="false" id="f-azc" style="--c:var(--azc)"><i></i>Azcapotzalco</button>
+    <button class="chip" data-u="cua" aria-pressed="false" id="f-cua" style="--c:var(--cua)"><i></i>Cuajimalpa</button>
+    <button class="chip" data-u="izt" aria-pressed="false" id="f-izt" style="--c:var(--izt)"><i></i>Iztapalapa</button>
+    <button class="chip" data-u="ler" aria-pressed="false" id="f-ler" style="--c:var(--ler)"><i></i>Lerma</button>
+    <button class="chip" data-u="xoc" aria-pressed="false" id="f-xoc" style="--c:var(--xoc)"><i></i>Xochimilco</button>
+  </div>
+
+  <section id="estado">
+    <h2>Estado por unidad</h2>
+    <p class="lede">Cada unidad tiene su propia asamblea, su pliego y su negociación. Esto es lo último reportado.</p>
+    <div class="units" id="units"></div>
+
+    <div class="next">
+      <div>
+        <div class="d">Mar 17 nov</div>
+        <p>Reunión propuesta por la Rectoría de Lerma con la Asamblea General Estudiantil. Hora y lugar por definir; la asamblea no ha confirmado. <span class="src">[<a href="#s5">5</a>]</span></p>
+      </div>
+      <div>
+        <div class="d">Vie 4 dic</div>
+        <p>Último día de clases programado del trimestre. La UAM dice que el paro no cancela el periodo por sí solo: lo decide el Colegio Académico. <span class="src">[<a href="#s2">2</a>]</span></p>
+      </div>
+      <div>
+        <div class="d">Por confirmar</div>
+        <p>Colectivos de las cinco unidades preparan una megamarcha en la Ciudad de México. Aún sin fecha ni ruta públicas. <span class="src">[<a href="#s11">11</a>]</span></p>
+      </div>
+    </div>
+  </section>
+
+  <section id="pliego">
+    <h2>Pliego petitorio</h2>
+    <p class="lede">No hay un pliego único: cada unidad entregó el suyo. Estas son las demandas que se repiten en todas.</p>
+    <div class="common">
+      <div><b>Infraestructura</b><span>Bibliotecas, baños, cafeterías y gimnasios rehabilitados.</span></div>
+      <div><b>Laboratorios y talleres</b><span>Equipo, herramientas y materiales suficientes.</span></div>
+      <div><b>Más profesores</b><span>Contratación para cubrir plazas faltantes.</span></div>
+      <div><b>Planes de estudio</b><span>Actualización de los programas.</span></div>
+      <div><b>Violencia de género</b><span>Prevención, atención, sanciones claras y protocolos que funcionen.</span></div>
+      <div><b>Servicios</b><span>Alimentación, mantenimiento y apoyo estudiantil.</span></div>
+      <div><b>Transparencia</b><span>Información pública sobre cómo se usa el presupuesto.</span></div>
+    </div>
+    <div class="pliegos" id="pliegos"></div>
+    <p class="empty" id="pliegos-empty">No hay pliego registrado para esta unidad.</p>
+
+    <div class="callout">
+      <h3>Contexto: la compra de autos eléctricos</h3>
+      <p style="margin:0">La prensa reportó que el Patronato autorizó 6.27 millones de pesos para autos Tesla mientras las unidades señalaban carencias <span class="src">[<a href="#s7">7</a>]</span>. La Rectoría General informó después la compra de 6 vehículos eléctricos (Tesla y Volvo) por unos 4.92 millones, anunció que los vendería para destinar el dinero a becas y suspendió el Acuerdo 03/2026 sobre compra de vehículos <span class="src">[<a href="#s3">3</a>]</span>.</p>
+    </div>
+  </section>
+
+  <section id="cronologia">
+    <h2>Cronología</h2>
+    <p class="lede">Del primer día en Iztapalapa a hoy. Los puntos huecos son fechas próximas.</p>
+    <ol class="tl" id="tl"></ol>
+    <p class="empty" id="tl-empty">No hay eventos para esta unidad.</p>
+  </section>
+
+  <section id="comunicados">
+    <h2>Comunicados</h2>
+    <p class="lede">Resúmenes de comunicados institucionales y de los acuerdos de asamblea que se han hecho públicos. Para el texto completo, abre la fuente.</p>
+    <div class="coms" id="coms"></div>
+    <p class="empty" id="coms-empty">No hay comunicados registrados para esta unidad.</p>
+  </section>
+
+</main>
+
+<footer id="fuentes">
+  <div class="wrap">
+    <h3 style="color:var(--ink);margin-bottom:8px">Fuentes</h3>
+    <ol>
+      <li id="s1"><a href="https://www.cronica.com.mx/nacional/2026/11/04/paro-en-la-uam-2026-ya-hay-fecha-para-el-regreso-a-clases/">Crónica, 4 nov 2026: ¿Ya hay fecha para el regreso a clases?</a></li>
+      <li id="s2"><a href="https://www.cronica.com.mx/metropoli/2026/11/11/paro-en-la-uam-trabajadores-de-la-universidad-marchan-en-unidad-xochimilco-y-crece-incertidumbre-de-perder-el-trimestre/">Crónica, 11 nov 2026: trabajadores marchan en Xochimilco</a></li>
+      <li id="s3"><a href="https://politica.expansion.mx/mexico/2026/11/06/la-uam-entra-en-paro-total-alumnos-reclaman-instalaciones-deterioradas-y-cuestionan-gasto-en-autos-tesla">Expansión, 6 nov 2026: la UAM entra en paro total</a></li>
+      <li id="s4"><a href="https://adnoticias.mx/paro-en-cinco-unidades-de-uam-lerma/">AD Noticias: paran las cinco unidades de la UAM</a></li>
+      <li id="s5"><a href="https://adnoticias.mx/cumple-uam-lerma-18-dias-paro/">AD Noticias, 14 nov 2026: Lerma cumple 18 días en paro</a></li>
+      <li id="s6"><a href="https://edomex.quadratin.com.mx/mantiene-la-uam-lerma-paro-indefinido-instalaciones-siguen-tomadas/">Quadratín Edomex, 5 nov 2026: Lerma mantiene paro indefinido</a></li>
+      <li id="s7"><a href="https://www.publimetro.com.mx/noticias/2026/11/02/paro-en-la-uam-cinco-planteles-sin-clases-por-protestas-estudiantiles-estas-son-las-causas/">Publimetro, 2 nov 2026: cinco planteles sin clases</a></li>
+      <li id="s8"><a href="https://www.somoselmedio.com/en-que-situacion-se-encuentran-los-paros-estudiantiles-en-uam-unidad-por-unidad/">Somos el Medio: situación unidad por unidad</a></li>
+      <li id="s9"><a href="https://24-horas.mx/cdmx/paro-en-la-uam-se-extiende-a-sus-cinco-unidades-en-medio-de-polemica-por-autos-de-lujo/">24 Horas: el paro se extiende a las cinco unidades</a></li>
+      <li id="s10"><a href="https://www.jornada.com.mx/noticia/2026/10/26/sociedad/otros-campus-se-suman-al-paro-de-la-uam-iztapalapa-en-demanda-de-mejores-condiciones">La Jornada, 26 oct 2026: otros campus se suman al paro</a></li>
+      <li id="s11"><a href="https://tuexamen.mx/blogs/noticias/en-paro-y-trimestre-en-riesgo-la-uam-alista-megamarcha">TuExamen, 14 nov 2026: la UAM alista megamarcha</a></li>
+      <li id="s12"><a href="https://seunonoticias.mx/2026/11/05/uam-lerma-entra-en-paro-indefinido-que-exigen-los-estudiantes-para-regresar-a-clases/">Se Uno Noticias, 5 nov 2026: Lerma entra en paro indefinido</a></li>
+    </ol>
+    <p>Hecho por y para la comunidad estudiantil. Información al 15 de noviembre de 2026.</p>
+  </div>
+</footer>
+
+<script>
+const U = {
+  azc:{n:"Azcapotzalco"}, cua:{n:"Cuajimalpa"}, izt:{n:"Iztapalapa"},
+  ler:{n:"Lerma"}, xoc:{n:"Xochimilco"}, gen:{n:"Toda la UAM"}
+};
+const src = ids => ' <span class="src">[' + ids.map(i => '<a href="#s'+i+'">'+i+'</a>').join(", ") + ']</span>';
+
+const units = [
+  {u:"azc", start:"22 de octubre", st:"Paro total", now:"Entregó su pliego el 2 de noviembre. El 5 de noviembre la Rectoría General dijo que la unidad preparaba sus respuestas.", s:[4]},
+  {u:"cua", start:"23 de octubre", st:"Paro solidario", now:"Desde el 3 de noviembre su paro depende de las decisiones conjuntas de las cinco unidades y de un pliego común.", s:[1,4]},
+  {u:"izt", start:"20 de octubre", st:"Paro indefinido", now:"Donde empezó todo. La asamblea consideró que la respuesta institucional no cubre las condiciones mínimas del pliego.", s:[4,8]},
+  {u:"ler", start:"28 de octubre", st:"Paro indefinido", now:"Sin acuerdo tras la mesa del 4 de noviembre. Rectoría propuso reunirse el 17 de noviembre.", s:[5]},
+  {u:"xoc", start:"22 de octubre", st:"Paro total", now:"Entregó un nuevo pliego alrededor del 9 de noviembre; la respuesta se esperaba el 12 de noviembre.", s:[2,4]}
+];
+
+const pliegos = [
+  {u:"izt", meta:"Respuesta institucional: 31 oct", items:["Biblioteca funcionando por completo y segura","Mantenimiento de sanitarios","Espacios deportivos","Servicio de comedor","Transparencia presupuestal"], st:"El rector dijo el 5 de noviembre que la biblioteca ya puede reabrir tras el reforzamiento por el sismo de 2017.", s:[4]},
+  {u:"xoc", meta:"15 puntos · nuevo pliego ~9 nov", items:["Equipo de laboratorio","Recursos para prácticas profesionales","Programas actualizados","Mejoras al comedor","Medidas contra la violencia de género"], st:"La primera respuesta (26 oct) se consideró insuficiente. Se trabajaron pliegos por licenciatura para unificarlos.", s:[2,4,7,8]},
+  {u:"azc", meta:"Entregado: 2 nov", items:["Mejoras a las instalaciones","Recursos para actividades académicas"], st:"Respuesta en preparación al 5 de noviembre.", s:[4]},
+  {u:"cua", meta:"Entregado: 1 nov", items:["Transparencia presupuestal, entre otros puntos","Propone un pliego común de las cinco unidades"], st:"Recibió respuestas de las autoridades el 4 de noviembre.", s:[1,4]},
+  {u:"ler", meta:"8 puntos · entregado 23 oct", items:["Comedor subsidiado","Clases de inglés y certificaciones gratuitas","Equipo para laboratorios y talleres","Contratación docente","Fondos para prácticas de campo","Planes de estudio actualizados","Bolsa de trabajo","Atención a la violencia de género"], st:"Rectoría propuso seis mesas temáticas. La asamblea pide compromisos con fechas, responsables y montos. Ya llegó un autobús nuevo, uno de los puntos.", s:[4,5,12]}
+];
+
+const tl = [
+  {d:"20 oct", u:"izt", t:"Inicia el paro en Iztapalapa por la biblioteca, sanitarios, comedor y espacios deportivos.", s:[4]},
+  {d:"22 oct", u:"xoc", t:"Xochimilco se suma al paro.", s:[4]},
+  {d:"22 oct", u:"azc", t:"Azcapotzalco suspende actividades.", s:[4,9]},
+  {d:"23 oct", u:"cua", t:"Cuajimalpa inicia una suspensión prevista hasta el 27 de octubre; la asamblea la extiende.", s:[4]},
+  {d:"23 oct", u:"gen", t:"Estudiantes presentan sus demandas ante la Rectoría General.", s:[1]},
+  {d:"23 oct", u:"ler", t:"Lerma entrega su pliego petitorio de 8 puntos.", s:[5]},
+  {d:"26 oct", u:"xoc", t:"Primera respuesta institucional en Xochimilco. La asamblea la considera insuficiente y declara paro indefinido.", s:[4,9,10]},
+  {d:"28 oct", u:"ler", t:"Lerma inicia un paro escalonado de 72 horas hábiles.", s:[5]},
+  {d:"29 oct", u:"gen", t:"Comunicado conjunto de autoridades: disposición al diálogo y reconocimiento del derecho a organizarse.", s:[1]},
+  {d:"31 oct", u:"izt", t:"Iztapalapa publica su respuesta institucional al pliego.", s:[1]},
+  {d:"1 nov", u:"cua", t:"Cuajimalpa entrega su pliego.", s:[4]},
+  {d:"2 nov", u:"azc", t:"Azcapotzalco entrega su pliego.", s:[4]},
+  {d:"2 nov", u:"gen", t:"La Rectoría General anuncia que retirará los 6 autos eléctricos y suspende el Acuerdo 03/2026.", s:[3,4]},
+  {d:"3 nov", u:"cua", t:"La asamblea de Cuajimalpa acuerda un paro solidario ligado a las decisiones de las cinco unidades.", s:[1,4]},
+  {d:"3 nov", u:"ler", t:"Rectoría de Lerma presenta una respuesta ampliada y propone seis mesas temáticas.", s:[12]},
+  {d:"4 nov", u:"cua", t:"Autoridades de Cuajimalpa entregan respuestas a las 16:00.", s:[1,4]},
+  {d:"4 nov", u:"ler", t:"Mesa sin acuerdos. La asamblea decide paro total indefinido a partir de la madrugada del 5.", s:[5,6]},
+  {d:"5 nov", u:"gen", t:"Las cinco unidades quedan en paro total. El rector general reconoce fallas en baños, abasto, comedores e instalaciones deportivas.", s:[3,4]},
+  {d:"8 nov", u:"ler", t:"La asamblea de Lerma aclara que levantar el paro no está en la agenda de su siguiente sesión.", s:[5]},
+  {d:"~9 nov", u:"xoc", t:"Xochimilco entrega un nuevo pliego; la administración acusa recibo.", s:[2]},
+  {d:"11 nov", u:"xoc", t:"Integrantes del SITUAM marchan por Calzada del Hueso hacia la Rectoría de Xochimilco y piden presupuesto transparente.", s:[2]},
+  {d:"12 nov", u:"xoc", t:"Plazo para la respuesta al nuevo pliego (10:19 h).", s:[2]},
+  {d:"12 nov", u:"ler", t:"Llega un autobús nuevo a Lerma, uno de los puntos del pliego.", s:[5]},
+  {d:"13 nov", u:"ler", t:"Rectoría convoca a la Asamblea General Estudiantil a reunirse el 17 de noviembre.", s:[5]},
+  {d:"14 nov", u:"gen", t:"Colectivos de las cinco unidades preparan una megamarcha.", s:[11]},
+  {d:"17 nov", u:"ler", t:"Reunión propuesta entre Rectoría y la asamblea de Lerma.", s:[5], f:true},
+  {d:"4 dic", u:"gen", t:"Fin de clases programado del trimestre. El Colegio Académico decide qué pasa con el periodo.", s:[2], f:true}
+];
+
+const coms = [
+  {d:"29 oct", u:"gen", who:"Rector General y rectores de unidad", type:"Comunicado institucional", t:"Buscan acuerdos con acciones concretas, respuestas sustentadas y compromisos verificables, y reconocen el derecho estudiantil a organizarse.", s:[1]},
+  {d:"31 oct", u:"izt", who:"Unidad Iztapalapa", type:"Respuesta al pliego", t:"Respuesta institucional al pliego petitorio de la asamblea, publicada en el sitio de la UAM.", s:[1,9]},
+  {d:"2 nov", u:"gen", who:"Rector General Gustavo Pacheco López", type:"Comunicado institucional", t:"Sobre los vehículos eléctricos: se venderá la flotilla, el dinero irá a becas y se suspende el Acuerdo 03/2026 hasta ajustarlo.", s:[3,4]},
+  {d:"3 nov", u:"cua", who:"Asamblea de Cuajimalpa", type:"Acuerdo de asamblea", t:"Se mantiene el paro como paro solidario; levantarlo depende de decisiones conjuntas de las cinco unidades.", s:[1,4]},
+  {d:"4 nov", u:"ler", who:"Asamblea General Estudiantil de Lerma", type:"Acuerdo de asamblea", t:"Paro total por tiempo indefinido, tras rechazar la contrapropuesta. Las mesas de diálogo siguen durante el paro.", s:[6]},
+  {d:"5 nov", u:"gen", who:"Rector General Gustavo Pacheco López", type:"Boletín", t:"Reconoce fallas en los campus y llama al diálogo por asambleas, mesas y órganos colegiados: “no se va a poder resolver todo en un solo momento”.", s:[2,4]},
+  {d:"5 nov", u:"ler", who:"Autoridades de Lerma", type:"Comunicado institucional", t:"La representación estudiantil enviará un formato e instructivo para armar el cronograma de mesas de trabajo.", s:[6]},
+  {d:"13 nov", u:"ler", who:"Rectoría de Lerma", type:"Convocatoria", t:"Invita a la Asamblea General Estudiantil a reunirse el martes 17 de noviembre; hora y lugar por definir.", s:[5]},
+  {d:"Vigente", u:"gen", who:"UAM", type:"Aviso en sitio oficial", t:"El paro no cancela automáticamente el trimestre; la decisión corresponde al Colegio Académico.", s:[2]}
+];
+
+function render(){
+  document.getElementById("units").innerHTML = units.map(x =>
+    `<article class="unit" data-u="${x.u}" style="--c:var(--${x.u})">
+      <div class="name">${U[x.u].n}</div>
+      <span class="pill">${x.st}</span>
+      <dl><div><dt>En paro desde</dt><dd>${x.start}</dd></div>
+      <div><dt>Último reporte</dt><dd>${x.now}${src(x.s)}</dd></div></dl>
+    </article>`).join("");
+
+  document.getElementById("pliegos").innerHTML = pliegos.map(x =>
+    `<article class="pl" data-u="${x.u}" style="--c:var(--${x.u})">
+      <header><h3>${U[x.u].n}</h3><span class="meta">${x.meta}</span></header>
+      <ul>${x.items.map(i => `<li>${i}</li>`).join("")}</ul>
+      <p class="st">${x.st}${src(x.s)}</p>
+    </article>`).join("");
+
+  document.getElementById("tl").innerHTML = tl.map(x =>
+    `<li data-u="${x.u}" class="${x.f ? "future" : ""}" style="--c:var(--${x.u})">
+      <div class="when">${x.d}${x.f ? " · próximo" : ""} <span class="tag">${U[x.u].n}</span></div>
+      <p>${x.t}${src(x.s)}</p>
+    </li>`).join("");
+
+  document.getElementById("coms").innerHTML = coms.map(x =>
+    `<article class="com" data-u="${x.u}" style="--c:var(--${x.u})">
+      <div class="date">${x.d}</div>
+      <div><div class="type">${x.type} · ${U[x.u].n}</div>
+      <div class="who">${x.who}</div>
+      <p>${x.t}${src(x.s)}</p></div>
+    </article>`).join("");
+}
+
+function applyFilter(u){
+  document.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", String(c.dataset.u === u)));
+  const groups = [["#units",null],["#pliegos","pliegos-empty"],["#tl","tl-empty"],["#coms","coms-empty"]];
+  groups.forEach(([sel, emptyId]) => {
+    let shown = 0;
+    document.querySelectorAll(sel + " [data-u]").forEach(el => {
+      const ok = u === "all" || el.dataset.u === u || (el.dataset.u === "gen" && sel !== "#pliegos");
+      el.hidden = !ok; if (ok) shown++;
+    });
+    if (emptyId) document.getElementById(emptyId).classList.toggle("show", shown === 0);
+  });
+  try { localStorage.setItem("paro-uam-unidad", u); } catch(e) {}
+}
+
+render();
+document.querySelectorAll(".chip").forEach(c => c.addEventListener("click", () => applyFilter(c.dataset.u)));
+let saved = "all";
+try { saved = localStorage.getItem("paro-uam-unidad") || "all"; } catch(e) {}
+if (!document.querySelector('.chip[data-u="' + saved + '"]')) saved = "all";
+applyFilter(saved);
+</script>
+</body>
+</html>
