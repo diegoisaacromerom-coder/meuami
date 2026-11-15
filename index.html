@@ -204,9 +204,11 @@ section{padding:48px 0 8px}
 .fcol a:hover{color:#34d27f}
 .fl{text-align:right;align-items:flex-end;border-right:1px solid rgba(255,255,255,.2)}
 .fr{text-align:left;align-items:flex-start;border-left:1px solid rgba(255,255,255,.2)}
-.fmid{display:flex;flex-direction:column;align-items:center;text-align:center;gap:15px;padding:0 36px;max-width:430px}
-.fmid img{width:260px;max-width:100%;height:auto;
-  filter:drop-shadow(0 0 2px rgba(255,255,255,.45)) drop-shadow(0 0 16px rgba(255,255,255,.22))}
+.fmid{display:flex;flex-direction:column;align-items:center;text-align:center;gap:15px;padding:0 32px;max-width:580px}
+.flogos{display:flex;align-items:center;justify-content:center;gap:28px;flex-wrap:wrap}
+.flogos img{max-width:100%;height:auto}
+.flogos .lg-mov{width:244px;filter:drop-shadow(0 0 2px rgba(255,255,255,.45)) drop-shadow(0 0 16px rgba(255,255,255,.22))}
+.flogos .lg-cgo{width:216px}
 .fdesc{margin:0;font-size:.9rem;line-height:1.5;color:rgba(255,255,255,.78)}
 .fmeta{margin:0;font-size:.76rem;letter-spacing:.06em;text-transform:uppercase;font-weight:600;color:rgba(255,255,255,.58)}
 .fsocial a{display:inline-flex;align-items:center;gap:9px;color:#fff;text-decoration:none;font-weight:600;font-size:.88rem;
@@ -368,7 +370,10 @@ section{padding:48px 0 8px}
     </nav>
 
     <div class="fmid">
-      <img src="assets/logo.png" alt="Movimiento Estudiantil UAM-I">
+      <div class="flogos">
+        <img class="lg-mov" src="assets/logo.png" alt="Movimiento Estudiantil UAM-I">
+        <img class="lg-cgo" src="assets/logo-cgo.png" alt="Comisión de Gestión y Operación, Movimiento Estudiantil UAM-I">
+      </div>
       <p class="fdesc">Seguimiento del paro en la UAM, hecho desde la Unidad Iztapalapa por y para la comunidad estudiantil. Reunimos información pública y la enlazamos a su fuente.</p>
       <div class="fsocial">
         <a href="https://www.instagram.com/me_uami/" target="_blank" rel="noopener">
