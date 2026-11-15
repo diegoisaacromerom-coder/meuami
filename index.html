@@ -21,6 +21,8 @@
   --card:#ffffff;
   --accent:#12a850;
   --azc:#c8102e; --cua:#e5701b; --izt:#12a850; --ler:#6b3fa0; --xoc:#1f5fbf; --gen:#141414;
+  /* mismos colores en RGB, para las difuminaciones sobre foto (iguales en ambos temas) */
+  --azc-rgb:200,16,46; --cua-rgb:198,88,16; --izt-rgb:18,168,80; --ler-rgb:107,63,160; --xoc-rgb:31,95,191;
   --display:"Montserrat",system-ui,-apple-system,"Segoe UI",sans-serif;
   --body:"Montserrat",system-ui,-apple-system,"Segoe UI",sans-serif;
   --mono:"Montserrat",system-ui,-apple-system,"Segoe UI",sans-serif;
@@ -60,9 +62,10 @@ h3{font-size:1.05rem;margin:0}
 .hero{position:relative;isolation:isolate;color:#fff;background:#0c0f0c;border-bottom:3px solid var(--izt)}
 .hero::before{content:"";position:absolute;inset:0;z-index:-1;
   background:
-    linear-gradient(90deg, rgba(8,12,8,.92) 0%, rgba(8,12,8,.62) 55%, rgba(8,12,8,.3) 100%),
-    linear-gradient(0deg, rgba(8,12,8,.85) 0%, rgba(8,12,8,.15) 55%),
-    url("assets/hero.jpg") center 35%/cover no-repeat;}
+    radial-gradient(120% 90% at 8% 100%, rgba(18,168,80,.62) 0%, rgba(18,168,80,.22) 45%, rgba(18,168,80,0) 72%),
+    linear-gradient(90deg, rgba(6,14,9,.92) 0%, rgba(6,14,9,.6) 58%, rgba(6,14,9,.28) 100%),
+    linear-gradient(0deg, rgba(6,14,9,.88) 0%, rgba(6,14,9,.12) 58%),
+    url("assets/hero.jpg") center 38%/cover no-repeat;}
 .hero-inner{padding:40px 20px 48px}
 .brand{margin:0 0 20px}
 .brand img{display:block;width:auto;height:auto;max-width:320px;max-height:132px;border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.35)}
@@ -98,12 +101,18 @@ section{padding:48px 0 8px}
 .chip[aria-pressed="true"]:hover{background:var(--ink)}
 
 /* Estado por unidad */
-.units{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px}
-.unit{background:var(--card);overflow:hidden;display:flex;flex-direction:column}
-.unit .ph{height:118px;background-color:var(--c);background-size:cover;background-position:center;border-bottom:5px solid var(--c)}
+.units{display:grid;grid-template-columns:repeat(auto-fit,minmax(258px,1fr));gap:16px}
+.unit{background:var(--card);overflow:hidden;display:flex;flex-direction:column;border-bottom:4px solid var(--c)}
+.unit .ph{position:relative;aspect-ratio:16/10;background-color:var(--c);background-size:cover;background-position:center}
+.unit .ph::after{content:"";position:absolute;inset:0;
+  background:
+    linear-gradient(180deg, rgba(var(--crgb),0) 0%, rgba(var(--crgb),.20) 38%, rgba(var(--crgb),.78) 76%, rgba(var(--crgb),.96) 100%),
+    linear-gradient(180deg, rgba(0,0,0,0) 30%, rgba(0,0,0,.45) 100%);}
+.unit .phcap{position:absolute;z-index:1;left:0;right:0;bottom:0;padding:12px 15px 13px;display:flex;flex-direction:column;align-items:flex-start;gap:7px}
 .unit .ubody{padding:14px 16px 18px;display:flex;flex-direction:column;gap:8px}
-.unit .name{font-family:var(--display);font-weight:800;font-size:1.12rem;line-height:1.05;text-transform:uppercase;letter-spacing:-.02em;overflow-wrap:break-word}
+.unit .name{font-family:var(--display);font-weight:800;font-size:1.3rem;line-height:1.05;text-transform:uppercase;letter-spacing:-.02em;overflow-wrap:break-word;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.45)}
 .pill{align-self:flex-start;font:600 .75rem var(--mono);text-transform:uppercase;letter-spacing:.05em;padding:3px 8px;background:var(--ink);color:var(--paper)}
+.unit .phcap .pill{background:rgba(255,255,255,.96);color:#121212;border-radius:999px;padding:3px 10px}
 .unit dl{margin:0;display:grid;gap:6px;font-size:.9rem}
 .unit dt{font-family:var(--mono);font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
 .unit dd{margin:0}
@@ -347,11 +356,14 @@ const coms = [
 
 function render(){
   document.getElementById("units").innerHTML = units.map(x =>
-    `<article class="unit" data-u="${x.u}" style="--c:var(--${x.u})">
-      <div class="ph" style="background-image:url('assets/u-${x.u}.jpg')" role="img" aria-label="Campus de la UAM ${U[x.u].n}"></div>
+    `<article class="unit" data-u="${x.u}" style="--c:var(--${x.u});--crgb:var(--${x.u}-rgb)">
+      <div class="ph" style="background-image:url('assets/u-${x.u}.jpg')" role="img" aria-label="Campus de la UAM ${U[x.u].n}">
+        <div class="phcap">
+          <div class="name">${U[x.u].n}</div>
+          <span class="pill">${x.st}</span>
+        </div>
+      </div>
       <div class="ubody">
-        <div class="name">${U[x.u].n}</div>
-        <span class="pill">${x.st}</span>
         <dl><div><dt>En paro desde</dt><dd>${x.start}</dd></div>
         <div><dt>Último reporte</dt><dd>${x.now}${src(x.s)}</dd></div></dl>
       </div>
