@@ -3,7 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Paro UAM 2026</title>
+<title>Movimiento Estudiantil UAM-I</title>
+<link rel="icon" type="image/png" href="assets/panther.png">
+<link rel="apple-touch-icon" href="assets/panther.png">
+<meta name="description" content="Movimiento Estudiantil UAM-I: información del paro en la UAM, pliego petitorio, cronología y comunicados.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -16,8 +19,8 @@
   --muted:#5b5a56;
   --rule:#d6d4cc;
   --card:#ffffff;
-  --accent:#c8102e;
-  --azc:#c8102e; --cua:#e5701b; --izt:#178a3c; --ler:#6b3fa0; --xoc:#1f5fbf; --gen:#141414;
+  --accent:#12a850;
+  --azc:#c8102e; --cua:#e5701b; --izt:#12a850; --ler:#6b3fa0; --xoc:#1f5fbf; --gen:#141414;
   --display:"Anton","Impact","Arial Narrow",sans-serif;
   --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
@@ -26,13 +29,13 @@
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --paper:#151514; --ink:#efeee9; --muted:#a8a69f; --rule:#34332f; --card:#1e1e1c;
-    --accent:#ff5a6e; --azc:#ff5a6e; --cua:#ff9a4d; --izt:#4cc472; --ler:#b18ae6; --xoc:#6aa4ff; --gen:#efeee9;
+    --accent:#34d27f; --azc:#ff5a6e; --cua:#ff9a4d; --izt:#34d27f; --ler:#b18ae6; --xoc:#6aa4ff; --gen:#efeee9;
     color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
   --paper:#151514; --ink:#efeee9; --muted:#a8a69f; --rule:#34332f; --card:#1e1e1c;
-  --accent:#ff5a6e; --azc:#ff5a6e; --cua:#ff9a4d; --izt:#4cc472; --ler:#b18ae6; --xoc:#6aa4ff; --gen:#efeee9;
+  --accent:#34d27f; --azc:#ff5a6e; --cua:#ff9a4d; --izt:#34d27f; --ler:#b18ae6; --xoc:#6aa4ff; --gen:#efeee9;
   color-scheme:dark;
 }
 *{box-sizing:border-box}
@@ -54,7 +57,11 @@ h3{font-size:1.05rem;margin:0}
 .stripes span:nth-child(3){background:var(--izt)}
 .stripes span:nth-child(4){background:var(--ler)}
 .stripes span:nth-child(5){background:var(--xoc)}
-header.top{padding:36px 0 28px;border-bottom:2px solid var(--ink)}
+header.top{padding:28px 0;border-bottom:2px solid var(--ink)}
+.brand{display:flex;align-items:center;gap:14px;margin:0 0 22px}
+.brand img{width:66px;height:66px;border-radius:50%;background:#fff;object-fit:cover;flex:none;border:2px solid var(--ink)}
+.brand b{font-family:var(--display);font-weight:400;font-size:clamp(1.3rem,3.5vw,1.9rem);line-height:.95;text-transform:uppercase;color:var(--accent)}
+.brand span{display:block;font-family:var(--mono);font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-top:3px}
 .kicker{font-family:var(--mono);font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:0 0 10px}
 h1{font-family:var(--display);font-weight:400;font-size:clamp(3.2rem,11vw,7rem);line-height:.9;margin:0;text-transform:uppercase}
 h1 em{font-style:normal;color:var(--accent)}
@@ -141,15 +148,19 @@ footer li{margin:0 0 6px;break-inside:avoid}
 
 <header class="top">
   <div class="wrap">
-    <p class="kicker">Micrositio estudiantil · actualizado el 15 de noviembre de 2026</p>
+    <div class="brand">
+      <img src="assets/panther.png" alt="Pantera, emblema de la UAM Iztapalapa">
+      <div><b>Movimiento Estudiantil UAM-I</b><span>Unidad Iztapalapa · Panteras Negras</span></div>
+    </div>
+    <p class="kicker">Paro UAM · actualizado el 15 de noviembre de 2026</p>
     <h1>Paro <em>UAM</em> 2026</h1>
-    <p class="sub">Lo que pasa en las cinco unidades, qué pedimos y qué ha respondido la universidad, en un solo lugar y con fuentes.</p>
+    <p class="sub">La casa de este espacio es la <strong>UAM Iztapalapa</strong>, donde arrancó el movimiento. Aquí seguimos nuestro paro de cerca y también lo que pasa en las otras unidades y en la universidad entera, con fuentes.</p>
     <ul class="facts">
       <li><b>26</b>días desde el 20 de octubre</li>
       <li><b>5 de 5</b>unidades en paro total</li>
       <li><b>Sin fecha</b>de regreso a clases</li>
     </ul>
-    <p class="notice">Este sitio reúne información pública: notas de prensa y comunicados. <strong>No es la página oficial de ninguna asamblea ni de la UAM.</strong> Cada dato enlaza a su fuente; si algo cambió, la decisión de tu asamblea es la que cuenta.</p>
+    <p class="notice">Este sitio es de estudiantes y reúne información pública: notas de prensa y comunicados. <strong>No es la página oficial de la UAM.</strong> Cada dato enlaza a su fuente; si algo cambió, la decisión de la asamblea es la que cuenta.</p>
   </div>
 </header>
 
@@ -168,16 +179,16 @@ footer li{margin:0 0 6px;break-inside:avoid}
   <div class="filters" role="group" aria-label="Filtrar por unidad">
     <span class="lbl">Ver unidad</span>
     <button class="chip" data-u="all" aria-pressed="true" id="f-all">Todas</button>
+    <button class="chip" data-u="izt" aria-pressed="false" id="f-izt" style="--c:var(--izt)"><i></i>Iztapalapa</button>
     <button class="chip" data-u="azc" aria-pressed="false" id="f-azc" style="--c:var(--azc)"><i></i>Azcapotzalco</button>
     <button class="chip" data-u="cua" aria-pressed="false" id="f-cua" style="--c:var(--cua)"><i></i>Cuajimalpa</button>
-    <button class="chip" data-u="izt" aria-pressed="false" id="f-izt" style="--c:var(--izt)"><i></i>Iztapalapa</button>
     <button class="chip" data-u="ler" aria-pressed="false" id="f-ler" style="--c:var(--ler)"><i></i>Lerma</button>
     <button class="chip" data-u="xoc" aria-pressed="false" id="f-xoc" style="--c:var(--xoc)"><i></i>Xochimilco</button>
   </div>
 
   <section id="estado">
     <h2>Estado por unidad</h2>
-    <p class="lede">Cada unidad tiene su propia asamblea, su pliego y su negociación. Esto es lo último reportado.</p>
+    <p class="lede">Iztapalapa primero, y luego el resto. Cada unidad tiene su propia asamblea, su pliego y su negociación. Esto es lo último reportado.</p>
     <div class="units" id="units"></div>
 
     <div class="next">
@@ -250,7 +261,7 @@ footer li{margin:0 0 6px;break-inside:avoid}
       <li id="s11"><a href="https://tuexamen.mx/blogs/noticias/en-paro-y-trimestre-en-riesgo-la-uam-alista-megamarcha">TuExamen, 14 nov 2026: la UAM alista megamarcha</a></li>
       <li id="s12"><a href="https://seunonoticias.mx/2026/11/05/uam-lerma-entra-en-paro-indefinido-que-exigen-los-estudiantes-para-regresar-a-clases/">Se Uno Noticias, 5 nov 2026: Lerma entra en paro indefinido</a></li>
     </ol>
-    <p>Hecho por y para la comunidad estudiantil. Información al 15 de noviembre de 2026.</p>
+    <p>Movimiento Estudiantil UAM-I · Hecho por y para la comunidad estudiantil. Información al 15 de noviembre de 2026.</p>
   </div>
 </footer>
 
@@ -262,9 +273,9 @@ const U = {
 const src = ids => ' <span class="src">[' + ids.map(i => '<a href="#s'+i+'">'+i+'</a>').join(", ") + ']</span>';
 
 const units = [
+  {u:"izt", start:"20 de octubre", st:"Paro indefinido", now:"Nuestra unidad, donde empezó todo. La asamblea consideró que la respuesta institucional no cubre las condiciones mínimas del pliego.", s:[4,8]},
   {u:"azc", start:"22 de octubre", st:"Paro total", now:"Entregó su pliego el 2 de noviembre. El 5 de noviembre la Rectoría General dijo que la unidad preparaba sus respuestas.", s:[4]},
   {u:"cua", start:"23 de octubre", st:"Paro solidario", now:"Desde el 3 de noviembre su paro depende de las decisiones conjuntas de las cinco unidades y de un pliego común.", s:[1,4]},
-  {u:"izt", start:"20 de octubre", st:"Paro indefinido", now:"Donde empezó todo. La asamblea consideró que la respuesta institucional no cubre las condiciones mínimas del pliego.", s:[4,8]},
   {u:"ler", start:"28 de octubre", st:"Paro indefinido", now:"Sin acuerdo tras la mesa del 4 de noviembre. Rectoría propuso reunirse el 17 de noviembre.", s:[5]},
   {u:"xoc", start:"22 de octubre", st:"Paro total", now:"Entregó un nuevo pliego alrededor del 9 de noviembre; la respuesta se esperaba el 12 de noviembre.", s:[2,4]}
 ];
