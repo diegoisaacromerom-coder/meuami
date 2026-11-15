@@ -134,7 +134,7 @@ section{padding:48px 0 8px}
 .common div{padding:14px 16px 14px 0;border-bottom:1px solid var(--rule)}
 .common b{display:block}
 .common span{color:var(--muted);font-size:.92rem}
-.pliegos{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.pliegos{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;align-items:start}
 .pl{background:var(--card);border-left:8px solid var(--c);padding:16px 18px}
 .pl header{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
 .pl .meta{font-family:var(--mono);font-size:.78rem;color:var(--muted)}
@@ -182,9 +182,9 @@ footer li{margin:0 0 6px;break-inside:avoid}
     </div>
     <p class="kicker">Paro UAM · actualizado el 15 de noviembre de 2026</p>
     <h1>Paro <em>UAM</em> 2026</h1>
-    <p class="sub">La casa de este espacio es la <strong>UAM Iztapalapa</strong>, donde arrancó el movimiento. Aquí seguimos nuestro paro de cerca y también lo que pasa en las otras unidades y en la universidad entera, con fuentes.</p>
+    <p class="sub">La casa de este espacio es la <strong>UAM Iztapalapa</strong>, donde arrancó el movimiento. Aquí seguimos nuestro paro de cerca, y también lo que pasa en las otras unidades y en la universidad entera. Todo con sus fuentes.</p>
     <ul class="facts">
-      <li><b>26</b>días desde el 20 de octubre</li>
+      <li><b id="dias">26</b>días desde el 20 de octubre</li>
       <li><b>5 de 5</b>unidades en paro total</li>
       <li><b>Sin fecha</b>de regreso a clases</li>
     </ul>
@@ -219,7 +219,7 @@ footer li{margin:0 0 6px;break-inside:avoid}
 
   <section id="estado">
     <h2>Estado por unidad</h2>
-    <p class="lede">Iztapalapa primero, y luego el resto. Cada unidad tiene su propia asamblea, su pliego y su negociación. Esto es lo último reportado.</p>
+    <p class="lede">Nuestra unidad primero, y luego el resto. Cada unidad tiene su propia asamblea, su pliego y su negociación. Esto es lo último que se ha reportado.</p>
     <div class="units" id="units"></div>
 
     <div class="next">
@@ -255,7 +255,7 @@ footer li{margin:0 0 6px;break-inside:avoid}
 
     <div class="callout">
       <h3>Contexto: la compra de autos eléctricos</h3>
-      <p style="margin:0">La prensa reportó que el Patronato autorizó 6.27 millones de pesos para autos Tesla mientras las unidades señalaban carencias <span class="src">[<a href="#s7">7</a>]</span>. La Rectoría General informó después la compra de 6 vehículos eléctricos (Tesla y Volvo) por unos 4.92 millones, anunció que los vendería para destinar el dinero a becas y suspendió el Acuerdo 03/2026 sobre compra de vehículos <span class="src">[<a href="#s3">3</a>]</span>.</p>
+      <p style="margin:0">La prensa reportó que el Patronato autorizó 6.27 millones de pesos para autos Tesla mientras las unidades señalaban carencias <span class="src">[<a href="#s7">7</a>]</span>. La Rectoría General informó después que se trataba de 6 vehículos eléctricos (Tesla y Volvo) por unos 4.92 millones de pesos. Anunció que vendería la flotilla para destinar ese dinero a becas y suspendió el Acuerdo 03/2026 sobre compra de vehículos <span class="src">[<a href="#s3">3</a>]</span>.</p>
     </div>
   </section>
 
@@ -312,11 +312,11 @@ const units = [
 ];
 
 const pliegos = [
-  {u:"izt", meta:"Respuesta institucional: 31 oct", items:["Biblioteca funcionando por completo y segura","Mantenimiento de sanitarios","Espacios deportivos","Servicio de comedor","Transparencia presupuestal"], st:"El rector dijo el 5 de noviembre que la biblioteca ya puede reabrir tras el reforzamiento por el sismo de 2017.", s:[4]},
-  {u:"xoc", meta:"15 puntos · nuevo pliego ~9 nov", items:["Equipo de laboratorio","Recursos para prácticas profesionales","Programas actualizados","Mejoras al comedor","Medidas contra la violencia de género"], st:"La primera respuesta (26 oct) se consideró insuficiente. Se trabajaron pliegos por licenciatura para unificarlos.", s:[2,4,7,8]},
+  {u:"izt", meta:"Respuesta institucional: 31 oct", items:["Biblioteca en pleno funcionamiento y segura","Mantenimiento de los sanitarios","Espacios deportivos en condiciones","Servicio de comedor","Transparencia presupuestal"], st:"El rector dijo el 5 de noviembre que la biblioteca ya puede reabrir, tras los trabajos de reforzamiento por el sismo de 2017.", s:[4]},
+  {u:"xoc", meta:"15 puntos · nuevo pliego el 9 nov", items:["Equipo de laboratorio","Recursos para prácticas profesionales","Programas actualizados","Mejoras al comedor","Medidas contra la violencia de género"], st:"La primera respuesta, del 26 de octubre, se consideró insuficiente. Se elaboraron pliegos por licenciatura para después unificarlos en uno solo.", s:[2,4,7,8]},
   {u:"azc", meta:"Entregado: 2 nov", items:["Mejoras a las instalaciones","Recursos para actividades académicas"], st:"Respuesta en preparación al 5 de noviembre.", s:[4]},
   {u:"cua", meta:"Entregado: 1 nov", items:["Transparencia presupuestal, entre otros puntos","Propone un pliego común de las cinco unidades"], st:"Recibió respuestas de las autoridades el 4 de noviembre.", s:[1,4]},
-  {u:"ler", meta:"8 puntos · entregado 23 oct", items:["Comedor subsidiado","Clases de inglés y certificaciones gratuitas","Equipo para laboratorios y talleres","Contratación docente","Fondos para prácticas de campo","Planes de estudio actualizados","Bolsa de trabajo","Atención a la violencia de género"], st:"Rectoría propuso seis mesas temáticas. La asamblea pide compromisos con fechas, responsables y montos. Ya llegó un autobús nuevo, uno de los puntos.", s:[4,5,12]}
+  {u:"ler", meta:"8 puntos · entregado 23 oct", items:["Comedor subsidiado","Clases de inglés y certificaciones gratuitas","Equipo para laboratorios y talleres","Contratación docente","Fondos para prácticas de campo","Planes de estudio actualizados","Bolsa de trabajo","Atención a la violencia de género"], st:"Rectoría propuso seis mesas temáticas. La asamblea pide compromisos con fechas, responsables y montos. Ya llegó un autobús nuevo, uno de los puntos del pliego.", s:[4,5,12]}
 ];
 
 const tl = [
@@ -336,7 +336,7 @@ const tl = [
   {d:"3 nov", u:"cua", t:"La asamblea de Cuajimalpa acuerda un paro solidario ligado a las decisiones de las cinco unidades.", s:[1,4]},
   {d:"3 nov", u:"ler", t:"Rectoría de Lerma presenta una respuesta ampliada y propone seis mesas temáticas.", s:[12]},
   {d:"4 nov", u:"cua", t:"Autoridades de Cuajimalpa entregan respuestas a las 16:00.", s:[1,4]},
-  {d:"4 nov", u:"ler", t:"Mesa sin acuerdos. La asamblea decide paro total indefinido a partir de la madrugada del 5.", s:[5,6]},
+  {d:"4 nov", u:"ler", t:"La mesa termina sin acuerdos. La asamblea decide paro total indefinido a partir de la madrugada del día 5.", s:[5,6]},
   {d:"5 nov", u:"gen", t:"Las cinco unidades quedan en paro total. El rector general reconoce fallas en baños, abasto, comedores e instalaciones deportivas.", s:[3,4]},
   {d:"8 nov", u:"ler", t:"La asamblea de Lerma aclara que levantar el paro no está en la agenda de su siguiente sesión.", s:[5]},
   {d:"~9 nov", u:"xoc", t:"Xochimilco entrega un nuevo pliego; la administración acusa recibo.", s:[2]},
@@ -355,7 +355,7 @@ const coms = [
   {d:"2 nov", u:"gen", who:"Rector General Gustavo Pacheco López", type:"Comunicado institucional", t:"Sobre los vehículos eléctricos: se venderá la flotilla, el dinero irá a becas y se suspende el Acuerdo 03/2026 hasta ajustarlo.", s:[3,4]},
   {d:"3 nov", u:"cua", who:"Asamblea de Cuajimalpa", type:"Acuerdo de asamblea", t:"Se mantiene el paro como paro solidario; levantarlo depende de decisiones conjuntas de las cinco unidades.", s:[1,4]},
   {d:"4 nov", u:"ler", who:"Asamblea General Estudiantil de Lerma", type:"Acuerdo de asamblea", t:"Paro total por tiempo indefinido, tras rechazar la contrapropuesta. Las mesas de diálogo siguen durante el paro.", s:[6]},
-  {d:"5 nov", u:"gen", who:"Rector General Gustavo Pacheco López", type:"Boletín", t:"Reconoce fallas en los campus y llama al diálogo por asambleas, mesas y órganos colegiados: “no se va a poder resolver todo en un solo momento”.", s:[2,4]},
+  {d:"5 nov", u:"gen", who:"Rector General Gustavo Pacheco López", type:"Boletín", t:"Reconoce fallas en los campus y llama al diálogo mediante asambleas, mesas de trabajo y órganos colegiados: “no se va a poder resolver todo en un solo momento”.", s:[2,4]},
   {d:"5 nov", u:"ler", who:"Autoridades de Lerma", type:"Comunicado institucional", t:"La representación estudiantil enviará un formato e instructivo para armar el cronograma de mesas de trabajo.", s:[6]},
   {d:"13 nov", u:"ler", who:"Rectoría de Lerma", type:"Convocatoria", t:"Invita a la Asamblea General Estudiantil a reunirse el martes 17 de noviembre; hora y lugar por definir.", s:[5]},
   {d:"Vigente", u:"gen", who:"UAM", type:"Aviso en sitio oficial", t:"El paro no cancela automáticamente el trimestre; la decisión corresponde al Colegio Académico.", s:[2]}
@@ -413,6 +413,16 @@ function applyFilter(u){
   });
   try { localStorage.setItem("paro-uam-unidad", u); } catch(e) {}
 }
+
+// Días de paro, contados en vivo desde el 20 de octubre de 2026
+(function(){
+  const inicio = new Date(2026, 9, 20);
+  const h = new Date();
+  const hoy = new Date(h.getFullYear(), h.getMonth(), h.getDate());
+  const dias = Math.max(0, Math.round((hoy - inicio) / 86400000));
+  const el = document.getElementById("dias");
+  if (el) el.textContent = dias;
+})();
 
 render();
 document.querySelectorAll(".chip").forEach(c => c.addEventListener("click", () => applyFilter(c.dataset.u)));
