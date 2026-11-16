@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Panel de coordinación · Movimiento Estudiantil UAM-I</title>
+<link rel="icon" type="image/png" href="../assets/logo.png">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0f8f45">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* Plan: panel interno. Verde del movimiento sobre papel claro, mismo lenguaje del sitio. */
+:root{
+  --paper:#f4f3ef; --ink:#15181f; --muted:#5a5f6b; --rule:#d7d9de; --card:#fff;
+  --accent:#0f8f45; --accent-sw:#e7f4ec; --aviso:#9a6a05; --mal:#b3261e;
+  --f:"Montserrat",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#14161b; --ink:#eceef2; --muted:#9ba2b0; --rule:#2e323b; --card:#1c1f26;
+  --accent:#34d27f; --accent-sw:#16241c; --aviso:#e0ac3c; --mal:#ff7a70; color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --paper:#14161b; --ink:#eceef2; --muted:#9ba2b0; --rule:#2e323b; --card:#1c1f26;
+  --accent:#34d27f; --accent-sw:#16241c; --aviso:#e0ac3c; --mal:#ff7a70; color-scheme:dark;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f);font-size:16px;line-height:1.55}
+a{color:var(--accent)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1100px;margin:0 auto;padding:0 20px}
+h1,h2,h3{margin:0;text-wrap:balance}
+
+.top{background:#0b1410;color:#fff;border-bottom:4px solid var(--accent)}
+.top .wrap{display:flex;align-items:center;gap:20px;flex-wrap:wrap;padding:24px 20px}
+.top img{width:230px;max-width:100%;height:auto;display:block;
+  filter:drop-shadow(0 0 2px rgba(255,255,255,.45)) drop-shadow(0 0 14px rgba(255,255,255,.2))}
+.top .tit{font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.72)}
+.top .tit b{display:block;font-size:1.45rem;font-weight:800;letter-spacing:-.01em;text-transform:none;color:#fff;margin-top:2px}
+.top .sep{width:1px;align-self:stretch;background:rgba(255,255,255,.3)}
+
+main{padding:34px 0 70px}
+section{margin:0 0 40px}
+h2{font-size:1.3rem;font-weight:800;letter-spacing:-.01em}
+.lede{color:var(--muted);max-width:70ch;margin:5px 0 20px}
+.aviso{background:var(--accent-sw);border-left:4px solid var(--accent);padding:13px 16px;border-radius:0 6px 6px 0;font-size:.92rem;max-width:84ch;margin:0 0 24px}
+.aviso.ojo{background:transparent;border-left-color:var(--aviso)}
+
+/* Tarjetas de estructura */
+.rejilla{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:16px}
+.ficha{background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:20px;
+  display:flex;flex-direction:column;gap:10px;transition:transform .25s ease,box-shadow .25s ease}
+.ficha:hover{transform:translateY(-3px);box-shadow:0 14px 28px rgba(0,0,0,.1)}
+.ficha .et{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--accent)}
+.ficha h3{font-size:1.05rem;font-weight:800;line-height:1.25}
+.ficha p{margin:0;font-size:.92rem;color:var(--muted)}
+.ficha .ir{margin-top:auto;font-weight:700;font-size:.9rem;text-decoration:none;display:inline-flex;gap:7px;align-items:center;transition:gap .2s ease}
+.ficha .ir:hover{gap:12px}
+.ficha.inactiva{opacity:.62}
+.ficha.inactiva .et{color:var(--muted)}
+
+/* Totales */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin:0 0 20px}
+.tile{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:15px 17px}
+.tile b{display:block;font-size:1.9rem;font-weight:800;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.tile span{font-size:.76rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+
+/* Zona de carga */
+.suelta{border:2px dashed var(--rule);border-radius:12px;padding:30px 22px;text-align:center;background:var(--card);
+  transition:border-color .2s ease,background .2s ease}
+.suelta.encima{border-color:var(--accent);background:var(--accent-sw)}
+.suelta p{margin:0 0 14px;color:var(--muted);font-size:.93rem}
+button.b{appearance:none;font:700 .9rem var(--f);border-radius:999px;padding:11px 22px;cursor:pointer;
+  border:1px solid var(--accent);background:var(--accent);color:#fff;transition:transform .18s ease}
+button.b:hover{transform:translateY(-2px)}
+button.b:active{transform:scale(.97)}
+button.b.sec{background:transparent;color:var(--accent)}
+button.b.sec:hover{background:var(--accent-sw)}
+.botones{display:flex;gap:12px;flex-wrap:wrap;margin:18px 0 0}
+
+.archivos{list-style:none;margin:18px 0 0;padding:0;display:flex;flex-direction:column;gap:7px}
+.archivos li{display:flex;gap:10px;align-items:baseline;font-size:.9rem;background:var(--card);
+  border:1px solid var(--rule);border-radius:8px;padding:9px 13px}
+.archivos b{font-weight:700}
+.archivos span{color:var(--muted);font-size:.85rem}
+
+.tablawrap{overflow-x:auto;border:1px solid var(--rule);border-radius:10px;background:var(--card);margin-top:18px}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{text-align:left;padding:10px 13px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-size:.73rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);background:var(--paper)}
+td.n{font-variant-numeric:tabular-nums;white-space:nowrap}
+.vacio{padding:26px;text-align:center;color:var(--muted)}
+
+footer{border-top:1px solid var(--rule);padding:24px 0 44px;color:var(--muted);font-size:.85rem}
+[hidden]{display:none !important}
+@media (prefers-reduced-motion: reduce){*{transition:none !important}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <img src="../assets/logo.png" alt="Movimiento Estudiantil UAM-I">
+    <span class="sep" aria-hidden="true"></span>
+    <div class="tit">Movimiento Estudiantil UAM-I<b>Panel de coordinación</b></div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <div class="aviso ojo">
+    <strong>Este panel no tiene contraseña.</strong> El sitio es estático y no puede verificar identidades, así que cualquiera con la dirección puede abrirlo. No publiques aquí datos personales ni información que la asamblea considere reservada. Lo que cargues desde tu computadora se procesa en tu navegador y no se sube a ningún lado.
+  </div>
+
+  <section>
+    <h2>Estructura</h2>
+    <p class="lede">Comisiones y subcomisiones con sitio propio. Desde aquí se entra a cada una.</p>
+    <div class="rejilla">
+
+      <article class="ficha">
+        <span class="et">Sitio público</span>
+        <h3>Paro UAM 2026</h3>
+        <p>Pliego petitorio, cronología y comunicados de las cinco unidades, con fuentes.</p>
+        <a class="ir" href="../">Abrir el sitio →</a>
+      </article>
+
+      <article class="ficha">
+        <span class="et">Comisión de Gestión y Operación</span>
+        <h3>Subcomisión de Inventariado y Auditoría Interna</h3>
+        <p>Registro de bienes bajo resguardo, con folio y código QR por pieza, etiquetas y acta de corte.</p>
+        <a class="ir" href="../inventariado/">Abrir la herramienta →</a>
+      </article>
+
+      <article class="ficha inactiva">
+        <span class="et">Por crear</span>
+        <h3>Otras comisiones</h3>
+        <p>Cuando la asamblea acuerde una comisión nueva, aquí se suma su micrositio.</p>
+      </article>
+
+    </div>
+  </section>
+
+  <section>
+    <h2>Inventario consolidado</h2>
+    <p class="lede">Los registros de inventariado se guardan en el dispositivo de cada persona. Aquí se juntan: carga los archivos de respaldo que cada quien descargó y obtén el total de todas las unidades y capturistas, sin duplicar folios.</p>
+
+    <div class="suelta" id="suelta">
+      <p>Arrastra aquí los archivos de respaldo, o selecciónalos. Puedes cargar varios a la vez.</p>
+      <button class="b" id="elegir">Elegir archivos de respaldo</button>
+      <input id="archivo" type="file" accept="application/json,.json" multiple hidden>
+    </div>
+
+    <ul class="archivos" id="listaArchivos"></ul>
+
+    <div id="resultado" hidden>
+      <div class="tiles" id="tiles"></div>
+
+      <div class="botones">
+        <button class="b sec" id="expCsv">Descargar consolidado en hoja de cálculo</button>
+        <button class="b sec" id="expJson">Descargar consolidado en respaldo único</button>
+        <button class="b sec" id="limpiar">Limpiar</button>
+      </div>
+
+      <div class="rejilla" style="margin-top:26px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))">
+        <div><h3 style="font-size:.95rem;font-weight:800;margin-bottom:8px">Por unidad</h3>
+          <div class="tablawrap" style="margin-top:0"><table><tbody id="tUnidad"></tbody></table></div></div>
+        <div><h3 style="font-size:.95rem;font-weight:800;margin-bottom:8px">Por estado</h3>
+          <div class="tablawrap" style="margin-top:0"><table><tbody id="tEstado"></tbody></table></div></div>
+        <div><h3 style="font-size:.95rem;font-weight:800;margin-bottom:8px">Por procedencia</h3>
+          <div class="tablawrap" style="margin-top:0"><table><tbody id="tProc"></tbody></table></div></div>
+      </div>
+
+      <h3 style="font-size:1rem;font-weight:800;margin:30px 0 0">Pendientes de devolución</h3>
+      <p class="lede" style="margin-top:5px">Bienes registrados como préstamo de una persona. Es lo que el movimiento debe regresar.</p>
+      <div class="tablawrap" style="margin-top:0">
+        <table>
+          <thead><tr><th>Folio</th><th>Bien</th><th>Prestado por</th><th>Ubicación</th><th>Estado</th></tr></thead>
+          <tbody id="tPrestamos"></tbody>
+        </table>
+        <p class="vacio" id="sinPrestamos" hidden>No hay bienes marcados como préstamo.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    Panel interno · Movimiento Estudiantil UAM-I · <a href="../">meuami.org</a>
+  </div>
+</footer>
+
+<script>
+"use strict";
+let acumulado = [];          // registros de todos los archivos, sin folios repetidos
+const archivos = [];         // qué se cargó
+
+const esc = s => String(s==null?"":s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const unidadDe = f => (typeof f === "string" && f.split("-").length >= 2) ? f.split("-")[1] : "—";
+
+function descargar(nombre, contenido, tipo){
+  const url = URL.createObjectURL(new Blob([contenido], {type:tipo}));
+  const a = document.createElement("a");
+  a.href = url; a.download = nombre;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 1500);
+}
+
+function leerArchivos(lista){
+  const pendientes = Array.from(lista).filter(f => f);
+  if(!pendientes.length) return;
+  let porLeer = pendientes.length;
+  pendientes.forEach(f=>{
+    const lector = new FileReader();
+    lector.onload = () => {
+      let nuevos = 0, repetidos = 0, error = null;
+      try{
+        const d = JSON.parse(lector.result);
+        if(!d || !Array.isArray(d.registros)) throw new Error("formato");
+        const vistos = new Set(acumulado.map(r=>r.folio));
+        d.registros.forEach(r=>{
+          if(!r || !r.folio) return;
+          if(vistos.has(r.folio)){ repetidos++; return; }
+          acumulado.push(r); vistos.add(r.folio); nuevos++;
+        });
+      }catch(e){ error = "No es un respaldo válido"; }
+      archivos.push({nombre:f.name, nuevos, repetidos, error});
+      if(--porLeer === 0) pintar();
+    };
+    lector.onerror = () => {
+      archivos.push({nombre:f.name, nuevos:0, repetidos:0, error:"No se pudo leer"});
+      if(--porLeer === 0) pintar();
+    };
+    lector.readAsText(f);
+  });
+}
+
+function agrupar(clave){
+  const m = {};
+  acumulado.forEach(r => { const k = clave(r) || "Sin determinar"; m[k] = (m[k]||0) + 1; });
+  return m;
+}
+function filasDe(obj){
+  const claves = Object.keys(obj).sort((a,b)=>obj[b]-obj[a]);
+  if(!claves.length) return '<tr><td class="vacio">Sin datos</td></tr>';
+  return claves.map(k => '<tr><td>'+esc(k)+'</td><td class="n">'+obj[k]+'</td></tr>').join("");
+}
+
+function pintar(){
+  document.getElementById("listaArchivos").innerHTML = archivos.map(a =>
+    '<li><b>'+esc(a.nombre)+'</b>'+
+    (a.error ? '<span style="color:var(--mal)">'+esc(a.error)+'</span>'
+             : '<span>'+a.nuevos+' nuevos · '+a.repetidos+' ya estaban</span>')+'</li>').join("");
+
+  const hay = acumulado.length > 0;
+  document.getElementById("resultado").hidden = !hay;
+  if(!hay) return;
+
+  const piezas = acumulado.reduce((s,r)=>s + (parseInt(r.cantidad,10)||1), 0);
+  const prestamos = acumulado.filter(r => r.procedencia === "Préstamo de una persona");
+  const capturistas = new Set(acumulado.map(r=>r.responsable).filter(Boolean)).size;
+  document.getElementById("tiles").innerHTML =
+    '<div class="tile"><b>'+acumulado.length+'</b><span>Registros</span></div>'+
+    '<div class="tile"><b>'+piezas+'</b><span>Piezas en total</span></div>'+
+    '<div class="tile"><b>'+new Set(acumulado.map(r=>unidadDe(r.folio))).size+'</b><span>Unidades</span></div>'+
+    '<div class="tile"><b>'+capturistas+'</b><span>Personas que registraron</span></div>'+
+    '<div class="tile"><b style="color:var(--aviso)">'+prestamos.length+'</b><span>Por devolver</span></div>';
+
+  document.getElementById("tUnidad").innerHTML = filasDe(agrupar(r=>unidadDe(r.folio)));
+  document.getElementById("tEstado").innerHTML = filasDe(agrupar(r=>r.estado));
+  document.getElementById("tProc").innerHTML   = filasDe(agrupar(r=>r.procedencia));
+
+  document.getElementById("tPrestamos").innerHTML = prestamos.map(r =>
+    '<tr><td class="n"><b>'+esc(r.folio)+'</b></td><td>'+esc(r.descripcion)+'</td>'+
+    '<td>'+esc(r.prestador || "Sin anotar")+'</td><td>'+esc(r.ubicacion)+'</td>'+
+    '<td>'+esc(r.estado)+'</td></tr>').join("");
+  document.getElementById("sinPrestamos").hidden = prestamos.length > 0;
+}
+
+/* Carga de archivos */
+document.getElementById("elegir").onclick = () => document.getElementById("archivo").click();
+document.getElementById("archivo").addEventListener("change", function(){
+  leerArchivos(this.files); this.value = "";
+});
+const suelta = document.getElementById("suelta");
+["dragenter","dragover"].forEach(ev => suelta.addEventListener(ev, e => {
+  e.preventDefault(); suelta.classList.add("encima");
+}));
+["dragleave","drop"].forEach(ev => suelta.addEventListener(ev, e => {
+  e.preventDefault(); suelta.classList.remove("encima");
+}));
+suelta.addEventListener("drop", e => {
+  if(e.dataTransfer && e.dataTransfer.files) leerArchivos(e.dataTransfer.files);
+});
+
+/* Descargas */
+document.getElementById("expCsv").onclick = () => {
+  const cols = ["folio","fecha","categoria","procedencia","prestador","descripcion","marca",
+                "inventario","cantidad","ubicacion","estado","observaciones","responsable"];
+  const cel = v => '"' + String(v==null?"":v).replace(/"/g,'""') + '"';
+  const lineas = [cols.map(cel).join(",")]
+    .concat(acumulado.map(r => cols.map(c => cel(r[c])).join(",")));
+  descargar("inventario-consolidado-"+new Date().toISOString().slice(0,10)+".csv",
+            "﻿"+lineas.join("\r\n"), "text/csv;charset=utf-8");
+};
+document.getElementById("expJson").onclick = () => {
+  descargar("inventario-consolidado-"+new Date().toISOString().slice(0,10)+".json",
+    JSON.stringify({version:1, consolidado:true, generado:new Date().toISOString(),
+                    config:{unidad:"VAR", consecutivo:acumulado.length+1}, registros:acumulado}, null, 2),
+    "application/json");
+};
+document.getElementById("limpiar").onclick = () => {
+  if(confirm("Se quitarán los archivos cargados de esta pantalla. Tus respaldos originales no se tocan.")){
+    acumulado = []; archivos.length = 0; pintar();
+    document.getElementById("resultado").hidden = true;
+  }
+};
+</script>
+</body>
+</html>

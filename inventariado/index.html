@@ -45,7 +45,16 @@ h1,h2,h3{text-wrap:balance;margin:0}
 /* Encabezado */
 .top{background:#0b1410;color:#fff;border-bottom:4px solid var(--accent)}
 .top .wrap{display:flex;align-items:center;gap:22px;flex-wrap:wrap;padding-top:22px;padding-bottom:22px}
-.top img{width:300px;max-width:100%;height:auto}
+.top img{max-width:100%;height:auto;display:block}
+.top .lg-com{width:252px}
+.top .lg-sub{width:230px}
+.top .sep{width:1px;align-self:stretch;background:rgba(255,255,255,.3);margin:4px 0}
+@media (max-width:640px){
+  .top .wrap{gap:14px}
+  .top .lg-com{width:208px} .top .lg-sub{width:196px}
+  .top .sep{display:none}
+  .top .vuelta{margin-left:0}
+}
 .top .vuelta{margin-left:auto;font-size:.84rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;
   color:rgba(255,255,255,.82);text-decoration:none;border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:8px 15px;
   transition:background .2s ease,color .2s ease}
@@ -153,7 +162,9 @@ footer a{color:var(--accent)}
 
 <header class="top">
   <div class="wrap">
-    <img src="../assets/logo-sub-blanco.png" alt="Subcomisión de Inventariado y Auditoría Interna, Movimiento Estudiantil UAM-I">
+    <img class="lg-com" src="../assets/logo-cgo.png" alt="Comisión de Gestión y Operación, Movimiento Estudiantil UAM-I">
+    <span class="sep" aria-hidden="true"></span>
+    <img class="lg-sub" src="../assets/logo-sub-texto-blanco.png" alt="Subcomisión de Inventariado y Auditoría Interna">
     <a class="vuelta" href="https://meuami.org/">← meuami.org</a>
   </div>
 </header>
