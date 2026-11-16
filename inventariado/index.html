@@ -154,6 +154,20 @@ dialog::backdrop{background:rgba(6,14,9,.62)}
 .eqr svg{width:21mm;height:21mm;display:block}
 .epie{font-size:5.6pt;color:#555;line-height:1.35;border-top:.2mm solid #bbb;padding-top:1.2mm;margin-top:2.6mm}
 
+/* Vista que se abre al escanear la etiqueta */
+.consulta{padding:34px 0 60px}
+.cficha{max-width:620px;margin:0 auto;background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:26px}
+.cficha .et{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--accent)}
+.cficha h2{font-size:1.45rem;font-weight:800;font-variant-numeric:tabular-nums;margin:4px 0 2px;letter-spacing:-.01em}
+.cficha .desc{font-size:1.05rem;margin:0 0 18px}
+.cficha dl{display:grid;grid-template-columns:auto 1fr;gap:9px 18px;margin:0}
+.cficha dt{font-size:.73rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);padding-top:3px}
+.cficha dd{margin:0}
+.cnota{font-size:.84rem;color:var(--muted);border-top:1px solid var(--rule);margin:20px 0 0;padding-top:14px;line-height:1.5}
+.cacciones{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.cacciones a{display:inline-block;font:700 .88rem var(--f);text-decoration:none;border-radius:999px;
+  padding:10px 18px;border:1px solid var(--accent);color:var(--accent)}
+.cacciones a.p{background:var(--accent);color:#fff}
 footer{border-top:1px solid var(--rule);padding:26px 0 40px;color:var(--muted);font-size:.85rem}
 footer a{color:var(--accent)}
 [hidden]{display:none !important}
@@ -190,6 +204,10 @@ footer a{color:var(--accent)}
     <button role="tab" id="t-respaldo"  aria-controls="p-respaldo"  aria-selected="false">Respaldo</button>
   </div>
 </nav>
+
+<section class="consulta" id="consulta" hidden>
+  <div class="wrap"><div class="cficha" id="cficha"></div></div>
+</section>
 
 <main class="wrap">
 
@@ -455,8 +473,16 @@ function qrSvg(texto, celda){
   q.make();
   return q.createSvgTag({cellSize:celda||4, margin:2, scalable:true});
 }
-function urlFolio(f){
-  return location.origin + location.pathname + "?f=" + encodeURIComponent(f);
+function cargaBien(r){
+  const lim = (s,n) => String(s==null?"":s).replace(/\|/g," ").trim().slice(0,n);
+  return [r.folio, lim(r.descripcion,62), lim(r.ubicacion,42), r.cantidad,
+          lim(r.estado,12), lim(r.procedencia,26), lim(r.prestador,30),
+          String(r.fecha||"").slice(0,10)].join("|");
+}
+// El código lleva los datos dentro, para que la etiqueta se pueda leer
+// desde cualquier teléfono y sin conexión al registro.
+function urlBien(r){
+  return location.origin + location.pathname + "?b=" + encodeURIComponent(cargaBien(r));
 }
 function descargar(nombre, contenido, tipo){
   const blob = new Blob([contenido], {type:tipo});
@@ -537,7 +563,7 @@ function verDetalle(folio){
   document.getElementById("dlgCuerpo").innerHTML =
     '<h3>'+esc(r.folio)+'</h3>'+
     '<p style="margin:4px 0 0;color:var(--muted);font-size:.9rem">Registrado el '+esc(fechaLarga(r.fecha))+'</p>'+
-    '<div class="qr">'+qrSvg(urlFolio(r.folio), 5)+'</div>'+
+    '<div class="qr">'+qrSvg(urlBien(r), 5)+'</div>'+
     '<dl>'+
       fila("Descripción", r.descripcion)+
       fila("Categoría", r.categoria)+
@@ -631,7 +657,7 @@ function pintarEtiquetas(){
       (r.procedencia === "Préstamo de una persona"
         ? '<div class="eprestamo">Préstamo' + (r.prestador ? ' · '+esc(r.prestador.slice(0,24)) : '') + '</div>' : '')+
     '</div>'+
-    '<div class="eqr">'+qrSvg(urlFolio(r.folio), 3)+'</div></div>'+
+    '<div class="eqr">'+qrSvg(urlBien(r), 3)+'</div></div>'+
     '<div class="epie">Bien bajo resguardo de la Subcomisión de Inventariado y Auditoría Interna · '+
     'Documento interno del Movimiento Estudiantil UAM-I, no es documentación oficial de la UAM · meuami.org</div>'+
     '</div>').join("");
@@ -775,12 +801,68 @@ cargar();
 pintarTodo();
 const hash = (location.hash||"").replace("#","");
 if(hash && document.getElementById("t-"+hash)) abrir("t-"+hash);
-const buscado = new URLSearchParams(location.search).get("f");
-if(buscado){
-  if(datos.registros.some(r=>r.folio===buscado)){ abrir("t-registro"); verDetalle(buscado); }
-  else{
-    abrir("t-registro");
-    alert("El folio "+buscado+" no está registrado en este dispositivo.\n\nLos registros se guardan localmente: consulta el respaldo maestro de la subcomisión.");
+/* ---- Lectura de una etiqueta ---- */
+function mostrarConsulta(r, origen){
+  document.querySelector("nav.tabs").hidden = true;
+  document.querySelector("main").hidden = true;
+  document.getElementById("consulta").hidden = false;
+  const fila = (t,v) => v ? "<dt>"+t+"</dt><dd>"+esc(v)+"</dd>" : "";
+  const prestado = r.procedencia === "Préstamo de una persona";
+  document.getElementById("cficha").innerHTML =
+    '<div class="et">Bien bajo resguardo</div>'+
+    '<h2>'+esc(r.folio)+'</h2>'+
+    '<p class="desc">'+esc(r.descripcion || "Sin descripción")+'</p>'+
+    (prestado ? '<p style="margin:0 0 16px"><span class="etq e-Incompleto">Préstamo'+
+      (r.prestador ? ' · '+esc(r.prestador) : '')+'</span></p>' : '')+
+    '<dl>'+
+      fila("Ubicación", r.ubicacion)+
+      fila("Cantidad", r.cantidad)+
+      fila("Estado", r.estado)+
+      fila("Procedencia", r.procedencia)+
+      fila("Prestado por", r.prestador)+
+      fila("Categoría", r.categoria)+
+      fila("Marca y modelo", r.marca)+
+      fila("Inventario UAM", r.inventario)+
+      fila("Observaciones", r.observaciones)+
+      fila("Registró", r.responsable)+
+      fila("Fecha de registro", r.fecha ? fechaCorta(r.fecha) : "")+
+    '</dl>'+
+    (r.foto ? '<img src="'+r.foto+'" alt="" style="width:100%;border-radius:8px;margin-top:16px">' : '')+
+    '<p class="cnota">'+origen+'</p>'+
+    '<div class="cacciones"><a class="p" href="./">Abrir el registro</a>'+
+    '<a href="../panel/">Panel de coordinación</a></div>';
+}
+
+const par = new URLSearchParams(location.search);
+const leido = par.get("b");
+const viejo = par.get("f");
+if(leido){
+  const p = leido.split("|");
+  const dellado = datos.registros.find(x => x.folio === p[0]);
+  if(dellado){
+    mostrarConsulta(dellado, "Datos tomados del registro de este dispositivo, que incluye la ficha completa.");
+  }else{
+    mostrarConsulta({folio:p[0], descripcion:p[1], ubicacion:p[2], cantidad:p[3], estado:p[4],
+                     procedencia:p[5], prestador:p[6], fecha:p[7]},
+      "Datos tomados de la propia etiqueta. Este dispositivo no tiene el registro completo, "+
+      "así que no se muestran observaciones ni fotografía. Para la ficha completa, consulta el respaldo de la subcomisión.");
+  }
+}else if(viejo){
+  const dellado = datos.registros.find(x => x.folio === viejo);
+  if(dellado){
+    mostrarConsulta(dellado, "Datos tomados del registro de este dispositivo.");
+  }else{
+    document.querySelector("nav.tabs").hidden = true;
+    document.querySelector("main").hidden = true;
+    document.getElementById("consulta").hidden = false;
+    document.getElementById("cficha").innerHTML =
+      '<div class="et">Etiqueta anterior</div>'+
+      '<h2>'+esc(viejo)+'</h2>'+
+      '<p class="cnota" style="border:0;margin:10px 0 0;padding:0">Esta etiqueta se imprimió con un formato '+
+      'anterior, en el que el código solo llevaba el folio y los datos se buscaban en el dispositivo. '+
+      'Las etiquetas nuevas ya traen la información dentro del código, así que se leen desde cualquier teléfono. '+
+      'Conviene reimprimir las etiquetas viejas.</p>'+
+      '<div class="cacciones"><a class="p" href="./">Abrir el registro</a></div>';
   }
 }
 </script>
