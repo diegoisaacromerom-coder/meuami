@@ -136,7 +136,9 @@ dialog::backdrop{background:rgba(6,14,9,.62)}
 /* Etiquetas */
 .hojas{display:grid;grid-template-columns:repeat(2,1fr);gap:6mm;margin-top:18px}
 .etiqueta{border:1px solid #111;border-radius:4px;padding:3.5mm 4mm;background:#fff;color:#111;
-  display:flex;flex-direction:column;break-inside:avoid;min-height:50mm}
+  display:flex;flex-direction:column;break-inside:avoid;min-height:50mm;position:relative}
+.marcaSel{position:absolute;top:-9px;left:-9px;z-index:2;width:22px;height:22px;cursor:pointer}
+.etiqueta.fuera{opacity:.32}
 .esello{display:flex;align-items:center;gap:2.6mm}
 .esello img{height:7.4mm;width:auto;display:block}
 .esello .mov{height:6.8mm}
@@ -177,6 +179,8 @@ footer a{color:var(--accent)}
   .top,nav.tabs,.aviso,.acciones,.filtros,footer,.noimp{display:none !important}
   body{background:#fff;color:#000;font-size:11pt}
   .hojas{grid-template-columns:repeat(2,1fr);gap:5mm}
+  .marcaSel{display:none !important}
+  .etiqueta.fuera{display:none !important}
   .etiqueta{border:1px solid #000}
   section[role="tabpanel"]{animation:none}
   table{font-size:9pt}
@@ -352,8 +356,12 @@ footer a{color:var(--accent)}
     <h2>Etiquetas para imprimir</h2>
     <p class="lede">Una etiqueta por bien, con el sello de las tres instancias, su folio y su código QR. Al escanear el código se abre la ficha de ese folio. Los bienes prestados salen marcados como tales.</p>
     <div class="acciones noimp" style="margin-top:0;border:0;padding-top:0">
-      <button class="b" id="imprimir">Imprimir etiquetas</button>
-      <span class="hint">Se imprimen las etiquetas de todos los bienes registrados.</span>
+      <button class="b" id="imprimir">Imprimir las seleccionadas</button>
+      <button class="b sec peq" id="selTodas">Todas</button>
+      <button class="b sec peq" id="selNinguna">Ninguna</button>
+      <button class="b sec peq" id="selPrestamos">Solo préstamos</button>
+      <button class="b sec peq" id="selSinImprimir">Solo las no impresas</button>
+      <span class="hint" id="cuentaSel"></span>
     </div>
     <div class="hojas" id="hojas"></div>
     <p class="vacio" id="vacio2" hidden>Registra al menos un bien para generar etiquetas.</p>
@@ -432,6 +440,11 @@ const CATS = ["Equipo de cómputo","Equipo de laboratorio","Equipo audiovisual",
               "Herramienta","Material y papelería","Llaves y accesos","Acervo bibliográfico","Otro"];
 
 let datos = {config:{unidad:"IZT", consecutivo:1}, registros:[]};
+let sel = new Set();                    // etiquetas marcadas para imprimir
+let editando = null;                    // folio que se está corrigiendo
+const LLAVE_IMP = "sia-impresas-v1";    // folios cuya etiqueta ya se imprimió
+let impresas = new Set();
+try{ impresas = new Set(JSON.parse(localStorage.getItem(LLAVE_IMP)||"[]")); }catch(e){}
 
 /* ---------- Almacenamiento ---------- */
 function cargar(){
@@ -539,7 +552,28 @@ document.getElementById("form").addEventListener("submit", async function(ev){
     responsable: document.getElementById("responsable").value.trim(),
     foto: foto
   };
+  if(editando){
+    const i = datos.registros.findIndex(x => x.folio === editando);
+    if(i >= 0){
+      reg.folio = datos.registros[i].folio;
+      reg.fecha = datos.registros[i].fecha;
+      if(!reg.foto) reg.foto = datos.registros[i].foto;
+      datos.registros[i] = reg;
+    }
+    if(guardar()){
+      const corregido = reg.folio;
+      salirDeEdicion();
+      this.reset();
+      document.getElementById("cantidad").value = 1;
+      pintarTodo();
+      abrir("t-registro");
+      verDetalle(corregido);
+    }
+    boton.disabled = false;
+    return;
+  }
   datos.registros.push(reg);
+  sel.add(reg.folio);
   datos.config.consecutivo++;
   if(guardar()){
     const quien = reg.responsable, proc = reg.procedencia;
@@ -579,16 +613,42 @@ function verDetalle(folio){
     '</dl>'+
     (r.foto ? '<img class="foto" src="'+r.foto+'" alt="Fotografía del bien '+esc(r.folio)+'">' : '')+
     '<div class="acciones"><button class="b" id="cerrarDlg">Cerrar</button>'+
-    '<button class="b sec" id="borrarUno">Eliminar este registro</button></div>';
+    '<button class="b sec" id="editarUno">Corregir datos</button>'+
+    '<button class="b sec" id="borrarUno" style="border-color:var(--mal);color:var(--mal)">Eliminar</button></div>';
   const dlg = document.getElementById("dlg");
   dlg.showModal();
   document.getElementById("cerrarDlg").onclick = () => dlg.close();
+  document.getElementById("editarUno").onclick = () => { dlg.close(); editar(r.folio); };
   document.getElementById("borrarUno").onclick = () => {
     if(confirm("¿Eliminar el registro "+r.folio+"? Esta acción no se puede deshacer.")){
       datos.registros = datos.registros.filter(x => x.folio !== r.folio);
       guardar(); dlg.close(); pintarTodo();
     }
   };
+}
+
+/* ---------- Corregir un registro ---------- */
+function editar(folio){
+  const r = datos.registros.find(x => x.folio === folio);
+  if(!r) return;
+  editando = folio;
+  const poner = (id,v) => { const e = document.getElementById(id); if(e) e.value = v == null ? "" : v; };
+  poner("categoria", r.categoria === "Sin clasificar" ? "" : r.categoria);
+  poner("procedencia", r.procedencia); poner("prestador", r.prestador);
+  poner("descripcion", r.descripcion === "Sin descripción" ? "" : r.descripcion);
+  poner("marca", r.marca); poner("inventario", r.inventario); poner("cantidad", r.cantidad);
+  poner("ubicacion", r.ubicacion === "Sin ubicación" ? "" : r.ubicacion);
+  poner("estado", r.estado); poner("observaciones", r.observaciones); poner("responsable", r.responsable);
+  document.getElementById("proximo").textContent =
+    "Corrigiendo " + folio + ". La fotografía anterior se conserva si no subes otra.";
+  document.querySelector('#form button[type="submit"]').textContent = "Guardar los cambios";
+  abrir("t-registrar");
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+function salirDeEdicion(){
+  editando = null;
+  document.querySelector('#form button[type="submit"]').textContent = "Registrar y generar folio";
+  document.getElementById("proximo").textContent = "Siguiente folio: " + proximoFolio();
 }
 
 /* ---------- Tabla y resumen ---------- */
@@ -648,7 +708,9 @@ function pintarEtiquetas(){
       '<img src="../assets/logo-sub-texto.png" alt="">'+
     '</div><div class="ecint"><i></i></div>';
   cont.innerHTML = datos.registros.map(r =>
-    '<div class="etiqueta">'+ sello +
+    '<div class="etiqueta'+(sel.has(r.folio)?'':' fuera')+'" data-f="'+esc(r.folio)+'">'+
+    '<input class="marcaSel noimp" type="checkbox" data-f="'+esc(r.folio)+'"'+(sel.has(r.folio)?' checked':'')+
+    ' aria-label="Incluir '+esc(r.folio)+' en la impresión">'+ sello +
     '<div class="ecuerpo"><div class="einfo">'+
       '<div class="ef">'+esc(r.folio)+'</div>'+
       '<div class="ed">'+esc(r.descripcion.slice(0,70))+'</div>'+
@@ -661,6 +723,12 @@ function pintarEtiquetas(){
     '<div class="epie">Bien bajo resguardo de la Subcomisión de Inventariado y Auditoría Interna · '+
     'Documento interno del Movimiento Estudiantil UAM-I, no es documentación oficial de la UAM · meuami.org</div>'+
     '</div>').join("");
+  cont.querySelectorAll(".marcaSel").forEach(c => c.addEventListener("change", ()=>{
+    if(c.checked) sel.add(c.dataset.f); else sel.delete(c.dataset.f);
+    pintarEtiquetas();
+  }));
+  document.getElementById("cuentaSel").textContent =
+    sel.size + " de " + datos.registros.length + (sel.size === 1 ? " etiqueta" : " etiquetas");
   document.getElementById("vacio2").hidden = datos.registros.length > 0;
 }
 function pintarActa(){
@@ -732,7 +800,20 @@ pest.forEach(b => b.addEventListener("click", () => abrir(b.id)));
 document.getElementById("fcat").innerHTML = '<option value="">Todas</option>' + CATS.map(c=>'<option>'+c+'</option>').join("");
 
 /* ---------- Impresión ---------- */
-document.getElementById("imprimir").onclick = () => window.print();
+function marcar(filtro){
+  sel = new Set(datos.registros.filter(filtro).map(r=>r.folio));
+  pintarEtiquetas();
+}
+document.getElementById("selTodas").onclick     = () => marcar(()=>true);
+document.getElementById("selNinguna").onclick   = () => marcar(()=>false);
+document.getElementById("selPrestamos").onclick = () => marcar(r=>r.procedencia==="Préstamo de una persona");
+document.getElementById("selSinImprimir").onclick = () => marcar(r=>!impresas.has(r.folio));
+document.getElementById("imprimir").onclick = () => {
+  if(!sel.size){ alert("No hay etiquetas seleccionadas. Usa los botones de arriba para elegir cuáles imprimir."); return; }
+  sel.forEach(f => impresas.add(f));
+  try{ localStorage.setItem(LLAVE_IMP, JSON.stringify([...impresas])); }catch(e){}
+  window.print();
+};
 document.getElementById("imprimirActa").onclick = () => window.print();
 
 /* ---------- Respaldo ---------- */
@@ -787,6 +868,7 @@ document.getElementById("unidad").addEventListener("change", function(){
   datos.config.unidad = this.value;
   guardar(); pintarTodo();
 });
+document.getElementById("form").addEventListener("reset", () => { if(editando) salirDeEdicion(); });
 document.getElementById("borrar").onclick = () => {
   if(!datos.registros.length){ alert("No hay registros que borrar."); return; }
   if(confirm("Se eliminarán "+datos.registros.length+" registros de este dispositivo.\n\n¿Descargaste ya un respaldo? Esta acción no se puede deshacer.")){

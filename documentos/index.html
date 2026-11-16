@@ -64,6 +64,8 @@ button.b:active{transform:scale(.97)}
 button.b.sec{background:transparent;color:var(--accent)}
 button.b.sec:hover{background:var(--accent-sw)}
 .botones{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;padding-top:16px;border-top:1px solid var(--rule)}
+.pista{font-size:.76rem;color:var(--muted);line-height:1.4}
+.pista.ok{color:var(--accent);font-weight:600}
 .nota{background:var(--accent-sw);border-left:3px solid var(--aviso);padding:10px 13px;font-size:.83rem;margin:16px 0 0;border-radius:0 5px 5px 0}
 
 /* ===== El documento ===== */
@@ -118,6 +120,12 @@ table.bienes th{background:#f0f0f0;font-size:8.8pt;text-transform:uppercase;lett
   font-size:7pt;color:#999;text-align:center;padding:4px}
 
 /* Vista de verificación */
+.tablaDocs{overflow-x:auto;border:1px solid var(--rule);border-radius:10px;background:var(--card);margin-top:18px}
+.tablaDocs table{border-collapse:collapse;width:100%;font-size:.89rem}
+.tablaDocs th,.tablaDocs td{text-align:left;padding:10px 13px;border-bottom:1px solid var(--rule);vertical-align:top}
+.tablaDocs th{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);background:var(--paper)}
+.tablaDocs td.n{font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:600}
+.sinDocs{padding:26px;text-align:center;color:var(--muted)}
 .verif{max-width:760px;margin:30px auto;background:var(--card);border:1px solid var(--rule);
   border-radius:12px;padding:26px}
 .verif dl{display:grid;grid-template-columns:auto 1fr;gap:7px 16px;margin:14px 0 0;font-size:.93rem}
@@ -159,6 +167,15 @@ table.bienes th{background:#f0f0f0;font-size:8.8pt;text-transform:uppercase;lett
     <p class="ayuda">Llena lo que aplique y se arma del lado derecho. Nada es obligatorio.</p>
 
     <div class="campo">
+      <label for="emisor">Emite</label>
+      <select id="emisor">
+        <option value="sub">Subcomisión de Inventariado y Auditoría Interna</option>
+        <option value="com">Comisión de Gestión y Operación</option>
+        <option value="mov">Movimiento Estudiantil UAM-I</option>
+      </select>
+    </div>
+
+    <div class="campo">
       <label for="tipo">Tipo de documento</label>
       <select id="tipo">
         <option value="oficio">Oficio</option>
@@ -189,6 +206,7 @@ table.bienes th{background:#f0f0f0;font-size:8.8pt;text-transform:uppercase;lett
     <div class="campo g-resguardo g-prestamo">
       <label for="bienFolio">Folio del bien</label>
       <input id="bienFolio" placeholder="SIA-IZT-2026-0001">
+      <span class="pista" id="pistaBien">Si el bien está registrado en este dispositivo, sus datos se llenan solos.</span>
     </div>
     <div class="campo g-resguardo g-prestamo">
       <label for="bien">Descripción del bien</label>
@@ -224,14 +242,31 @@ table.bienes th{background:#f0f0f0;font-size:8.8pt;text-transform:uppercase;lett
     <div class="botones">
       <button class="b" type="button" id="imprimir">Imprimir o guardar en PDF</button>
       <button class="b sec" type="button" id="nuevo">Documento nuevo</button>
+      <button class="b sec" type="button" id="verEmitidos">Ver emitidos</button>
     </div>
 
     <p class="nota">El QR guarda los datos del documento, así que al escanearlo se ve su contenido tal como se emitió. Sirve para consultar y cotejar, no es una firma electrónica.</p>
   </form>
 
   <!-- ===== El documento ===== -->
-  <div class="lienzo">
+  <div class="lienzo" id="lienzo">
     <article class="hoja" id="hoja"></article>
+  </div>
+
+  <!-- ===== Documentos emitidos ===== -->
+  <div id="emitidos" hidden>
+    <h2 style="font-size:1.2rem;font-weight:800">Documentos emitidos</h2>
+    <p style="color:var(--muted);margin:5px 0 18px;max-width:70ch">Cada documento que se manda a imprimir queda asentado aquí, para poder dar cuenta de lo emitido. El registro se guarda en este navegador.</p>
+    <div class="botones" style="border:0;padding-top:0;margin-top:0">
+      <button class="b sec" type="button" id="expDocs">Descargar en hoja de cálculo</button>
+      <button class="b sec" type="button" id="borrarDocs">Vaciar el registro</button>
+    </div>
+    <div class="tablaDocs"><table>
+      <thead><tr><th>Folio</th><th>Tipo</th><th>Emite</th><th>Asunto o bien</th><th>Fecha</th></tr></thead>
+      <tbody id="tbodyDocs"></tbody>
+    </table>
+    <p class="sinDocs" id="sinDocs" hidden>Todavía no se ha emitido ningún documento desde este dispositivo.</p>
+    </div>
   </div>
 </div>
 
@@ -241,6 +276,24 @@ table.bienes th{background:#f0f0f0;font-size:8.8pt;text-transform:uppercase;lett
 const LLAVE = "sia-documentos-v1";
 const MESES = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
 const PREFIJO = {oficio:"OFI", resguardo:"RES", prestamo:"PRE", acta:"ACT"};
+/* Cada instancia emite con su propio sello y su propia serie de folios. */
+const EMISORES = {
+  sub:{clave:"SIA", nombre:"Subcomisión de Inventariado y Auditoría Interna",
+       logos:["mov","cgo","sub"],
+       deslinde:"Emitido por la Subcomisión de Inventariado y Auditoría Interna, adscrita a la Comisión de Gestión y Operación."},
+  com:{clave:"CGO", nombre:"Comisión de Gestión y Operación",
+       logos:["mov","cgo"],
+       deslinde:"Emitido por la Comisión de Gestión y Operación."},
+  mov:{clave:"ME", nombre:"Movimiento Estudiantil UAM-I",
+       logos:["mov"],
+       deslinde:"Emitido por el Movimiento Estudiantil UAM-I."}
+};
+const IMAGENES = {
+  mov:'<img class="mov" src="../assets/logo.png" alt="Movimiento Estudiantil UAM-I">',
+  cgo:'<img src="../assets/logo-cgo-oscuro.png" alt="Comisión de Gestión y Operación">',
+  sub:'<img src="../assets/logo-sub-texto.png" alt="Subcomisión de Inventariado y Auditoría Interna">'
+};
+const emisorActual = () => EMISORES[val("emisor")] || EMISORES.sub;
 const NOMBRE  = {oficio:"Oficio", resguardo:"Vale de resguardo",
                  prestamo:"Vale de préstamo y devolución", acta:"Acta"};
 
@@ -261,27 +314,22 @@ function fechaLarga(iso){
   return d + " de " + MESES[m-1] + " de " + a;
 }
 function folioNuevo(tipo){
-  const anio = new Date().getFullYear();
-  const clave = tipo + "-" + anio;
-  const n = (cont[clave] || 0) + 1;
-  return PREFIJO[tipo] + "-SIA-IZT-" + anio + "-" + String(n).padStart(4,"0");
+  const anio = new Date().getFullYear(), em = emisorActual();
+  const n = (cont[tipo + "-" + em.clave + "-" + anio] || 0) + 1;
+  return PREFIJO[tipo] + "-" + em.clave + "-IZT-" + anio + "-" + String(n).padStart(4,"0");
 }
 function apartarFolio(tipo){
-  const anio = new Date().getFullYear();
-  const clave = tipo + "-" + anio;
+  const anio = new Date().getFullYear(), em = emisorActual();
+  const clave = tipo + "-" + em.clave + "-" + anio;
   cont[clave] = (cont[clave] || 0) + 1;
   try{ localStorage.setItem(LLAVE, JSON.stringify(cont)); }catch(e){}
 }
 
 /* ---- Sello y QR ---- */
 function sello(){
-  return '<div class="sello">'+
-    '<img class="mov" src="../assets/logo.png" alt="Movimiento Estudiantil UAM-I">'+
-    '<span class="div"></span>'+
-    '<img src="../assets/logo-cgo-oscuro.png" alt="Comisión de Gestión y Operación">'+
-    '<span class="div"></span>'+
-    '<img src="../assets/logo-sub-texto.png" alt="Subcomisión de Inventariado y Auditoría Interna">'+
-  '</div><div class="cintillo"><i></i></div>';
+  const piezas = emisorActual().logos.map(k => IMAGENES[k]);
+  return '<div class="sello">'+ piezas.join('<span class="div"></span>') +
+    '</div><div class="cintillo"><i></i></div>';
 }
 function datosArriba(folio, fechaISO){
   return '<div class="datos"><table><tbody>'+
@@ -319,15 +367,14 @@ function cierre(){
   return '<div class="cierre">'+
     '<div class="leyenda"><b>Documento de carácter interno del Movimiento Estudiantil UAM-I.</b> '+
     'No constituye documentación oficial de la Universidad Autónoma Metropolitana ni de sus órganos. '+
-    'Emitido por la Subcomisión de Inventariado y Auditoría Interna, adscrita a la Comisión de Gestión y Operación. '+
-    'meuami.org</div>'+ bloqueQr() + '</div>';
+    esc(emisorActual().deslinde)+' meuami.org</div>'+ bloqueQr() + '</div>';
 }
 
 /* ---- Armado de cada tipo ---- */
 function cuerpoOficio(){
   const d = val("dest"), dc = val("destCargo");
   return '<div class="tipo">Oficio</div>'+
-    '<div class="tipoSub">Subcomisión de Inventariado y Auditoría Interna</div>'+
+    '<div class="tipoSub">'+esc(emisorActual().nombre)+'</div>'+
     (val("asunto") ? '<div class="bloque"><div class="rot">Asunto</div><div class="val">'+esc(val("asunto"))+'</div></div>' : '')+
     '<div class="bloque" style="margin-top:18px"><div class="val"><strong>'+esc(d || "A quien corresponda")+'</strong>'+
       (dc ? '<br>'+esc(dc) : '')+'<br>P r e s e n t e</div></div>'+
@@ -369,7 +416,7 @@ function cuerpoPrestamo(){
 }
 function cuerpoActa(){
   return '<div class="tipo">Acta</div>'+
-    '<div class="tipoSub">Subcomisión de Inventariado y Auditoría Interna</div>'+
+    '<div class="tipoSub">'+esc(emisorActual().nombre)+'</div>'+
     (val("asunto") ? '<div class="bloque"><div class="rot">Asunto</div><div class="val">'+esc(val("asunto"))+'</div></div>' : '')+
     '<p style="margin:12px 0 0">En '+esc(val("lugar") || "_______")+', siendo el '+
       esc(val("fecha") ? fechaLarga(val("fecha")) : "____ de ____________ de ______")+
@@ -403,16 +450,97 @@ function acomodar(){
   pintar();
 }
 
+/* ---- Traer datos del inventario registrado en este dispositivo ---- */
+function inventarioLocal(){
+  try{
+    const d = JSON.parse(localStorage.getItem("sia-inventario-v1")||"{}");
+    return (d && Array.isArray(d.registros)) ? d.registros : [];
+  }catch(e){ return []; }
+}
+function traerBien(){
+  const clave = val("bienFolio").toUpperCase();
+  const pista = $("pistaBien");
+  if(!clave){ pista.className = "pista"; pista.textContent = "Si el bien está registrado en este dispositivo, sus datos se llenan solos."; return; }
+  const r = inventarioLocal().find(x => String(x.folio).toUpperCase() === clave);
+  if(!r){ pista.className = "pista"; pista.textContent = "Ese folio no está en el inventario de este dispositivo. Puedes escribir los datos a mano."; return; }
+  $("bien").value = r.descripcion || "";
+  $("cantidad").value = r.cantidad || 1;
+  if(r.estado) $("estadoBien").value = r.estado;
+  if($("ubicacion")) $("ubicacion").value = r.ubicacion || "";
+  if(r.procedencia === "Préstamo de una persona" && r.prestador) $("presta").value = r.prestador;
+  pista.className = "pista ok";
+  pista.textContent = "Datos tomados del inventario.";
+  pintar();
+}
+
+/* ---- Registro de lo emitido ---- */
+const LLAVE_DOCS = "sia-emitidos-v1";
+let emitidos = [];
+try{ emitidos = JSON.parse(localStorage.getItem(LLAVE_DOCS)||"[]") || []; }catch(e){ emitidos = []; }
+
+function asentar(){
+  emitidos.unshift({
+    folio: val("folio"), tipo: NOMBRE[val("tipo")] || val("tipo"),
+    emisor: emisorActual().nombre, fecha: val("fecha"),
+    asunto: val("asunto") || val("bien") || "", firma: val("firma1"),
+    destino: val("dest") || val("presta") || "",
+    cuando: new Date().toISOString()
+  });
+  try{ localStorage.setItem(LLAVE_DOCS, JSON.stringify(emitidos.slice(0,500))); }catch(e){}
+  pintarEmitidos();
+}
+function pintarEmitidos(){
+  $("tbodyDocs").innerHTML = emitidos.map(d =>
+    '<tr><td class="n">'+esc(d.folio)+'</td><td>'+esc(d.tipo)+'</td>'+
+    '<td>'+esc(d.emisor)+'</td><td>'+esc(d.asunto || "—")+
+    (d.destino ? '<br><span style="color:var(--muted);font-size:.85em">'+esc(d.destino)+'</span>' : '')+'</td>'+
+    '<td class="n">'+esc(d.fecha ? fechaLarga(d.fecha) : "—")+'</td></tr>').join("");
+  $("sinDocs").hidden = emitidos.length > 0;
+}
+
 /* ---- Eventos ---- */
 $("tipo").addEventListener("change", ()=>{
   $("folio").value = folioNuevo(val("tipo"));
   acomodar();
 });
+$("emisor").addEventListener("change", ()=>{
+  $("folio").value = folioNuevo(val("tipo"));
+  $("cargo1").value = emisorActual().nombre;
+  pintar();
+});
 $("panel").addEventListener("input", pintar);
+$("bienFolio").addEventListener("input", traerBien);
 $("conQr").addEventListener("change", pintar);
 $("imprimir").addEventListener("click", ()=>{
   apartarFolio(val("tipo"));
+  asentar();
   window.print();
+});
+
+/* ---- Alternar entre generar y ver lo emitido ---- */
+$("verEmitidos").addEventListener("click", ()=>{
+  const viendo = !$("emitidos").hidden;
+  $("emitidos").hidden = viendo;
+  $("lienzo").hidden = !viendo;
+  $("verEmitidos").textContent = viendo ? "Ver emitidos" : "Ver el documento";
+});
+$("expDocs").addEventListener("click", ()=>{
+  const cols = ["folio","tipo","emisor","fecha","asunto","destino","firma","cuando"];
+  const cel = v => '"' + String(v==null?"":v).replace(/"/g,'""') + '"';
+  const lineas = [cols.map(cel).join(",")].concat(emitidos.map(d => cols.map(c => cel(d[c])).join(",")));
+  const url = URL.createObjectURL(new Blob(["\uFEFF"+lineas.join("\r\n")], {type:"text/csv;charset=utf-8"}));
+  const a = document.createElement("a");
+  a.href = url; a.download = "documentos-emitidos-"+new Date().toISOString().slice(0,10)+".csv";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 1500);
+});
+$("borrarDocs").addEventListener("click", ()=>{
+  if(!emitidos.length){ return; }
+  if(confirm("Se borrará el registro de "+emitidos.length+" documentos emitidos en este dispositivo. Los folios ya usados no se reutilizan.")){
+    emitidos = [];
+    try{ localStorage.setItem(LLAVE_DOCS, "[]"); }catch(e){}
+    pintarEmitidos();
+  }
 });
 $("nuevo").addEventListener("click", ()=>{
   const tipo = val("tipo"), firma = val("firma1"), cargo = val("cargo1");
@@ -445,7 +573,9 @@ if(leido){
 }else{
   $("fecha").value = hoyISO();
   $("folio").value = folioNuevo("oficio");
+  $("cargo1").value = emisorActual().nombre;
   acomodar();
+  pintarEmitidos();
 }
 </script>
 </body>
