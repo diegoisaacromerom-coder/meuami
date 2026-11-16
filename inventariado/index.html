@@ -7,7 +7,7 @@
 <link rel="icon" type="image/png" href="../assets/logo-sub.png">
 <meta name="description" content="Registro de bienes bajo resguardo. Subcomisión de Inventariado y Auditoría Interna, Movimiento Estudiantil UAM-I.">
 <meta name="robots" content="noindex">
-<meta name="theme-color" content="#1f3a68">
+<meta name="theme-color" content="#0f8f45">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -16,7 +16,7 @@
    Misma tipografía y lenguaje formal del sitio del movimiento. */
 :root{
   --paper:#f4f3ef; --ink:#15181f; --muted:#5a5f6b; --rule:#d7d9de; --card:#ffffff;
-  --accent:#1f3a68; --accent-sw:#eaeff7;
+  --accent:#0f8f45; --accent-sw:#e7f4ec;
   --ok:#17794a; --med:#9a6a05; --mal:#b3261e; --inc:#6b3fa0;
   --f:"Montserrat",system-ui,-apple-system,"Segoe UI",sans-serif;
   color-scheme:light;
@@ -24,14 +24,14 @@
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --paper:#14161b; --ink:#eceef2; --muted:#9ba2b0; --rule:#2e323b; --card:#1c1f26;
-    --accent:#7aa6e8; --accent-sw:#1b2535;
+    --accent:#34d27f; --accent-sw:#16241c;
     --ok:#4cc48a; --med:#e0ac3c; --mal:#ff7a70; --inc:#b18ae6;
     color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
   --paper:#14161b; --ink:#eceef2; --muted:#9ba2b0; --rule:#2e323b; --card:#1c1f26;
-  --accent:#7aa6e8; --accent-sw:#1b2535;
+  --accent:#34d27f; --accent-sw:#16241c;
   --ok:#4cc48a; --med:#e0ac3c; --mal:#ff7a70; --inc:#b18ae6;
   color-scheme:dark;
 }
@@ -43,13 +43,13 @@ a{color:var(--accent)}
 h1,h2,h3{text-wrap:balance;margin:0}
 
 /* Encabezado */
-.top{background:#10151f;color:#fff;border-bottom:4px solid var(--accent)}
+.top{background:#0b1410;color:#fff;border-bottom:4px solid var(--accent)}
 .top .wrap{display:flex;align-items:center;gap:22px;flex-wrap:wrap;padding-top:22px;padding-bottom:22px}
 .top img{width:300px;max-width:100%;height:auto}
 .top .vuelta{margin-left:auto;font-size:.84rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;
   color:rgba(255,255,255,.82);text-decoration:none;border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:8px 15px;
   transition:background .2s ease,color .2s ease}
-.top .vuelta:hover{background:#fff;color:#10151f}
+.top .vuelta:hover{background:#fff;color:#0b1410}
 
 /* Pestañas */
 nav.tabs{position:sticky;top:0;z-index:20;background:var(--paper);border-bottom:1px solid var(--rule)}
@@ -114,7 +114,7 @@ td.folio{font-weight:700;white-space:nowrap;font-variant-numeric:tabular-nums}
 
 /* Detalle */
 dialog{border:0;border-radius:12px;padding:0;max-width:560px;width:calc(100% - 32px);background:var(--card);color:var(--ink)}
-dialog::backdrop{background:rgba(8,12,20,.6)}
+dialog::backdrop{background:rgba(6,14,9,.62)}
 .dlg{padding:24px}
 .dlg h3{font-size:1.2rem;font-weight:800}
 .dlg .qr{display:flex;justify-content:center;padding:16px;background:#fff;border-radius:10px;margin:16px 0}
@@ -173,7 +173,7 @@ footer a{color:var(--accent)}
   <!-- ============ REGISTRAR ============ -->
   <section role="tabpanel" id="p-registrar" aria-labelledby="t-registrar">
     <h2>Registrar bien</h2>
-    <p class="lede">Cada bien registrado recibe un folio consecutivo y un código QR para su etiqueta. Los campos marcados con <span style="color:var(--mal)">*</span> son obligatorios.</p>
+    <p class="lede">Cada bien registrado recibe un folio consecutivo y un código QR para su etiqueta. Llena solo los campos que apliquen: ninguno es obligatorio, porque no todos los bienes traen los mismos datos.</p>
 
     <div class="aviso">
       <strong>Dónde se guarda la información.</strong> Los registros se guardan en este navegador, en este dispositivo. No se envían a ningún servidor ni se comparten solos con otros equipos. Para conservarlos o juntarlos con los de otra persona, usa la pestaña <strong>Respaldo</strong> al terminar cada jornada.
@@ -182,8 +182,8 @@ footer a{color:var(--accent)}
     <form class="reg" id="form">
       <div class="campos">
         <div class="campo">
-          <label for="categoria">Categoría <span class="req">*</span></label>
-          <select id="categoria" required>
+          <label for="categoria">Categoría</label>
+          <select id="categoria">
             <option value="">Selecciona…</option>
             <option>Equipo de cómputo</option>
             <option>Equipo de laboratorio</option>
@@ -197,21 +197,35 @@ footer a{color:var(--accent)}
           </select>
         </div>
         <div class="campo">
-          <label for="cantidad">Cantidad <span class="req">*</span></label>
-          <input id="cantidad" type="number" min="1" step="1" value="1" required>
+          <label for="cantidad">Cantidad</label>
+          <input id="cantidad" type="number" min="1" step="1" value="1">
         </div>
         <div class="campo">
-          <label for="estado">Estado <span class="req">*</span></label>
-          <select id="estado" required>
+          <label for="estado">Estado</label>
+          <select id="estado">
             <option>Bueno</option>
             <option>Regular</option>
             <option>Dañado</option>
             <option>Incompleto</option>
           </select>
         </div>
+        <div class="campo">
+          <label for="procedencia">Procedencia</label>
+          <select id="procedencia">
+            <option>Bien de la Universidad</option>
+            <option>Préstamo de una persona</option>
+            <option>Donación</option>
+            <option>Propiedad del movimiento</option>
+            <option>Sin determinar</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label for="prestador">Prestado o entregado por</label>
+          <input id="prestador" maxlength="90" placeholder="Nombre de quien lo prestó, si aplica">
+        </div>
         <div class="campo ancho">
-          <label for="descripcion">Descripción del bien <span class="req">*</span></label>
-          <input id="descripcion" required maxlength="160" placeholder="Ejemplo: Proyector de techo, aula 203">
+          <label for="descripcion">Descripción del bien</label>
+          <input id="descripcion" maxlength="160" placeholder="Ejemplo: Cafetera prestada por la asamblea de CBS">
         </div>
         <div class="campo">
           <label for="marca">Marca y modelo</label>
@@ -222,12 +236,12 @@ footer a{color:var(--accent)}
           <input id="inventario" maxlength="60" placeholder="Si el bien trae etiqueta institucional">
         </div>
         <div class="campo">
-          <label for="ubicacion">Edificio y espacio <span class="req">*</span></label>
-          <input id="ubicacion" required maxlength="100" placeholder="Ejemplo: Edificio S, cubículo 104">
+          <label for="ubicacion">Edificio y espacio</label>
+          <input id="ubicacion" maxlength="100" placeholder="Ejemplo: Edificio S, cubículo 104">
         </div>
         <div class="campo">
-          <label for="responsable">Quién registra <span class="req">*</span></label>
-          <input id="responsable" required maxlength="80" placeholder="Nombre o iniciales">
+          <label for="responsable">Quién registra</label>
+          <input id="responsable" maxlength="80" placeholder="Nombre o iniciales">
         </div>
         <div class="campo ancho">
           <label for="observaciones">Observaciones</label>
@@ -264,6 +278,14 @@ footer a{color:var(--accent)}
         <select id="fcat"><option value="">Todas</option></select>
       </div>
       <div class="campo">
+        <label for="fproc">Procedencia</label>
+        <select id="fproc">
+          <option value="">Todas</option>
+          <option>Bien de la Universidad</option><option>Préstamo de una persona</option>
+          <option>Donación</option><option>Propiedad del movimiento</option><option>Sin determinar</option>
+        </select>
+      </div>
+      <div class="campo">
         <label for="fest">Estado</label>
         <select id="fest">
           <option value="">Todos</option>
@@ -275,7 +297,7 @@ footer a{color:var(--accent)}
     <div class="tablawrap">
       <table>
         <thead><tr>
-          <th>Folio</th><th>Descripción</th><th>Categoría</th><th>Ubicación</th>
+          <th>Folio</th><th>Descripción</th><th>Categoría</th><th>Procedencia</th><th>Ubicación</th>
           <th>Cant.</th><th>Estado</th><th>Fecha</th>
         </tr></thead>
         <tbody id="tbody"></tbody>
@@ -455,12 +477,14 @@ document.getElementById("form").addEventListener("submit", async function(ev){
   const reg = {
     folio: proximoFolio(),
     fecha: new Date().toISOString(),
-    categoria: document.getElementById("categoria").value,
-    descripcion: document.getElementById("descripcion").value.trim(),
+    categoria: document.getElementById("categoria").value || "Sin clasificar",
+    procedencia: document.getElementById("procedencia").value,
+    prestador: document.getElementById("prestador").value.trim(),
+    descripcion: document.getElementById("descripcion").value.trim() || "Sin descripción",
     marca: document.getElementById("marca").value.trim(),
     inventario: document.getElementById("inventario").value.trim(),
     cantidad: Math.max(1, parseInt(document.getElementById("cantidad").value,10) || 1),
-    ubicacion: document.getElementById("ubicacion").value.trim(),
+    ubicacion: document.getElementById("ubicacion").value.trim() || "Sin ubicación",
     estado: document.getElementById("estado").value,
     observaciones: document.getElementById("observaciones").value.trim(),
     responsable: document.getElementById("responsable").value.trim(),
@@ -469,9 +493,10 @@ document.getElementById("form").addEventListener("submit", async function(ev){
   datos.registros.push(reg);
   datos.config.consecutivo++;
   if(guardar()){
-    const quien = reg.responsable;
+    const quien = reg.responsable, proc = reg.procedencia;
     this.reset();
     document.getElementById("responsable").value = quien;   // se conserva para la siguiente captura
+    document.getElementById("procedencia").value = proc;
     document.getElementById("cantidad").value = 1;
     pintarTodo();
     verDetalle(reg.folio);
@@ -493,6 +518,8 @@ function verDetalle(folio){
     '<dl>'+
       fila("Descripción", r.descripcion)+
       fila("Categoría", r.categoria)+
+      fila("Procedencia", r.procedencia)+
+      fila("Prestado por", r.prestador)+
       fila("Marca y modelo", r.marca)+
       fila("Inventario UAM", r.inventario)+
       fila("Cantidad", r.cantidad)+
@@ -520,11 +547,13 @@ function filtrados(){
   const q = (document.getElementById("buscar").value||"").toLowerCase().trim();
   const c = document.getElementById("fcat").value;
   const e = document.getElementById("fest").value;
+  const pr = document.getElementById("fproc").value;
   return datos.registros.filter(r=>{
     if(c && r.categoria !== c) return false;
+    if(pr && r.procedencia !== pr) return false;
     if(e && r.estado !== e) return false;
     if(!q) return true;
-    return [r.folio,r.descripcion,r.ubicacion,r.marca,r.inventario,r.responsable,r.observaciones]
+    return [r.folio,r.descripcion,r.ubicacion,r.marca,r.inventario,r.responsable,r.observaciones,r.procedencia,r.prestador]
       .join(" ").toLowerCase().includes(q);
   });
 }
@@ -536,6 +565,7 @@ function pintarTabla(){
       '<td class="folio">'+esc(r.folio)+'</td>'+
       '<td>'+esc(r.descripcion)+(r.marca?'<br><span style="color:var(--muted);font-size:.85em">'+esc(r.marca)+'</span>':'')+'</td>'+
       '<td>'+esc(r.categoria)+'</td>'+
+      '<td>'+esc(r.procedencia||"—")+(r.prestador?'<br><span style="color:var(--muted);font-size:.85em">'+esc(r.prestador)+'</span>':'')+'</td>'+
       '<td>'+esc(r.ubicacion)+'</td>'+
       '<td style="font-variant-numeric:tabular-nums">'+esc(r.cantidad)+'</td>'+
       '<td><span class="etq e-'+esc(r.estado)+'">'+esc(r.estado)+'</span></td>'+
@@ -556,7 +586,8 @@ function pintarResumen(){
     '<div class="tile"><b>'+n+'</b><span>Registros</span></div>'+
     '<div class="tile"><b>'+piezas+'</b><span>Piezas en total</span></div>'+
     '<div class="tile"><b style="color:var(--ok)">'+cuenta("Bueno")+'</b><span>En buen estado</span></div>'+
-    '<div class="tile"><b style="color:var(--mal)">'+(cuenta("Dañado")+cuenta("Incompleto"))+'</b><span>Dañados o incompletos</span></div>';
+    '<div class="tile"><b style="color:var(--mal)">'+(cuenta("Dañado")+cuenta("Incompleto"))+'</b><span>Dañados o incompletos</span></div>'+
+    '<div class="tile"><b style="color:var(--inc)">'+datos.registros.filter(r=>r.procedencia==="Préstamo de una persona").length+'</b><span>En préstamo, por devolver</span></div>';
 }
 function pintarEtiquetas(){
   const cont = document.getElementById("hojas");
@@ -570,11 +601,12 @@ function pintarEtiquetas(){
 function pintarActa(){
   const n = datos.registros.length;
   if(!n){ document.getElementById("acta").innerHTML = '<p class="vacio">Registra al menos un bien para generar el acta.</p>'; return; }
-  const porCat = {}, porEst = {};
+  const porCat = {}, porEst = {}, porProc = {};
   let piezas = 0;
   datos.registros.forEach(r=>{
     porCat[r.categoria] = (porCat[r.categoria]||0) + 1;
     porEst[r.estado] = (porEst[r.estado]||0) + 1;
+    porProc[r.procedencia||"Sin determinar"] = (porProc[r.procedencia||"Sin determinar"]||0) + 1;
     piezas += parseInt(r.cantidad,10)||1;
   });
   const filas = o => Object.keys(o).sort().map(k => '<tr><td>'+esc(k)+'</td><td style="font-variant-numeric:tabular-nums">'+o[k]+'</td></tr>').join("");
@@ -593,6 +625,8 @@ function pintarActa(){
       '<table><tbody>'+filas(porCat)+'</tbody></table></div>'+
       '<div><h4 style="font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 7px">Por estado</h4>'+
       '<table><tbody>'+filas(porEst)+'</tbody></table></div>'+
+      '<div><h4 style="font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 7px">Por procedencia</h4>'+
+      '<table><tbody>'+filas(porProc)+'</tbody></table></div>'+
     '</div>'+
     '<h4 style="font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:26px 0 7px">Participaron en el registro</h4>'+
     '<p style="margin:0">'+esc(quienes.join(" · "))+'</p>'+
@@ -629,7 +663,7 @@ function abrir(id){
 pest.forEach(b => b.addEventListener("click", () => abrir(b.id)));
 
 /* ---------- Filtros ---------- */
-["buscar","fcat","fest"].forEach(id => document.getElementById(id).addEventListener("input", pintarTabla));
+["buscar","fcat","fest","fproc"].forEach(id => document.getElementById(id).addEventListener("input", pintarTabla));
 document.getElementById("fcat").innerHTML = '<option value="">Todas</option>' + CATS.map(c=>'<option>'+c+'</option>').join("");
 
 /* ---------- Impresión ---------- */
@@ -644,7 +678,7 @@ document.getElementById("expJson").onclick = () => {
     "application/json");
 };
 document.getElementById("expCsv").onclick = () => {
-  const cols = ["folio","fecha","categoria","descripcion","marca","inventario","cantidad","ubicacion","estado","observaciones","responsable"];
+  const cols = ["folio","fecha","categoria","procedencia","prestador","descripcion","marca","inventario","cantidad","ubicacion","estado","observaciones","responsable"];
   const cel = v => '"' + String(v==null?"":v).replace(/"/g,'""') + '"';
   const lineas = [cols.map(cel).join(",")].concat(
     datos.registros.map(r => cols.map(c => cel(c==="fecha" ? fechaLarga(r.fecha) : r[c])).join(","))
