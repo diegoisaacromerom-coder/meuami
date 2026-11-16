@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Registro de Inventariado · Subcomisión UAM-I</title>
+<link rel="icon" type="image/png" href="../assets/logo-sub.png">
+<meta name="description" content="Registro de bienes bajo resguardo. Subcomisión de Inventariado y Auditoría Interna, Movimiento Estudiantil UAM-I.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#1f3a68">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* Plan: herramienta de registro. Tinta marina de la Subcomisión sobre papel claro.
+   Misma tipografía y lenguaje formal del sitio del movimiento. */
+:root{
+  --paper:#f4f3ef; --ink:#15181f; --muted:#5a5f6b; --rule:#d7d9de; --card:#ffffff;
+  --accent:#1f3a68; --accent-sw:#eaeff7;
+  --ok:#17794a; --med:#9a6a05; --mal:#b3261e; --inc:#6b3fa0;
+  --f:"Montserrat",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#14161b; --ink:#eceef2; --muted:#9ba2b0; --rule:#2e323b; --card:#1c1f26;
+    --accent:#7aa6e8; --accent-sw:#1b2535;
+    --ok:#4cc48a; --med:#e0ac3c; --mal:#ff7a70; --inc:#b18ae6;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#14161b; --ink:#eceef2; --muted:#9ba2b0; --rule:#2e323b; --card:#1c1f26;
+  --accent:#7aa6e8; --accent-sw:#1b2535;
+  --ok:#4cc48a; --med:#e0ac3c; --mal:#ff7a70; --inc:#b18ae6;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f);font-size:16px;line-height:1.55}
+a{color:var(--accent)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+h1,h2,h3{text-wrap:balance;margin:0}
+
+/* Encabezado */
+.top{background:#10151f;color:#fff;border-bottom:4px solid var(--accent)}
+.top .wrap{display:flex;align-items:center;gap:22px;flex-wrap:wrap;padding-top:22px;padding-bottom:22px}
+.top img{width:300px;max-width:100%;height:auto}
+.top .vuelta{margin-left:auto;font-size:.84rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;
+  color:rgba(255,255,255,.82);text-decoration:none;border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:8px 15px;
+  transition:background .2s ease,color .2s ease}
+.top .vuelta:hover{background:#fff;color:#10151f}
+
+/* Pestañas */
+nav.tabs{position:sticky;top:0;z-index:20;background:var(--paper);border-bottom:1px solid var(--rule)}
+nav.tabs .wrap{display:flex;gap:4px;overflow-x:auto}
+nav.tabs button{appearance:none;border:0;background:none;font:600 .95rem var(--f);color:var(--muted);
+  padding:13px 14px;cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;transition:color .2s ease}
+nav.tabs button:hover{color:var(--ink)}
+nav.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+
+main{padding:30px 0 70px}
+section[role="tabpanel"]{animation:surge .4s ease both}
+@keyframes surge{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+h2{font-size:1.5rem;font-weight:800;letter-spacing:-.01em;margin-bottom:4px}
+.lede{color:var(--muted);max-width:68ch;margin:0 0 22px}
+
+.aviso{background:var(--accent-sw);border-left:4px solid var(--accent);padding:13px 16px;margin:0 0 24px;
+  font-size:.92rem;max-width:80ch;border-radius:0 6px 6px 0}
+.aviso strong{color:var(--ink)}
+
+/* Formulario */
+form.reg{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:22px}
+.campos{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}
+.campo{display:flex;flex-direction:column;gap:6px;min-width:0}
+.campo.ancho{grid-column:1/-1}
+label{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+label .req{color:var(--mal)}
+input,select,textarea{font:400 .97rem var(--f);color:var(--ink);background:var(--paper);
+  border:1px solid var(--rule);border-radius:7px;padding:10px 12px;width:100%;transition:border-color .2s ease}
+input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+textarea{resize:vertical;min-height:72px}
+.acciones{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:20px;padding-top:18px;border-top:1px solid var(--rule)}
+button.b{appearance:none;font:700 .92rem var(--f);border-radius:999px;padding:11px 22px;cursor:pointer;
+  border:1px solid var(--accent);background:var(--accent);color:#fff;transition:transform .18s ease,opacity .2s ease}
+button.b:hover{transform:translateY(-2px)}
+button.b:active{transform:scale(.97)}
+button.b.sec{background:transparent;color:var(--accent)}
+button.b.sec:hover{background:var(--accent-sw)}
+button.b.peq{padding:7px 14px;font-size:.84rem}
+.hint{font-size:.82rem;color:var(--muted)}
+
+/* Resumen */
+.resumen{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin:0 0 24px}
+.tile{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:15px 17px}
+.tile b{display:block;font-size:2rem;font-weight:800;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.tile span{font-size:.78rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+
+/* Filtros y tabla */
+.filtros{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin:0 0 18px}
+.filtros .campo{flex:1 1 180px}
+.tablawrap{overflow-x:auto;border:1px solid var(--rule);border-radius:10px;background:var(--card)}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{text-align:left;padding:11px 13px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);
+  background:var(--paper);position:sticky;top:0}
+tbody tr{transition:background .18s ease}
+tbody tr:hover{background:var(--accent-sw)}
+td.folio{font-weight:700;white-space:nowrap;font-variant-numeric:tabular-nums}
+.etq{display:inline-block;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;
+  padding:3px 9px;border-radius:999px;border:1.5px solid currentColor;white-space:nowrap}
+.e-Bueno{color:var(--ok)} .e-Regular{color:var(--med)} .e-Dañado{color:var(--mal)} .e-Incompleto{color:var(--inc)}
+.vacio{padding:34px 18px;text-align:center;color:var(--muted)}
+
+/* Detalle */
+dialog{border:0;border-radius:12px;padding:0;max-width:560px;width:calc(100% - 32px);background:var(--card);color:var(--ink)}
+dialog::backdrop{background:rgba(8,12,20,.6)}
+.dlg{padding:24px}
+.dlg h3{font-size:1.2rem;font-weight:800}
+.dlg .qr{display:flex;justify-content:center;padding:16px;background:#fff;border-radius:10px;margin:16px 0}
+.dlg .qr svg{width:190px;height:190px;display:block}
+.dlg dl{display:grid;grid-template-columns:auto 1fr;gap:7px 16px;font-size:.92rem;margin:0}
+.dlg dt{font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);padding-top:3px}
+.dlg dd{margin:0}
+.dlg img.foto{width:100%;border-radius:8px;margin-top:14px}
+
+/* Etiquetas */
+.hojas{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;margin-top:18px}
+.etiqueta{border:1px solid #111;border-radius:6px;padding:10px;background:#fff;color:#111;display:flex;gap:10px;align-items:center;break-inside:avoid}
+.etiqueta svg{width:76px;height:76px;flex:none}
+.etiqueta .txt{min-width:0}
+.etiqueta .ef{font-weight:800;font-size:.82rem;font-variant-numeric:tabular-nums}
+.etiqueta .ed{font-size:.72rem;line-height:1.3;overflow-wrap:anywhere}
+.etiqueta .eo{font-size:.64rem;color:#555;margin-top:3px;text-transform:uppercase;letter-spacing:.04em}
+
+footer{border-top:1px solid var(--rule);padding:26px 0 40px;color:var(--muted);font-size:.85rem}
+footer a{color:var(--accent)}
+[hidden]{display:none !important}
+@media (prefers-reduced-motion: reduce){*{animation:none !important;transition:none !important}}
+
+@media print{
+  .top,nav.tabs,.aviso,.acciones,.filtros,footer,.noimp{display:none !important}
+  body{background:#fff;color:#000;font-size:11pt}
+  .hojas{grid-template-columns:repeat(3,1fr);gap:8px}
+  .etiqueta{border:1px solid #000}
+  section[role="tabpanel"]{animation:none}
+  table{font-size:9pt}
+  th{background:#fff}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <img src="../assets/logo-sub-blanco.png" alt="Subcomisión de Inventariado y Auditoría Interna, Movimiento Estudiantil UAM-I">
+    <a class="vuelta" href="https://meuami.org/">← meuami.org</a>
+  </div>
+</header>
+
+<nav class="tabs" aria-label="Secciones">
+  <div class="wrap" role="tablist">
+    <button role="tab" id="t-registrar" aria-controls="p-registrar" aria-selected="true">Registrar bien</button>
+    <button role="tab" id="t-registro"  aria-controls="p-registro"  aria-selected="false">Registro</button>
+    <button role="tab" id="t-etiquetas" aria-controls="p-etiquetas" aria-selected="false">Etiquetas</button>
+    <button role="tab" id="t-acta"      aria-controls="p-acta"      aria-selected="false">Acta de corte</button>
+    <button role="tab" id="t-respaldo"  aria-controls="p-respaldo"  aria-selected="false">Respaldo</button>
+  </div>
+</nav>
+
+<main class="wrap">
+
+  <!-- ============ REGISTRAR ============ -->
+  <section role="tabpanel" id="p-registrar" aria-labelledby="t-registrar">
+    <h2>Registrar bien</h2>
+    <p class="lede">Cada bien registrado recibe un folio consecutivo y un código QR para su etiqueta. Los campos marcados con <span style="color:var(--mal)">*</span> son obligatorios.</p>
+
+    <div class="aviso">
+      <strong>Dónde se guarda la información.</strong> Los registros se guardan en este navegador, en este dispositivo. No se envían a ningún servidor ni se comparten solos con otros equipos. Para conservarlos o juntarlos con los de otra persona, usa la pestaña <strong>Respaldo</strong> al terminar cada jornada.
+    </div>
+
+    <form class="reg" id="form">
+      <div class="campos">
+        <div class="campo">
+          <label for="categoria">Categoría <span class="req">*</span></label>
+          <select id="categoria" required>
+            <option value="">Selecciona…</option>
+            <option>Equipo de cómputo</option>
+            <option>Equipo de laboratorio</option>
+            <option>Equipo audiovisual</option>
+            <option>Mobiliario</option>
+            <option>Herramienta</option>
+            <option>Material y papelería</option>
+            <option>Llaves y accesos</option>
+            <option>Acervo bibliográfico</option>
+            <option>Otro</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label for="cantidad">Cantidad <span class="req">*</span></label>
+          <input id="cantidad" type="number" min="1" step="1" value="1" required>
+        </div>
+        <div class="campo">
+          <label for="estado">Estado <span class="req">*</span></label>
+          <select id="estado" required>
+            <option>Bueno</option>
+            <option>Regular</option>
+            <option>Dañado</option>
+            <option>Incompleto</option>
+          </select>
+        </div>
+        <div class="campo ancho">
+          <label for="descripcion">Descripción del bien <span class="req">*</span></label>
+          <input id="descripcion" required maxlength="160" placeholder="Ejemplo: Proyector de techo, aula 203">
+        </div>
+        <div class="campo">
+          <label for="marca">Marca y modelo</label>
+          <input id="marca" maxlength="80" placeholder="Opcional">
+        </div>
+        <div class="campo">
+          <label for="inventario">Núm. de inventario UAM</label>
+          <input id="inventario" maxlength="60" placeholder="Si el bien trae etiqueta institucional">
+        </div>
+        <div class="campo">
+          <label for="ubicacion">Edificio y espacio <span class="req">*</span></label>
+          <input id="ubicacion" required maxlength="100" placeholder="Ejemplo: Edificio S, cubículo 104">
+        </div>
+        <div class="campo">
+          <label for="responsable">Quién registra <span class="req">*</span></label>
+          <input id="responsable" required maxlength="80" placeholder="Nombre o iniciales">
+        </div>
+        <div class="campo ancho">
+          <label for="observaciones">Observaciones</label>
+          <textarea id="observaciones" maxlength="600" placeholder="Daños visibles, piezas faltantes, condiciones del resguardo…"></textarea>
+        </div>
+        <div class="campo ancho">
+          <label for="foto">Fotografía del bien</label>
+          <input id="foto" type="file" accept="image/*">
+          <span class="hint">Opcional. La imagen se reduce automáticamente para no saturar el almacenamiento.</span>
+        </div>
+      </div>
+      <div class="acciones">
+        <button class="b" type="submit">Registrar y generar folio</button>
+        <button class="b sec" type="reset">Limpiar</button>
+        <span class="hint" id="proximo"></span>
+      </div>
+    </form>
+  </section>
+
+  <!-- ============ REGISTRO ============ -->
+  <section role="tabpanel" id="p-registro" aria-labelledby="t-registro" hidden>
+    <h2>Registro de bienes</h2>
+    <p class="lede">Todos los bienes capturados en este dispositivo. Haz clic en una fila para ver su ficha, su código QR y su fotografía.</p>
+
+    <div class="resumen" id="resumen"></div>
+
+    <div class="filtros noimp">
+      <div class="campo">
+        <label for="buscar">Buscar</label>
+        <input id="buscar" type="search" placeholder="Folio, descripción, ubicación, marca…">
+      </div>
+      <div class="campo">
+        <label for="fcat">Categoría</label>
+        <select id="fcat"><option value="">Todas</option></select>
+      </div>
+      <div class="campo">
+        <label for="fest">Estado</label>
+        <select id="fest">
+          <option value="">Todos</option>
+          <option>Bueno</option><option>Regular</option><option>Dañado</option><option>Incompleto</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="tablawrap">
+      <table>
+        <thead><tr>
+          <th>Folio</th><th>Descripción</th><th>Categoría</th><th>Ubicación</th>
+          <th>Cant.</th><th>Estado</th><th>Fecha</th>
+        </tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+      <p class="vacio" id="vacio" hidden>Todavía no hay bienes registrados en este dispositivo.</p>
+    </div>
+  </section>
+
+  <!-- ============ ETIQUETAS ============ -->
+  <section role="tabpanel" id="p-etiquetas" aria-labelledby="t-etiquetas" hidden>
+    <h2>Etiquetas para imprimir</h2>
+    <p class="lede">Una etiqueta por bien, con su folio y código QR. Al escanear el código se abre la ficha de ese folio.</p>
+    <div class="acciones noimp" style="margin-top:0;border:0;padding-top:0">
+      <button class="b" id="imprimir">Imprimir etiquetas</button>
+      <span class="hint">Se imprimen las etiquetas de todos los bienes registrados.</span>
+    </div>
+    <div class="hojas" id="hojas"></div>
+    <p class="vacio" id="vacio2" hidden>Registra al menos un bien para generar etiquetas.</p>
+  </section>
+
+  <!-- ============ ACTA ============ -->
+  <section role="tabpanel" id="p-acta" aria-labelledby="t-acta" hidden>
+    <h2>Acta de corte</h2>
+    <p class="lede">Resumen del inventario a la fecha, con totales por categoría y por estado, para firma de quienes participaron.</p>
+    <div class="acciones noimp" style="margin-top:0;border:0;padding-top:0">
+      <button class="b" id="imprimirActa">Imprimir acta</button>
+    </div>
+    <div id="acta" style="margin-top:20px"></div>
+  </section>
+
+  <!-- ============ RESPALDO ============ -->
+  <section role="tabpanel" id="p-respaldo" aria-labelledby="t-respaldo" hidden>
+    <h2>Respaldo de la información</h2>
+    <p class="lede">Los registros viven únicamente en este navegador. Descarga un respaldo al terminar cada jornada y guárdalo donde la subcomisión acuerde.</p>
+
+    <div class="aviso">
+      <strong>Para juntar el trabajo de varias personas.</strong> Cada quien descarga su archivo de respaldo y lo comparte con la subcomisión. Después, en un solo dispositivo, se cargan los archivos uno por uno con el botón de importar: los folios repetidos se omiten y los nuevos se suman.
+    </div>
+
+    <div class="resumen">
+      <div class="tile"><b id="nRegistros">0</b><span>Bienes registrados</span></div>
+      <div class="tile"><b id="uso">0 KB</b><span>Espacio utilizado</span></div>
+    </div>
+
+    <div class="acciones" style="border:0;padding-top:0;margin-top:0">
+      <button class="b" id="expJson">Descargar respaldo</button>
+      <button class="b sec" id="expCsv">Descargar hoja de cálculo</button>
+      <button class="b sec" id="impBtn">Importar respaldo</button>
+      <input id="impFile" type="file" accept="application/json,.json" hidden>
+    </div>
+
+    <h3 style="margin-top:34px;font-size:1.05rem;font-weight:800">Configuración del folio</h3>
+    <p class="lede" style="margin-top:6px">El folio se forma con las siglas de la subcomisión, la unidad, el año y un consecutivo.</p>
+    <div class="campos" style="max-width:520px">
+      <div class="campo">
+        <label for="unidad">Unidad</label>
+        <select id="unidad">
+          <option value="IZT">Iztapalapa</option>
+          <option value="AZC">Azcapotzalco</option>
+          <option value="CUA">Cuajimalpa</option>
+          <option value="LER">Lerma</option>
+          <option value="XOC">Xochimilco</option>
+        </select>
+      </div>
+      <div class="campo">
+        <label>Siguiente folio</label>
+        <input id="muestraFolio" readonly>
+      </div>
+    </div>
+
+    <h3 style="margin-top:34px;font-size:1.05rem;font-weight:800">Borrar todo</h3>
+    <p class="lede" style="margin-top:6px">Elimina de este navegador todos los bienes registrados. No se puede deshacer, así que descarga antes un respaldo.</p>
+    <button class="b sec" id="borrar" style="border-color:var(--mal);color:var(--mal)">Borrar todos los registros</button>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    Subcomisión de Inventariado y Auditoría Interna · adscrita a la Comisión de Gestión y Operación ·
+    Movimiento Estudiantil UAM-I · <a href="https://meuami.org/">meuami.org</a>
+  </div>
+</footer>
+
+<dialog id="dlg"><div class="dlg" id="dlgCuerpo"></div></dialog>
+
+<script src="vendor/qrcode.js"></script>
+<script>
+"use strict";
+const LLAVE = "sia-inventario-v1";
+const CATS = ["Equipo de cómputo","Equipo de laboratorio","Equipo audiovisual","Mobiliario",
+              "Herramienta","Material y papelería","Llaves y accesos","Acervo bibliográfico","Otro"];
+
+let datos = {config:{unidad:"IZT", consecutivo:1}, registros:[]};
+
+/* ---------- Almacenamiento ---------- */
+function cargar(){
+  try{
+    const crudo = localStorage.getItem(LLAVE);
+    if(crudo){
+      const d = JSON.parse(crudo);
+      if(d && Array.isArray(d.registros)) datos = {config:Object.assign({unidad:"IZT",consecutivo:1}, d.config||{}), registros:d.registros};
+    }
+  }catch(e){ console.warn("No se pudo leer el almacenamiento:", e); }
+}
+function guardar(){
+  try{ localStorage.setItem(LLAVE, JSON.stringify(datos)); return true; }
+  catch(e){
+    alert("No se pudo guardar: el almacenamiento del navegador está lleno.\n\nDescarga un respaldo en la pestaña Respaldo y luego borra registros antiguos de este dispositivo.");
+    return false;
+  }
+}
+
+/* ---------- Folio ---------- */
+function folioDe(n){
+  return "SIA-" + datos.config.unidad + "-" + new Date().getFullYear() + "-" + String(n).padStart(4,"0");
+}
+function proximoFolio(){ return folioDe(datos.config.consecutivo); }
+
+/* ---------- Utilidades ---------- */
+const esc = s => String(s==null?"":s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function fechaCorta(iso){
+  const d = new Date(iso);
+  return d.toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"numeric"});
+}
+function fechaLarga(iso){
+  const d = new Date(iso);
+  return d.toLocaleString("es-MX",{day:"2-digit",month:"long",year:"numeric",hour:"2-digit",minute:"2-digit"});
+}
+function qrSvg(texto, celda){
+  const q = qrcode(0,"M");
+  q.addData(texto);
+  q.make();
+  return q.createSvgTag({cellSize:celda||4, margin:2, scalable:true});
+}
+function urlFolio(f){
+  return location.origin + location.pathname + "?f=" + encodeURIComponent(f);
+}
+function descargar(nombre, contenido, tipo){
+  const blob = new Blob([contenido], {type:tipo});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = nombre;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 1500);
+}
+
+/* ---------- Foto: se reduce antes de guardar ---------- */
+function reducirFoto(archivo){
+  return new Promise(resolve=>{
+    if(!archivo){ resolve(null); return; }
+    const lector = new FileReader();
+    lector.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const max = 900;
+        let {width:w, height:h} = img;
+        if(w > max || h > max){ const r = Math.min(max/w, max/h); w = Math.round(w*r); h = Math.round(h*r); }
+        const c = document.createElement("canvas");
+        c.width = w; c.height = h;
+        c.getContext("2d").drawImage(img, 0, 0, w, h);
+        try{ resolve(c.toDataURL("image/jpeg", 0.55)); }catch(e){ resolve(null); }
+      };
+      img.onerror = () => resolve(null);
+      img.src = lector.result;
+    };
+    lector.onerror = () => resolve(null);
+    lector.readAsDataURL(archivo);
+  });
+}
+
+/* ---------- Alta ---------- */
+document.getElementById("form").addEventListener("submit", async function(ev){
+  ev.preventDefault();
+  const boton = this.querySelector('button[type="submit"]');
+  boton.disabled = true;
+  const foto = await reducirFoto(document.getElementById("foto").files[0]);
+  const reg = {
+    folio: proximoFolio(),
+    fecha: new Date().toISOString(),
+    categoria: document.getElementById("categoria").value,
+    descripcion: document.getElementById("descripcion").value.trim(),
+    marca: document.getElementById("marca").value.trim(),
+    inventario: document.getElementById("inventario").value.trim(),
+    cantidad: Math.max(1, parseInt(document.getElementById("cantidad").value,10) || 1),
+    ubicacion: document.getElementById("ubicacion").value.trim(),
+    estado: document.getElementById("estado").value,
+    observaciones: document.getElementById("observaciones").value.trim(),
+    responsable: document.getElementById("responsable").value.trim(),
+    foto: foto
+  };
+  datos.registros.push(reg);
+  datos.config.consecutivo++;
+  if(guardar()){
+    const quien = reg.responsable;
+    this.reset();
+    document.getElementById("responsable").value = quien;   // se conserva para la siguiente captura
+    document.getElementById("cantidad").value = 1;
+    pintarTodo();
+    verDetalle(reg.folio);
+  }else{
+    datos.registros.pop(); datos.config.consecutivo--;
+  }
+  boton.disabled = false;
+});
+
+/* ---------- Ficha ---------- */
+function verDetalle(folio){
+  const r = datos.registros.find(x => x.folio === folio);
+  if(!r) return;
+  const fila = (t,v) => v ? "<dt>"+t+"</dt><dd>"+esc(v)+"</dd>" : "";
+  document.getElementById("dlgCuerpo").innerHTML =
+    '<h3>'+esc(r.folio)+'</h3>'+
+    '<p style="margin:4px 0 0;color:var(--muted);font-size:.9rem">Registrado el '+esc(fechaLarga(r.fecha))+'</p>'+
+    '<div class="qr">'+qrSvg(urlFolio(r.folio), 5)+'</div>'+
+    '<dl>'+
+      fila("Descripción", r.descripcion)+
+      fila("Categoría", r.categoria)+
+      fila("Marca y modelo", r.marca)+
+      fila("Inventario UAM", r.inventario)+
+      fila("Cantidad", r.cantidad)+
+      fila("Ubicación", r.ubicacion)+
+      '<dt>Estado</dt><dd><span class="etq e-'+esc(r.estado)+'">'+esc(r.estado)+'</span></dd>'+
+      fila("Observaciones", r.observaciones)+
+      fila("Registró", r.responsable)+
+    '</dl>'+
+    (r.foto ? '<img class="foto" src="'+r.foto+'" alt="Fotografía del bien '+esc(r.folio)+'">' : '')+
+    '<div class="acciones"><button class="b" id="cerrarDlg">Cerrar</button>'+
+    '<button class="b sec" id="borrarUno">Eliminar este registro</button></div>';
+  const dlg = document.getElementById("dlg");
+  dlg.showModal();
+  document.getElementById("cerrarDlg").onclick = () => dlg.close();
+  document.getElementById("borrarUno").onclick = () => {
+    if(confirm("¿Eliminar el registro "+r.folio+"? Esta acción no se puede deshacer.")){
+      datos.registros = datos.registros.filter(x => x.folio !== r.folio);
+      guardar(); dlg.close(); pintarTodo();
+    }
+  };
+}
+
+/* ---------- Tabla y resumen ---------- */
+function filtrados(){
+  const q = (document.getElementById("buscar").value||"").toLowerCase().trim();
+  const c = document.getElementById("fcat").value;
+  const e = document.getElementById("fest").value;
+  return datos.registros.filter(r=>{
+    if(c && r.categoria !== c) return false;
+    if(e && r.estado !== e) return false;
+    if(!q) return true;
+    return [r.folio,r.descripcion,r.ubicacion,r.marca,r.inventario,r.responsable,r.observaciones]
+      .join(" ").toLowerCase().includes(q);
+  });
+}
+function pintarTabla(){
+  const lista = filtrados();
+  const tb = document.getElementById("tbody");
+  tb.innerHTML = lista.map(r =>
+    '<tr tabindex="0" data-f="'+esc(r.folio)+'">'+
+      '<td class="folio">'+esc(r.folio)+'</td>'+
+      '<td>'+esc(r.descripcion)+(r.marca?'<br><span style="color:var(--muted);font-size:.85em">'+esc(r.marca)+'</span>':'')+'</td>'+
+      '<td>'+esc(r.categoria)+'</td>'+
+      '<td>'+esc(r.ubicacion)+'</td>'+
+      '<td style="font-variant-numeric:tabular-nums">'+esc(r.cantidad)+'</td>'+
+      '<td><span class="etq e-'+esc(r.estado)+'">'+esc(r.estado)+'</span></td>'+
+      '<td style="white-space:nowrap">'+esc(fechaCorta(r.fecha))+'</td>'+
+    '</tr>').join("");
+  document.getElementById("vacio").hidden = lista.length > 0;
+  tb.querySelectorAll("tr").forEach(tr=>{
+    tr.style.cursor = "pointer";
+    tr.onclick = () => verDetalle(tr.dataset.f);
+    tr.onkeydown = ev => { if(ev.key === "Enter") verDetalle(tr.dataset.f); };
+  });
+}
+function pintarResumen(){
+  const n = datos.registros.length;
+  const piezas = datos.registros.reduce((a,r)=>a + (parseInt(r.cantidad,10)||1), 0);
+  const cuenta = est => datos.registros.filter(r=>r.estado===est).length;
+  document.getElementById("resumen").innerHTML =
+    '<div class="tile"><b>'+n+'</b><span>Registros</span></div>'+
+    '<div class="tile"><b>'+piezas+'</b><span>Piezas en total</span></div>'+
+    '<div class="tile"><b style="color:var(--ok)">'+cuenta("Bueno")+'</b><span>En buen estado</span></div>'+
+    '<div class="tile"><b style="color:var(--mal)">'+(cuenta("Dañado")+cuenta("Incompleto"))+'</b><span>Dañados o incompletos</span></div>';
+}
+function pintarEtiquetas(){
+  const cont = document.getElementById("hojas");
+  cont.innerHTML = datos.registros.map(r =>
+    '<div class="etiqueta">'+qrSvg(urlFolio(r.folio), 3)+
+    '<div class="txt"><div class="ef">'+esc(r.folio)+'</div>'+
+    '<div class="ed">'+esc(r.descripcion.slice(0,58))+'</div>'+
+    '<div class="eo">'+esc(r.ubicacion.slice(0,40))+'</div></div></div>').join("");
+  document.getElementById("vacio2").hidden = datos.registros.length > 0;
+}
+function pintarActa(){
+  const n = datos.registros.length;
+  if(!n){ document.getElementById("acta").innerHTML = '<p class="vacio">Registra al menos un bien para generar el acta.</p>'; return; }
+  const porCat = {}, porEst = {};
+  let piezas = 0;
+  datos.registros.forEach(r=>{
+    porCat[r.categoria] = (porCat[r.categoria]||0) + 1;
+    porEst[r.estado] = (porEst[r.estado]||0) + 1;
+    piezas += parseInt(r.cantidad,10)||1;
+  });
+  const filas = o => Object.keys(o).sort().map(k => '<tr><td>'+esc(k)+'</td><td style="font-variant-numeric:tabular-nums">'+o[k]+'</td></tr>').join("");
+  const quienes = [...new Set(datos.registros.map(r=>r.responsable).filter(Boolean))];
+  const fechas = datos.registros.map(r=>new Date(r.fecha)).sort((a,b)=>a-b);
+  document.getElementById("acta").innerHTML =
+    '<div class="tile" style="padding:26px">'+
+    '<h3 style="font-size:1.15rem">Acta de corte del inventario</h3>'+
+    '<p style="color:var(--muted);font-size:.92rem;margin:6px 0 18px">'+
+      'Subcomisión de Inventariado y Auditoría Interna · Unidad '+esc(datos.config.unidad)+'<br>'+
+      'Periodo registrado: del '+esc(fechaCorta(fechas[0]))+' al '+esc(fechaCorta(fechas[fechas.length-1]))+'<br>'+
+      'Acta generada el '+esc(fechaLarga(new Date().toISOString()))+'</p>'+
+    '<p style="margin:0 0 18px">Se hace constar que a la fecha se encuentran registrados <strong>'+n+'</strong> bienes, que suman <strong>'+piezas+'</strong> piezas, con el desglose siguiente.</p>'+
+    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:22px">'+
+      '<div><h4 style="font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 7px">Por categoría</h4>'+
+      '<table><tbody>'+filas(porCat)+'</tbody></table></div>'+
+      '<div><h4 style="font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 7px">Por estado</h4>'+
+      '<table><tbody>'+filas(porEst)+'</tbody></table></div>'+
+    '</div>'+
+    '<h4 style="font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:26px 0 7px">Participaron en el registro</h4>'+
+    '<p style="margin:0">'+esc(quienes.join(" · "))+'</p>'+
+    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:40px;margin-top:54px">'+
+      '<div style="border-top:1px solid var(--ink);padding-top:7px;font-size:.82rem;color:var(--muted)">Nombre y firma</div>'+
+      '<div style="border-top:1px solid var(--ink);padding-top:7px;font-size:.82rem;color:var(--muted)">Nombre y firma</div>'+
+      '<div style="border-top:1px solid var(--ink);padding-top:7px;font-size:.82rem;color:var(--muted)">Nombre y firma</div>'+
+    '</div></div>';
+}
+function pintarRespaldo(){
+  document.getElementById("nRegistros").textContent = datos.registros.length;
+  let bytes = 0;
+  try{ bytes = new Blob([localStorage.getItem(LLAVE)||""]).size; }catch(e){}
+  document.getElementById("uso").textContent = bytes > 1048576
+    ? (bytes/1048576).toFixed(1)+" MB" : Math.max(1, Math.round(bytes/1024))+" KB";
+  document.getElementById("unidad").value = datos.config.unidad;
+  document.getElementById("muestraFolio").value = proximoFolio();
+}
+function pintarTodo(){
+  pintarResumen(); pintarTabla(); pintarEtiquetas(); pintarActa(); pintarRespaldo();
+  document.getElementById("proximo").textContent = "Siguiente folio: " + proximoFolio();
+}
+
+/* ---------- Pestañas ---------- */
+const pest = Array.from(document.querySelectorAll('[role="tab"]'));
+function abrir(id){
+  pest.forEach(b=>{
+    const activa = b.id === id;
+    b.setAttribute("aria-selected", activa ? "true" : "false");
+    document.getElementById(b.getAttribute("aria-controls")).hidden = !activa;
+  });
+  try{ history.replaceState(null,"", "#" + id.replace("t-","")); }catch(e){}
+}
+pest.forEach(b => b.addEventListener("click", () => abrir(b.id)));
+
+/* ---------- Filtros ---------- */
+["buscar","fcat","fest"].forEach(id => document.getElementById(id).addEventListener("input", pintarTabla));
+document.getElementById("fcat").innerHTML = '<option value="">Todas</option>' + CATS.map(c=>'<option>'+c+'</option>').join("");
+
+/* ---------- Impresión ---------- */
+document.getElementById("imprimir").onclick = () => window.print();
+document.getElementById("imprimirActa").onclick = () => window.print();
+
+/* ---------- Respaldo ---------- */
+document.getElementById("expJson").onclick = () => {
+  const hoy = new Date().toISOString().slice(0,10);
+  descargar("inventario-"+datos.config.unidad+"-"+hoy+".json",
+    JSON.stringify({version:1, exportado:new Date().toISOString(), config:datos.config, registros:datos.registros}, null, 2),
+    "application/json");
+};
+document.getElementById("expCsv").onclick = () => {
+  const cols = ["folio","fecha","categoria","descripcion","marca","inventario","cantidad","ubicacion","estado","observaciones","responsable"];
+  const cel = v => '"' + String(v==null?"":v).replace(/"/g,'""') + '"';
+  const lineas = [cols.map(cel).join(",")].concat(
+    datos.registros.map(r => cols.map(c => cel(c==="fecha" ? fechaLarga(r.fecha) : r[c])).join(","))
+  );
+  const hoy = new Date().toISOString().slice(0,10);
+  descargar("inventario-"+datos.config.unidad+"-"+hoy+".csv", "﻿"+lineas.join("\r\n"), "text/csv;charset=utf-8");
+};
+document.getElementById("impBtn").onclick = () => document.getElementById("impFile").click();
+document.getElementById("impFile").addEventListener("change", function(){
+  const archivo = this.files[0];
+  if(!archivo) return;
+  const lector = new FileReader();
+  lector.onload = () => {
+    try{
+      const d = JSON.parse(lector.result);
+      if(!d || !Array.isArray(d.registros)) throw new Error("formato");
+      const existentes = new Set(datos.registros.map(r=>r.folio));
+      let nuevos = 0, repetidos = 0;
+      d.registros.forEach(r=>{
+        if(!r || !r.folio) return;
+        if(existentes.has(r.folio)){ repetidos++; return; }
+        datos.registros.push(r); existentes.add(r.folio); nuevos++;
+      });
+      // el consecutivo se recalcula para no repetir folios de esta unidad
+      const mayor = datos.registros
+        .filter(r => typeof r.folio === "string" && r.folio.indexOf("SIA-"+datos.config.unidad+"-") === 0)
+        .reduce((m,r)=>Math.max(m, parseInt(r.folio.split("-").pop(),10)||0), 0);
+      datos.config.consecutivo = Math.max(datos.config.consecutivo, mayor+1);
+      if(guardar()){
+        pintarTodo();
+        alert("Importación terminada.\n\nBienes agregados: "+nuevos+"\nFolios que ya existían y se omitieron: "+repetidos);
+      }
+    }catch(e){
+      alert("El archivo no se pudo leer. Debe ser un respaldo descargado desde esta misma herramienta.");
+    }
+    this.value = "";
+  };
+  lector.readAsText(archivo);
+});
+document.getElementById("unidad").addEventListener("change", function(){
+  datos.config.unidad = this.value;
+  guardar(); pintarTodo();
+});
+document.getElementById("borrar").onclick = () => {
+  if(!datos.registros.length){ alert("No hay registros que borrar."); return; }
+  if(confirm("Se eliminarán "+datos.registros.length+" registros de este dispositivo.\n\n¿Descargaste ya un respaldo? Esta acción no se puede deshacer.")){
+    if(confirm("Confirma por última vez: ¿borrar todos los registros?")){
+      datos.registros = []; datos.config.consecutivo = 1; guardar(); pintarTodo();
+    }
+  }
+};
+
+/* ---------- Arranque ---------- */
+cargar();
+pintarTodo();
+const hash = (location.hash||"").replace("#","");
+if(hash && document.getElementById("t-"+hash)) abrir("t-"+hash);
+const buscado = new URLSearchParams(location.search).get("f");
+if(buscado){
+  if(datos.registros.some(r=>r.folio===buscado)){ abrir("t-registro"); verDetalle(buscado); }
+  else{
+    abrir("t-registro");
+    alert("El folio "+buscado+" no está registrado en este dispositivo.\n\nLos registros se guardan localmente: consulta el respaldo maestro de la subcomisión.");
+  }
+}
+</script>
+</body>
+</html>
