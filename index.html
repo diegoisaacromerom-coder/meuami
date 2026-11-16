@@ -142,15 +142,24 @@ main > section > h2::before,.fuentes-sec h2::before{content:counter(sec,decimal-
 /* Estado por unidad */
 .units{display:grid;grid-template-columns:repeat(auto-fit,minmax(258px,1fr));gap:16px}
 .unit{background:var(--card);overflow:hidden;display:flex;flex-direction:column;border-bottom:4px solid var(--c)}
-.unit .ph{position:relative;aspect-ratio:4/3;overflow:hidden;background-color:var(--c);isolation:isolate;
-  display:flex;flex-direction:column}
-/* fondo: la misma foto desenfocada y teñida con el color de la unidad */
+.unit .ph{position:relative;aspect-ratio:4/3;overflow:hidden;isolation:isolate;
+  display:flex;flex-direction:column;
+  background:linear-gradient(150deg,
+    color-mix(in srgb, rgb(var(--crgb)) 70%, #fff) 0%,
+    rgb(var(--crgb)) 46%,
+    color-mix(in srgb, rgb(var(--crgb)) 68%, #000) 100%)}
+/* fondo: la misma foto desenfocada. El color se aplica como tinte, no como velo,
+   así conserva las luces y sombras de la foto en vez de verse plano. */
 .unit .phbg{position:absolute;inset:0;background-image:var(--bg);background-size:cover;background-position:center;
-  filter:blur(22px) saturate(1.3);transform:scale(1.25)}
-.unit .phbg::after{content:"";position:absolute;inset:0;background:rgba(var(--crgb),.44)}
+  filter:blur(18px) saturate(1.2);transform:scale(1.25);
+  mix-blend-mode:soft-light;opacity:.8}
+/* profundidad: un poco de luz arriba y sombra abajo */
+.unit .ph::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(125% 95% at 50% 0%, rgba(255,255,255,.16) 0%, rgba(255,255,255,0) 45%, rgba(0,0,0,.26) 100%)}
 /* foto completa: ocupa el espacio libre encima de la barra, sin recortes */
 .unit .phimg{position:relative;z-index:1;flex:1 1 auto;min-height:0;width:100%;height:auto;
-  object-fit:contain;object-position:center}
+  object-fit:contain;object-position:center;
+  filter:drop-shadow(0 8px 22px rgba(0,0,0,.34))}
 /* barra de vidrio esmerilado con el nombre */
 .unit .phcap{position:relative;z-index:3;flex:none;padding:12px 15px 13px;
   display:flex;flex-direction:column;align-items:flex-start;gap:7px;
