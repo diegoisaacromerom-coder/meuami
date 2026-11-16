@@ -82,7 +82,15 @@ h3{font-size:1.05rem;margin:0}
     linear-gradient(90deg, rgba(6,14,9,.92) 0%, rgba(6,14,9,.6) 58%, rgba(6,14,9,.28) 100%),
     linear-gradient(0deg, rgba(6,14,9,.88) 0%, rgba(6,14,9,.12) 58%),
     url("assets/hero.jpg") center 38%/cover no-repeat;}
-.hero-inner{padding:40px 20px 48px}
+.hero-inner{padding:40px 20px 52px}
+/* panel de vidrio esmerilado sobre la foto */
+.hero-card{max-width:720px;padding:28px 32px 30px;border-radius:22px;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.17);
+  -webkit-backdrop-filter:blur(22px) saturate(1.3);backdrop-filter:blur(22px) saturate(1.3);
+  box-shadow:0 24px 70px rgba(0,0,0,.42)}
+.hero-card::before{content:"";display:block;width:62px;height:4px;border-radius:999px;margin:0 0 17px;
+  background:linear-gradient(90deg,#34d27f,#1f9fe0)}
+@media (max-width:560px){.hero-card{padding:22px 20px 24px;border-radius:18px}}
 .brand{margin:0 0 20px}
 /* sin caja: un resplandor suave separa la pantera del fondo oscuro */
 .brand img{display:block;width:auto;height:auto;max-width:330px;max-height:140px;
@@ -134,19 +142,20 @@ main > section > h2::before,.fuentes-sec h2::before{content:counter(sec,decimal-
 /* Estado por unidad */
 .units{display:grid;grid-template-columns:repeat(auto-fit,minmax(258px,1fr));gap:16px}
 .unit{background:var(--card);overflow:hidden;display:flex;flex-direction:column;border-bottom:4px solid var(--c)}
-.unit .ph{position:relative;aspect-ratio:16/10;overflow:hidden;background-color:var(--c);isolation:isolate}
+.unit .ph{position:relative;aspect-ratio:4/3;overflow:hidden;background-color:var(--c);isolation:isolate;
+  display:flex;flex-direction:column}
 /* fondo: la misma foto desenfocada y teñida con el color de la unidad */
 .unit .phbg{position:absolute;inset:0;background-image:var(--bg);background-size:cover;background-position:center;
-  filter:blur(26px) saturate(1.25);transform:scale(1.25)}
-.unit .phbg::after{content:"";position:absolute;inset:0;background:rgba(var(--crgb),.52)}
-/* foto completa, sin recortes */
-.unit .phimg{position:absolute;inset:0;z-index:1;width:100%;height:100%;object-fit:contain;object-position:center}
-/* velo inferior para que se lea el nombre */
-.unit .ph::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;
-  background:
-    linear-gradient(180deg, rgba(var(--crgb),0) 48%, rgba(var(--crgb),.55) 76%, rgba(var(--crgb),.95) 100%),
-    linear-gradient(180deg, rgba(0,0,0,0) 55%, rgba(0,0,0,.42) 100%);}
-.unit .phcap{position:absolute;z-index:3;left:0;right:0;bottom:0;padding:12px 15px 13px;display:flex;flex-direction:column;align-items:flex-start;gap:7px}
+  filter:blur(22px) saturate(1.3);transform:scale(1.25)}
+.unit .phbg::after{content:"";position:absolute;inset:0;background:rgba(var(--crgb),.44)}
+/* foto completa: ocupa el espacio libre encima de la barra, sin recortes */
+.unit .phimg{position:relative;z-index:1;flex:1 1 auto;min-height:0;width:100%;height:auto;
+  object-fit:contain;object-position:center}
+/* barra de vidrio esmerilado con el nombre */
+.unit .phcap{position:relative;z-index:3;flex:none;padding:12px 15px 13px;
+  display:flex;flex-direction:column;align-items:flex-start;gap:7px;
+  background:rgba(var(--crgb),.5);border-top:1px solid rgba(255,255,255,.26);
+  -webkit-backdrop-filter:blur(16px) saturate(1.4);backdrop-filter:blur(16px) saturate(1.4)}
 .unit .ubody{padding:14px 16px 18px;display:flex;flex-direction:column;gap:8px}
 .unit .name{font-family:var(--display);font-weight:800;font-size:1.3rem;line-height:1.05;text-transform:uppercase;letter-spacing:-.02em;overflow-wrap:break-word;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.45)}
 .pill{align-self:flex-start;font:600 .75rem var(--mono);text-transform:uppercase;letter-spacing:.05em;padding:3px 8px;background:var(--ink);color:var(--paper)}
@@ -247,25 +256,69 @@ body > .stripes span:nth-child(2){animation-delay:.07s}
 body > .stripes span:nth-child(3){animation-delay:.14s}
 body > .stripes span:nth-child(4){animation-delay:.21s}
 body > .stripes span:nth-child(5){animation-delay:.28s}
+@keyframes surgeCard{from{opacity:0;transform:translateY(22px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes surgeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 .hero::before{animation:asentar 1.5s cubic-bezier(.2,.7,.3,1) both}
-.hero .brand,.hero .kicker,.hero h1,.hero .sub,.hero .facts{animation:surge .66s cubic-bezier(.2,.7,.3,1) both}
-.hero .kicker{animation-delay:.10s}
-.hero h1{animation-delay:.17s}
-.hero .sub{animation-delay:.26s}
-.hero .facts{animation-delay:.34s}
+.hero .brand{animation:surge .66s cubic-bezier(.2,.7,.3,1) both}
+.hero-card{animation:surgeCard .72s cubic-bezier(.2,.7,.3,1) both;animation-delay:.1s}
+.hero .kicker,.hero h1,.hero .sub,.hero .facts{animation:surgeIn .6s cubic-bezier(.2,.7,.3,1) both}
+.hero .kicker{animation-delay:.26s}
+.hero h1{animation-delay:.33s}
+.hero .sub{animation-delay:.41s}
+.hero .facts{animation-delay:.49s}
 
-/* ---- Matices de tarjeta ---- */
+/* ---- Reacción al pasar el cursor o tocar ---- */
 .unit{border:1px solid var(--rule);border-bottom:4px solid var(--c);
+  transition:transform .28s cubic-bezier(.2,.7,.3,1), box-shadow .28s ease}
+.unit:hover{transform:translateY(-4px);box-shadow:0 16px 32px rgba(0,0,0,.15)}
+.unit .phimg{transition:transform .5s cubic-bezier(.2,.7,.3,1)}
+.unit:hover .phimg{transform:scale(1.05)}
+.unit .phbg{transition:transform .7s ease}
+.unit:hover .phbg{transform:scale(1.34)}
+
+.pl,.com{border:1px solid var(--rule);border-left:8px solid var(--c);
   transition:transform .25s ease, box-shadow .25s ease}
-.unit:hover{transform:translateY(-3px);box-shadow:0 12px 26px rgba(0,0,0,.13)}
-.pl{border:1px solid var(--rule);border-left:8px solid var(--c)}
-.com{border:1px solid var(--rule);border-left:8px solid var(--c)}
-.chip{transition:background .18s ease,color .18s ease,border-color .18s ease}
-.tlfoto img{transition:transform .4s ease}
+.pl:hover,.com:hover{transform:translateY(-3px);box-shadow:0 14px 28px rgba(0,0,0,.12)}
+
+.tl li{transition:transform .25s cubic-bezier(.2,.7,.3,1)}
+.tl li:hover{transform:translateX(5px)}
+.tl li::before{transition:transform .25s cubic-bezier(.2,.7,.3,1)}
+.tl li:hover::before{transform:scale(1.4)}
+
+.chip{transition:background .18s ease,color .18s ease,border-color .18s ease,transform .18s ease}
+.chip:hover{transform:translateY(-2px)}
+.chip:active{transform:scale(.96)}
+
+.tlfoto{overflow:hidden}
+.tlfoto img{transition:transform .55s cubic-bezier(.2,.7,.3,1)}
+.tlfoto:hover img{transform:scale(1.05)}
+
+/* subrayado que crece en los enlaces de fuentes */
+.flist a{text-decoration:none;color:var(--muted);
+  background-image:linear-gradient(var(--accent),var(--accent));
+  background-size:0% 1.5px;background-repeat:no-repeat;background-position:0 100%;
+  transition:background-size .32s cubic-bezier(.2,.7,.3,1),color .2s ease}
+.flist a:hover{background-size:100% 1.5px;color:var(--ink)}
+
+.fcol a{transition:color .2s ease,transform .22s ease}
+.fl a:hover{transform:translateX(-4px)}
+.fr a:hover{transform:translateX(4px)}
+.fsocial a,.totop{transition:background .2s ease,border-color .2s ease,color .2s ease,transform .22s ease}
+.fsocial a:hover,.totop:hover{transform:translateY(-3px)}
+.src a{transition:color .2s ease}
+.src a:hover{color:var(--accent)}
+
+/* ---- Aparición al desplazar (solo con JS; sin él todo se ve) ---- */
+html.js-reveal .rv{opacity:0;transform:translateY(18px)}
+html.js-reveal .rv.vista{opacity:1;transform:none;
+  transition:opacity .6s ease, transform .6s cubic-bezier(.2,.7,.3,1)}
 
 @media (prefers-reduced-motion: reduce){
-  body > .stripes span,.hero::before,.hero .brand,.hero .kicker,.hero h1,.hero .sub,.hero .facts{animation:none}
-  .unit:hover{transform:none}
+  body > .stripes span,.hero::before,.hero .brand,.hero-card,.hero .kicker,.hero h1,.hero .sub,.hero .facts{animation:none}
+  .unit:hover,.pl:hover,.com:hover,.chip:hover,.fsocial a:hover,.totop:hover{transform:none}
+  .tl li:hover{transform:none}
+  .unit:hover .phimg,.unit:hover .phbg,.tlfoto:hover img{transform:none}
+  html.js-reveal .rv{opacity:1;transform:none}
 }
 [hidden]{display:none !important}
 </style>
@@ -278,14 +331,16 @@ body > .stripes span:nth-child(5){animation-delay:.28s}
     <div class="brand">
       <img src="assets/logo.png" alt="Movimiento Estudiantil UAM-I">
     </div>
-    <p class="kicker">Paro UAM · actualizado el 15 de noviembre de 2026</p>
-    <h1>Paro <em>UAM</em> 2026</h1>
-    <p class="sub">La casa de este espacio es la <strong>UAM Iztapalapa</strong>, donde arrancó el movimiento. Aquí seguimos de cerca nuestro paro, el de las otras unidades y el de la universidad entera. Todo con sus fuentes.</p>
-    <ul class="facts">
-      <li><b id="dias">26</b>días desde el 20 de octubre</li>
-      <li><b>5 de 5</b>unidades en paro total</li>
-      <li><b>Sin fecha</b>de regreso a clases</li>
-    </ul>
+    <div class="hero-card">
+      <p class="kicker">Paro UAM · actualizado el 15 de noviembre de 2026</p>
+      <h1>Paro <em>UAM</em> 2026</h1>
+      <p class="sub">La casa de este espacio es la <strong>UAM Iztapalapa</strong>, donde arrancó el movimiento. Aquí seguimos de cerca nuestro paro, el de las otras unidades y el de la universidad entera. Todo con sus fuentes.</p>
+      <ul class="facts">
+        <li><b id="dias">26</b>días desde el 20 de octubre</li>
+        <li><b>5 de 5</b>unidades en paro total</li>
+        <li><b>Sin fecha</b>de regreso a clases</li>
+      </ul>
+    </div>
   </div>
 </header>
 
@@ -551,7 +606,9 @@ function applyFilter(u){
     let shown = 0;
     document.querySelectorAll(sel + " [data-u]").forEach(el => {
       const ok = u === "all" || el.dataset.u === u || (el.dataset.u === "gen" && sel !== "#pliegos");
-      el.hidden = !ok; if (ok) shown++;
+      el.hidden = !ok;
+      // al reaparecer por filtro se muestra de inmediato, sin esperar el desplazamiento
+      if (ok) { shown++; if (el.classList.contains("rv")) el.classList.add("vista"); }
     });
     if (emptyId) document.getElementById(emptyId).classList.toggle("show", shown === 0);
   });
@@ -595,6 +652,30 @@ let saved = "all";
 try { saved = localStorage.getItem("paro-uam-unidad") || "all"; } catch(e) {}
 if (!document.querySelector('.chip[data-u="' + saved + '"]')) saved = "all";
 applyFilter(saved);
+
+// Aparición al desplazar. Si no hay JS o se pide menos movimiento, todo se ve desde el inicio.
+(function(){
+  const menos = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (menos || !("IntersectionObserver" in window)) return;
+  document.documentElement.classList.add("js-reveal");
+  const grupos = [".units .unit", ".next > div", ".common > div", ".pliegos .pl",
+                  ".callout", ".tlfoto", ".tl li", ".coms .com", ".flist li"];
+  const io = new IntersectionObserver(ents => {
+    ents.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add("vista"); io.unobserve(e.target); }
+    });
+  }, {threshold:0.08, rootMargin:"0px 0px -6% 0px"});
+  grupos.forEach(sel => {
+    document.querySelectorAll(sel).forEach((el, i) => {
+      el.classList.add("rv");
+      el.style.transitionDelay = Math.min(i, 6) * 55 + "ms";
+      io.observe(el);
+    });
+  });
+  const mostrarTodo = () => document.querySelectorAll(".rv").forEach(el => el.classList.add("vista"));
+  window.addEventListener("beforeprint", mostrarTodo);
+  setTimeout(mostrarTodo, 6000);
+})();
 </script>
 </body>
 </html>
