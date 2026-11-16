@@ -91,6 +91,19 @@ th{font-size:.73rem;font-weight:700;text-transform:uppercase;letter-spacing:.06e
 td.n{font-variant-numeric:tabular-nums;white-space:nowrap}
 .vacio{padding:26px;text-align:center;color:var(--muted)}
 
+/* Consultas SQL */
+.sqlcaja{width:100%;font:500 .88rem ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  background:var(--card);color:var(--ink);border:1px solid var(--rule);border-radius:10px;
+  padding:13px 15px;resize:vertical;line-height:1.6}
+.presets{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px;margin:0 0 20px}
+.preset{appearance:none;text-align:left;font:600 .86rem var(--f);background:var(--card);color:var(--ink);
+  border:1px solid var(--rule);border-radius:10px;padding:12px 14px;cursor:pointer;
+  transition:border-color .2s ease,transform .2s ease}
+.preset:hover{border-color:var(--accent);transform:translateY(-2px)}
+.preset b{display:block;font-weight:700;margin-bottom:3px}
+.preset span{display:block;color:var(--muted);font-size:.8rem;font-weight:500;line-height:1.45}
+.etiq{display:block;font-size:.73rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
+  color:var(--muted);margin:0 0 7px}
 footer{border-top:1px solid var(--rule);padding:24px 0 44px;color:var(--muted);font-size:.85rem}
 [hidden]{display:none !important}
 @media (prefers-reduced-motion: reduce){*{transition:none !important}}
@@ -189,6 +202,43 @@ footer{border-top:1px solid var(--rule);padding:24px 0 44px;color:var(--muted);f
     </div>
   </section>
 
+  <section id="sql">
+    <h2>Consultas SQL</h2>
+    <p class="lede">Para las preguntas que las tablas de arriba no alcanzan a responder. El inventario consolidado se
+    carga en un motor de base de datos que corre dentro de este navegador y se interroga con SQL. Los datos no salen
+    de este equipo: no hay servidor al que lleguen.</p>
+    <div class="aviso ojo">
+      <strong>El motor pesa alrededor de 8 MB</strong> y se descarga la primera vez que lo pidas; después el navegador
+      lo conserva en caché. Esa primera carga necesita conexión, así que conviene prepararlo antes de una sesión de
+      trabajo sin red. Ninguna otra parte del panel ni del sitio público lo descarga, y los datos del inventario nunca
+      salen de este equipo: lo que se descarga es el programa, no se sube la información.
+    </div>
+    <div class="botones" style="margin-top:0">
+      <button class="b" id="sqlCargar">Preparar el motor de consultas</button>
+      <button class="b sec" id="sqlRecargar" hidden>Volver a cargar el inventario</button>
+    </div>
+    <p id="sqlEstado" class="lede" style="margin-top:12px"></p>
+
+    <div id="sqlPanel" hidden>
+      <div class="presets" id="sqlPresets"></div>
+      <label class="etiq" for="sqlTexto">Consulta</label>
+      <textarea id="sqlTexto" class="sqlcaja" rows="6" spellcheck="false"></textarea>
+      <div class="botones">
+        <button class="b" id="sqlCorrer">Ejecutar</button>
+        <button class="b sec" id="sqlCsv" disabled>Descargar el resultado</button>
+      </div>
+      <p id="sqlAviso" class="lede" style="margin-top:12px"></p>
+      <div class="tablawrap" id="sqlTabla" hidden>
+        <table><thead id="sqlCabeza"></thead><tbody id="sqlCuerpo"></tbody></table>
+      </div>
+      <details style="margin-top:22px">
+        <summary style="cursor:pointer;font-weight:700;font-size:.9rem">Columnas de la tabla <code>bienes</code></summary>
+        <div class="tablawrap">
+          <table><thead><tr><th>Columna</th><th>Qué contiene</th></tr></thead><tbody id="sqlColumnas"></tbody></table>
+        </div>
+      </details>
+    </div>
+  </section>
 </main>
 
 <footer>
@@ -321,6 +371,235 @@ document.getElementById("limpiar").onclick = () => {
     acumulado = []; archivos.length = 0; pintar();
     document.getElementById("resultado").hidden = true;
   }
+};
+
+/* ---------- Consultas SQL ---------- */
+// El motor es DuckDB compilado a WebAssembly: corre completo dentro del
+// navegador, sin servidor. Se carga aparte y solo cuando se pide, porque son
+// unos 8 MB que no tienen por qué pagar quienes nada más revisan las tablas.
+const SQL_VERSION = "1.32.0";
+// La envoltura en JavaScript viaja con el sitio, en vendor/, para no depender
+// de que un CDN ajeno resuelva sus importaciones. El motor en WebAssembly, que
+// es lo que pesa, sí se descarga de jsDelivr cuando se pide.
+const SQL_MODULO = window.SQL_MODULO || "./vendor/duckdb.mjs";
+
+const COLUMNAS = [
+  ["folio",       "Folio completo del bien, tal como aparece en su etiqueta"],
+  ["unidad",      "Siglas de la unidad, tomadas del propio folio"],
+  ["fecha",       "Fecha de registro en formato AAAA-MM-DD"],
+  ["dias",        "Días transcurridos desde el registro, ya calculados"],
+  ["categoria",   "Clasificación del bien"],
+  ["procedencia", "Si es recurso del movimiento o préstamo de una persona"],
+  ["prestador",   "Quién prestó el bien, cuando se trata de un préstamo"],
+  ["descripcion", "Descripción del bien"],
+  ["marca",       "Marca y modelo"],
+  ["inventario",  "Número de inventario de la Universidad, si lo tiene"],
+  ["cantidad",    "Número de piezas amparadas por el folio"],
+  ["ubicacion",   "Dónde se encuentra resguardado"],
+  ["estado",      "Estado físico declarado"],
+  ["responsable", "Quién hizo el registro"]
+];
+const TIPOS = {folio:"VARCHAR", unidad:"VARCHAR", fecha:"VARCHAR", dias:"INTEGER",
+  categoria:"VARCHAR", procedencia:"VARCHAR", prestador:"VARCHAR", descripcion:"VARCHAR",
+  marca:"VARCHAR", inventario:"VARCHAR", cantidad:"INTEGER", ubicacion:"VARCHAR",
+  estado:"VARCHAR", responsable:"VARCHAR"};
+
+const PRESETS = [
+  ["Préstamos sin devolver",
+   "Los bienes prestados por personas, del que lleva más tiempo en resguardo al más reciente.",
+   "SELECT folio, descripcion, prestador, dias AS dias_en_resguardo,\n       ubicacion, estado\nFROM bienes\nWHERE procedencia ILIKE '%stamo%'\nORDER BY dias DESC"],
+  ["Qué hay en cada ubicación",
+   "Cuántos folios y cuántas piezas se resguardan en cada lugar.",
+   "SELECT ubicacion,\n       count(*)              AS folios,\n       sum(cantidad)         AS piezas,\n       count(DISTINCT categoria) AS categorias\nFROM bienes\nGROUP BY ubicacion\nORDER BY folios DESC"],
+  ["Bienes que requieren atención",
+   "Todo lo que no está declarado en buen estado, agrupado por estado.",
+   "SELECT estado,\n       count(*)                 AS bienes,\n       string_agg(folio, ', ')  AS folios\nFROM bienes\nWHERE estado <> 'Bueno'\nGROUP BY estado\nORDER BY bienes DESC"],
+  ["Posibles duplicados",
+   "Descripciones que aparecen en más de un folio: puede ser doble captura.",
+   "SELECT lower(trim(descripcion))  AS descripcion,\n       count(*)                 AS folios,\n       string_agg(folio, ', ')  AS cuales\nFROM bienes\nGROUP BY 1\nHAVING count(*) > 1\nORDER BY folios DESC"],
+  ["Ritmo de captura por mes",
+   "Cuántos bienes se registraron en cada mes y quiénes los capturaron.",
+   "SELECT substr(fecha, 1, 7)            AS mes,\n       count(*)                      AS altas,\n       count(DISTINCT responsable)    AS personas\nFROM bienes\nWHERE fecha <> ''\nGROUP BY mes\nORDER BY mes"],
+  ["Sin número de inventario UAM",
+   "Bienes que no traen número institucional, para revisar si deben tenerlo.",
+   "SELECT folio, descripcion, categoria, procedencia, ubicacion\nFROM bienes\nWHERE inventario = '' OR inventario IS NULL\nORDER BY categoria, folio"]
+];
+
+let motor = null;          // {duckdb, bd, conexion}
+let ultimoResultado = null;
+
+function sqlDice(texto, malo){
+  const c = document.getElementById("sqlEstado");
+  c.textContent = texto;
+  c.style.color = malo ? "var(--mal)" : "";
+}
+function filasCsv(filas){
+  if(!filas.length) return "";
+  const cols = Object.keys(filas[0]);
+  const cel = v => '"' + String(v==null?"":v).replace(/"/g,'""') + '"';
+  return "﻿" + [cols.map(cel).join(",")]
+    .concat(filas.map(f => cols.map(c => cel(f[c])).join(",")))
+    .join("\r\n");
+}
+
+// El inventario se entrega al motor como CSV, que DuckDB lee sin necesidad de
+// descargar ninguna extensión adicional.
+function inventarioCsv(){
+  const hoy = Date.now();
+  const cel = v => '"' + String(v==null?"":v).replace(/"/g,'""') + '"';
+  const cols = COLUMNAS.map(c => c[0]);
+  const lineas = [cols.join(",")];
+  acumulado.forEach(r=>{
+    const t = Date.parse(r.fecha);
+    const fila = {
+      folio: r.folio, unidad: unidadDe(r.folio),
+      fecha: String(r.fecha||"").slice(0,10),
+      dias: isNaN(t) ? 0 : Math.max(0, Math.floor((hoy - t)/86400000)),
+      categoria: r.categoria, procedencia: r.procedencia, prestador: r.prestador,
+      descripcion: r.descripcion, marca: r.marca, inventario: r.inventario,
+      cantidad: Math.max(1, parseInt(r.cantidad,10) || 1),
+      ubicacion: r.ubicacion, estado: r.estado, responsable: r.responsable
+    };
+    lineas.push(cols.map(c => cel(fila[c])).join(","));
+  });
+  return lineas.join("\n");
+}
+
+async function cargarMotor(){
+  if(motor) return motor;
+  const duckdb = await import(SQL_MODULO);
+  // selectBundle elige, según lo que soporte el navegador, entre la versión con
+  // manejo de excepciones de WebAssembly y la básica.
+  const elegido = await duckdb.selectBundle(window.SQL_PAQUETES || duckdb.getJsDelivrBundles());
+  // El worker viene de otro dominio, así que se envuelve en un archivo local.
+  const envoltura = URL.createObjectURL(new Blob(
+    ['importScripts("' + elegido.mainWorker + '");'], {type:"text/javascript"}));
+  const bd = new duckdb.AsyncDuckDB(
+    new duckdb.ConsoleLogger(duckdb.LogLevel.WARNING), new Worker(envoltura));
+  await bd.instantiate(elegido.mainModule, elegido.pthreadWorker);
+  URL.revokeObjectURL(envoltura);
+  motor = {duckdb, bd, conexion: await bd.connect()};
+  return motor;
+}
+
+async function sembrarTabla(){
+  const m = await cargarMotor();
+  await m.bd.registerFileText("bienes.csv", inventarioCsv());
+  await m.conexion.query("DROP TABLE IF EXISTS bienes");
+  // Los tipos se declaran en lugar de dejarlos a la detección automática, para
+  // que un folio o un número de inventario nunca se interpreten como número.
+  const declara = "{" + COLUMNAS.map(c => "'" + c[0] + "': '" + TIPOS[c[0]] + "'").join(", ") + "}";
+  await m.conexion.query(
+    "CREATE TABLE bienes AS SELECT * FROM read_csv('bienes.csv', header = true, columns = " + declara + ")");
+}
+
+async function correrSql(){
+  const texto = document.getElementById("sqlTexto").value.trim();
+  const aviso = document.getElementById("sqlAviso");
+  const tabla = document.getElementById("sqlTabla");
+  if(!texto){ aviso.textContent = "Escribe una consulta o elige una de las de arriba."; return; }
+  aviso.style.color = ""; aviso.textContent = "Ejecutando…";
+  const boton = document.getElementById("sqlCorrer");
+  boton.disabled = true;
+  try{
+    const res = await motor.conexion.query(texto);
+    const cols = res.schema.fields.map(f => f.name);
+    const valor = v => {
+      if(v === null || v === undefined) return "";
+      if(typeof v === "bigint") return v.toString();
+      return typeof v === "object" ? String(v) : v;
+    };
+    const filas = res.toArray().map(f => {
+      const o = {}; cols.forEach(c => { o[c] = valor(f[c]); }); return o;
+    });
+    ultimoResultado = filas;
+    document.getElementById("sqlCsv").disabled = !filas.length;
+
+    if(!filas.length){
+      tabla.hidden = true;
+      aviso.textContent = "La consulta corrió bien y no devolvió ninguna fila.";
+      return;
+    }
+    const TOPE = 300;
+    document.getElementById("sqlCabeza").innerHTML =
+      "<tr>" + cols.map(c => "<th>" + esc(c) + "</th>").join("") + "</tr>";
+    // Las cifras se alinean a la derecha para poder compararlas de un vistazo.
+    const esCifra = v => v !== "" && /^-?\d+(\.\d+)?$/.test(String(v));
+    document.getElementById("sqlCuerpo").innerHTML = filas.slice(0, TOPE).map(f =>
+      "<tr>" + cols.map(c =>
+        '<td' + (esCifra(f[c]) ? ' class="n"' : '') + '>' + esc(f[c]) + "</td>").join("") + "</tr>"
+    ).join("");
+    tabla.hidden = false;
+    aviso.textContent = filas.length > TOPE
+      ? "Devolvió " + filas.length + " filas; se muestran las primeras " + TOPE +
+        ". Descarga el resultado para verlas todas."
+      : "Devolvió " + filas.length + (filas.length === 1 ? " fila." : " filas.");
+  }catch(e){
+    tabla.hidden = true;
+    ultimoResultado = null;
+    document.getElementById("sqlCsv").disabled = true;
+    aviso.style.color = "var(--mal)";
+    aviso.textContent = "El motor rechazó la consulta: " + e.message;
+  }finally{
+    boton.disabled = false;
+  }
+}
+
+document.getElementById("sqlPresets").innerHTML = PRESETS.map((p,i) =>
+  '<button class="preset" type="button" data-i="'+i+'"><b>'+esc(p[0])+'</b><span>'+esc(p[1])+'</span></button>'
+).join("");
+document.getElementById("sqlPresets").addEventListener("click", ev => {
+  const b = ev.target.closest(".preset");
+  if(!b) return;
+  document.getElementById("sqlTexto").value = PRESETS[+b.dataset.i][2];
+  correrSql();
+});
+document.getElementById("sqlColumnas").innerHTML = COLUMNAS.map(c =>
+  "<tr><td><code>" + esc(c[0]) + "</code></td><td>" + esc(c[1]) + "</td></tr>").join("");
+
+document.getElementById("sqlCargar").onclick = async function(){
+  if(!acumulado.length){
+    sqlDice("Primero carga al menos un archivo de respaldo en el apartado de arriba: sin datos no hay nada que consultar.", true);
+    return;
+  }
+  this.disabled = true;
+  const antes = this.textContent;
+  this.textContent = "Descargando el motor…";
+  sqlDice("Descargando el motor de consultas. La primera vez tarda, según la conexión.");
+  try{
+    await sembrarTabla();
+    document.getElementById("sqlPanel").hidden = false;
+    document.getElementById("sqlRecargar").hidden = false;
+    this.hidden = true;
+    sqlDice("Motor listo. La tabla bienes tiene " + acumulado.length +
+            (acumulado.length === 1 ? " registro." : " registros."));
+    document.getElementById("sqlTexto").value = PRESETS[0][2];
+    correrSql();
+  }catch(e){
+    this.disabled = false; this.textContent = antes;
+    sqlDice("No se pudo cargar el motor de consultas: " + e.message +
+            ". Revisa la conexión; el resto del panel sigue funcionando sin él.", true);
+  }
+};
+document.getElementById("sqlRecargar").onclick = async function(){
+  this.disabled = true;
+  sqlDice("Volviendo a cargar el inventario en el motor…");
+  try{
+    await sembrarTabla();
+    sqlDice("Inventario actualizado en el motor: " + acumulado.length +
+            (acumulado.length === 1 ? " registro." : " registros."));
+  }catch(e){ sqlDice("No se pudo actualizar: " + e.message, true); }
+  this.disabled = false;
+};
+document.getElementById("sqlCorrer").onclick = correrSql;
+document.getElementById("sqlTexto").addEventListener("keydown", ev => {
+  // Ctrl+Enter ejecuta, como en cualquier consola de base de datos.
+  if((ev.ctrlKey || ev.metaKey) && ev.key === "Enter"){ ev.preventDefault(); correrSql(); }
+});
+document.getElementById("sqlCsv").onclick = () => {
+  if(!ultimoResultado || !ultimoResultado.length) return;
+  descargar("consulta-" + new Date().toISOString().slice(0,10) + ".csv",
+            filasCsv(ultimoResultado), "text/csv;charset=utf-8");
 };
 </script>
 </body>

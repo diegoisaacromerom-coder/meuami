@@ -388,7 +388,8 @@ footer a{color:var(--accent)}
 
     <div class="resumen">
       <div class="tile"><b id="nRegistros">0</b><span>Bienes registrados</span></div>
-      <div class="tile"><b id="uso">0 KB</b><span>Espacio utilizado</span></div>
+      <div class="tile"><b id="uso">0 KB</b><span>Peso del registro</span></div>
+      <div class="tile"><b id="nFotos">0</b><span>Fotografías guardadas</span></div>
     </div>
 
     <div class="acciones" style="border:0;padding-top:0;margin-top:0">
@@ -397,6 +398,15 @@ footer a{color:var(--accent)}
       <button class="b sec" id="impBtn">Importar respaldo</button>
       <input id="impFile" type="file" accept="application/json,.json" hidden>
     </div>
+
+    <h3 style="margin-top:34px;font-size:1.05rem;font-weight:800">Catálogo público</h3>
+    <p class="lede" style="margin-top:6px">El catálogo es la copia consultable del inventario. Una vez publicado en el sitio, cualquier etiqueta se lee desde cualquier teléfono, aunque el registro completo siga viviendo solo en este dispositivo. <strong>No incluye quién prestó el bien, quién lo registró ni las observaciones</strong>: son datos de personas y no deben quedar en un archivo público.</p>
+    <p class="lede">Descárgalo y reemplaza con él el archivo <code>inventariado/catalogo.json</code> del repositorio. Cada publicación queda asentada con su fecha, de modo que existe constancia de cuándo se dio a conocer cada bien.</p>
+    <div class="acciones" style="border:0;padding-top:0;margin-top:0">
+      <button class="b sec" id="expCat">Descargar catálogo público</button>
+      <button class="b sec" id="verCat">Comprobar el publicado</button>
+    </div>
+    <p id="estadoCat" class="lede" style="margin-top:10px"></p>
 
     <h3 style="margin-top:34px;font-size:1.05rem;font-weight:800">Configuración del folio</h3>
     <p class="lede" style="margin-top:6px">El folio se forma con las siglas de la subcomisión, la unidad, el año y un consecutivo.</p>
@@ -462,6 +472,136 @@ function guardar(){
     alert("No se pudo guardar: el almacenamiento del navegador está lleno.\n\nDescarga un respaldo en la pestaña Respaldo y luego borra registros antiguos de este dispositivo.");
     return false;
   }
+}
+
+/* ---------- Catálogo publicado ---------- */
+// El registro vive en este dispositivo, así que una etiqueta leída desde otro
+// teléfono no encontraría nada. El catálogo es un archivo que se publica en el
+// sitio: lleva los datos del bien sin los nombres de las personas, y hace que
+// cualquier folio se resuelva desde cualquier dispositivo.
+const CAT_URL = "./catalogo.json";
+const CAT_CAMPOS = ["folio","fecha","categoria","procedencia","descripcion",
+                    "marca","inventario","cantidad","ubicacion","estado"];
+let catalogo = null;                    // null: sin consultar · false: no se pudo leer
+function catalogoPublico(){
+  return {
+    version: 1,
+    publicado: new Date().toISOString(),
+    unidad: datos.config.unidad,
+    // Quedan fuera prestador, responsable y observaciones: son datos de
+    // personas y no deben terminar en un archivo público ni en el historial
+    // del repositorio, que conserva cada versión de forma permanente.
+    bienes: datos.registros.map(r=>{
+      const b = {};
+      CAT_CAMPOS.forEach(c=>{
+        if(r[c] === "" || r[c] == null) return;
+        b[c] = c === "fecha" ? String(r[c]).slice(0,10) : r[c];
+      });
+      return b;
+    })
+  };
+}
+async function traerCatalogo(){
+  if(catalogo !== null) return catalogo;
+  try{
+    const resp = await fetch(CAT_URL, {cache:"no-cache"});
+    if(!resp.ok) throw new Error("respuesta " + resp.status);
+    const d = await resp.json();
+    catalogo = (d && Array.isArray(d.bienes)) ? d : false;
+  }catch(e){ catalogo = false; }
+  return catalogo;
+}
+async function buscarEnCatalogo(folio){
+  const c = await traerCatalogo();
+  return c ? (c.bienes.find(b => b.folio === folio) || null) : null;
+}
+
+/* ---------- Fotografías: almacén aparte ---------- */
+// localStorage tiene un tope cercano a los 5 MB y una fotografía reducida pesa
+// unos 80 KB en base64, así que el registro se agotaba a las pocas decenas de
+// bienes y el alta empezaba a fallar. Las fotografías viven ahora en IndexedDB,
+// que concede cientos de megabytes; el registro solo guarda la marca de que el
+// bien tiene fotografía.
+const FOTOS_BD = "sia-fotos", FOTOS_ALM = "fotos";
+let bdFotos = null;
+function abrirFotos(){
+  if(bdFotos) return Promise.resolve(bdFotos);
+  return new Promise((ok, falla)=>{
+    if(!window.indexedDB){ falla(new Error("Este navegador no tiene IndexedDB")); return; }
+    const sol = indexedDB.open(FOTOS_BD, 1);
+    sol.onupgradeneeded = () => {
+      const d = sol.result;
+      if(!d.objectStoreNames.contains(FOTOS_ALM)) d.createObjectStore(FOTOS_ALM);
+    };
+    sol.onsuccess = () => { bdFotos = sol.result; ok(bdFotos); };
+    sol.onerror = () => falla(sol.error);
+  });
+}
+// La transacción y la petición se crean juntas: IndexedDB desactiva la
+// transacción en cuanto el control vuelve al navegador.
+function pedir(modo, hacer){
+  return abrirFotos().then(d => new Promise((ok, falla)=>{
+    const sol = hacer(d.transaction(FOTOS_ALM, modo).objectStore(FOTOS_ALM));
+    sol.onsuccess = () => ok(sol.result);
+    sol.onerror = () => falla(sol.error);
+  }));
+}
+function avisoFoto(){
+  alert("El bien quedó registrado, pero la fotografía no se pudo guardar.\n\n" +
+        "Puede ser que el navegador esté en modo privado o que el almacenamiento esté lleno. " +
+        "Corrige el registro más tarde para volver a subirla.");
+}
+function guardarFoto(folio, imagen){ return pedir("readwrite", a => a.put(imagen, folio)); }
+function borrarFoto(folio){ return pedir("readwrite", a => a.delete(folio)).catch(()=>null); }
+function contarFotos(){ return pedir("readonly", a => a.count()).catch(()=>0); }
+// Un registro que todavía no se ha trasladado trae la fotografía adentro.
+function fotoDe(r){
+  if(typeof r.foto === "string" && r.foto.length > 100) return Promise.resolve(r.foto);
+  if(r.foto) return pedir("readonly", a => a.get(r.folio)).catch(()=>null);
+  return Promise.resolve(null);
+}
+function fotosDe(folios){
+  if(!folios.length) return Promise.resolve([]);
+  return abrirFotos().then(d => new Promise(ok=>{
+    const a = d.transaction(FOTOS_ALM, "readonly").objectStore(FOTOS_ALM);
+    const res = new Array(folios.length).fill(null);
+    let faltan = folios.length;
+    folios.forEach((f,i)=>{
+      const sol = a.get(f);
+      sol.onsuccess = () => { res[i] = sol.result || null; if(--faltan === 0) ok(res); };
+      sol.onerror   = () => { if(--faltan === 0) ok(res); };
+    });
+  })).catch(()=>folios.map(()=>null));
+}
+// La fotografía se pinta cuando llega, sin detener el resto de la ficha.
+function pintarFoto(caja, r, estilo){
+  if(!caja || !r.foto) return;
+  fotoDe(r).then(src=>{
+    if(!src){
+      caja.innerHTML = '<p class="cnota" style="margin:14px 0 0">La fotografía de este bien no está en este dispositivo.</p>';
+      return;
+    }
+    const img = document.createElement("img");
+    img.src = src;
+    img.alt = "Fotografía del bien " + r.folio;
+    img.setAttribute("style", estilo);
+    caja.innerHTML = "";
+    caja.appendChild(img);
+  });
+}
+// Traslado de las fotografías que quedaron dentro de localStorage. Si IndexedDB
+// falla, las que no se alcanzaron a mover se quedan donde están y se siguen
+// mostrando: no se pierde ninguna.
+async function migrarFotos(){
+  const pendientes = datos.registros.filter(r => typeof r.foto === "string" && r.foto.length > 100);
+  if(!pendientes.length) return 0;
+  let movidas = 0;
+  for(const r of pendientes){
+    try{ await guardarFoto(r.folio, r.foto); r.foto = true; movidas++; }
+    catch(e){ console.warn("No se pudo trasladar la fotografía de " + r.folio, e); break; }
+  }
+  if(movidas) guardar();
+  return movidas;
 }
 
 /* ---------- Folio ---------- */
@@ -535,7 +675,7 @@ document.getElementById("form").addEventListener("submit", async function(ev){
   ev.preventDefault();
   const boton = this.querySelector('button[type="submit"]');
   boton.disabled = true;
-  const foto = await reducirFoto(document.getElementById("foto").files[0]);
+  const fotoNueva = await reducirFoto(document.getElementById("foto").files[0]);
   const reg = {
     folio: proximoFolio(),
     fecha: new Date().toISOString(),
@@ -550,15 +690,19 @@ document.getElementById("form").addEventListener("submit", async function(ev){
     estado: document.getElementById("estado").value,
     observaciones: document.getElementById("observaciones").value.trim(),
     responsable: document.getElementById("responsable").value.trim(),
-    foto: foto
+    foto: false
   };
   if(editando){
     const i = datos.registros.findIndex(x => x.folio === editando);
     if(i >= 0){
       reg.folio = datos.registros[i].folio;
       reg.fecha = datos.registros[i].fecha;
-      if(!reg.foto) reg.foto = datos.registros[i].foto;
+      reg.foto = fotoNueva ? true : !!datos.registros[i].foto;
       datos.registros[i] = reg;
+    }
+    if(fotoNueva){
+      try{ await guardarFoto(reg.folio, fotoNueva); }
+      catch(e){ reg.foto = false; avisoFoto(); }
     }
     if(guardar()){
       const corregido = reg.folio;
@@ -575,6 +719,10 @@ document.getElementById("form").addEventListener("submit", async function(ev){
   datos.registros.push(reg);
   sel.add(reg.folio);
   datos.config.consecutivo++;
+  if(fotoNueva){
+    try{ await guardarFoto(reg.folio, fotoNueva); reg.foto = true; }
+    catch(e){ reg.foto = false; avisoFoto(); }
+  }
   if(guardar()){
     const quien = reg.responsable, proc = reg.procedencia;
     this.reset();
@@ -611,17 +759,19 @@ function verDetalle(folio){
       fila("Observaciones", r.observaciones)+
       fila("Registró", r.responsable)+
     '</dl>'+
-    (r.foto ? '<img class="foto" src="'+r.foto+'" alt="Fotografía del bien '+esc(r.folio)+'">' : '')+
+    (r.foto ? '<div id="cajaFoto"></div>' : '')+
     '<div class="acciones"><button class="b" id="cerrarDlg">Cerrar</button>'+
     '<button class="b sec" id="editarUno">Corregir datos</button>'+
     '<button class="b sec" id="borrarUno" style="border-color:var(--mal);color:var(--mal)">Eliminar</button></div>';
   const dlg = document.getElementById("dlg");
   dlg.showModal();
+  pintarFoto(document.getElementById("cajaFoto"), r, "width:100%;border-radius:8px;margin-top:14px");
   document.getElementById("cerrarDlg").onclick = () => dlg.close();
   document.getElementById("editarUno").onclick = () => { dlg.close(); editar(r.folio); };
   document.getElementById("borrarUno").onclick = () => {
     if(confirm("¿Eliminar el registro "+r.folio+"? Esta acción no se puede deshacer.")){
       datos.registros = datos.registros.filter(x => x.folio !== r.folio);
+      borrarFoto(r.folio);
       guardar(); dlg.close(); pintarTodo();
     }
   };
@@ -775,6 +925,8 @@ function pintarRespaldo(){
   try{ bytes = new Blob([localStorage.getItem(LLAVE)||""]).size; }catch(e){}
   document.getElementById("uso").textContent = bytes > 1048576
     ? (bytes/1048576).toFixed(1)+" MB" : Math.max(1, Math.round(bytes/1024))+" KB";
+  // Las fotografías no pesan aquí: viven en IndexedDB, aparte del registro.
+  contarFotos().then(n => { document.getElementById("nFotos").textContent = n; });
   document.getElementById("unidad").value = datos.config.unidad;
   document.getElementById("muestraFolio").value = proximoFolio();
 }
@@ -817,11 +969,21 @@ document.getElementById("imprimir").onclick = () => {
 document.getElementById("imprimirActa").onclick = () => window.print();
 
 /* ---------- Respaldo ---------- */
-document.getElementById("expJson").onclick = () => {
+document.getElementById("expJson").onclick = async function(){
+  const antes = this.textContent;
+  this.disabled = true; this.textContent = "Preparando el respaldo…";
+  // El respaldo se lleva también las fotografías, porque ya no viajan dentro
+  // del registro y de otro modo se quedarían en este dispositivo.
+  const conFoto = datos.registros.filter(r => r.foto).map(r => r.folio);
+  const imagenes = await fotosDe(conFoto);
+  const fotos = {};
+  conFoto.forEach((f,i)=>{ if(imagenes[i]) fotos[f] = imagenes[i]; });
   const hoy = new Date().toISOString().slice(0,10);
   descargar("inventario-"+datos.config.unidad+"-"+hoy+".json",
-    JSON.stringify({version:1, exportado:new Date().toISOString(), config:datos.config, registros:datos.registros}, null, 2),
+    JSON.stringify({version:2, exportado:new Date().toISOString(), config:datos.config,
+                    registros:datos.registros, fotos:fotos}, null, 2),
     "application/json");
+  this.disabled = false; this.textContent = antes;
 };
 document.getElementById("expCsv").onclick = () => {
   const cols = ["folio","fecha","categoria","procedencia","prestador","descripcion","marca","inventario","cantidad","ubicacion","estado","observaciones","responsable"];
@@ -832,15 +994,48 @@ document.getElementById("expCsv").onclick = () => {
   const hoy = new Date().toISOString().slice(0,10);
   descargar("inventario-"+datos.config.unidad+"-"+hoy+".csv", "﻿"+lineas.join("\r\n"), "text/csv;charset=utf-8");
 };
+document.getElementById("expCat").onclick = () => {
+  descargar("catalogo.json", JSON.stringify(catalogoPublico(), null, 2), "application/json");
+  const n = datos.registros.length;
+  document.getElementById("estadoCat").textContent =
+    "Catálogo preparado con " + n + (n === 1 ? " bien" : " bienes") + ". Reemplaza con él el archivo " +
+    "inventariado/catalogo.json del repositorio para que quede publicado.";
+};
+document.getElementById("verCat").onclick = async () => {
+  const campo = document.getElementById("estadoCat");
+  campo.textContent = "Consultando el catálogo publicado…";
+  catalogo = null;                      // se vuelve a pedir, por si se acaba de publicar
+  const c = await traerCatalogo();
+  if(!c){
+    campo.textContent = "Todavía no hay catálogo publicado en el sitio, o no se pudo leer. " +
+      "Mientras no lo haya, las etiquetas solo se resuelven con los datos que llevan dentro.";
+    return;
+  }
+  const publicados = new Set(c.bienes.map(b => b.folio));
+  const faltan = datos.registros.filter(r => !publicados.has(r.folio)).length;
+  const bien = n => n + (n === 1 ? " bien" : " bienes");
+  campo.textContent = "El catálogo publicado tiene " + bien(c.bienes.length) +
+    (c.publicado ? ", al " + fechaCorta(c.publicado) : "") + ". " +
+    (faltan ? (faltan === 1 ? "Queda 1 bien de este dispositivo sin publicar."
+                            : "Quedan " + faltan + " bienes de este dispositivo sin publicar.")
+            : "Está al día con este dispositivo.");
+};
 document.getElementById("impBtn").onclick = () => document.getElementById("impFile").click();
 document.getElementById("impFile").addEventListener("change", function(){
   const archivo = this.files[0];
   if(!archivo) return;
   const lector = new FileReader();
-  lector.onload = () => {
+  lector.onload = async () => {
     try{
       const d = JSON.parse(lector.result);
       if(!d || !Array.isArray(d.registros)) throw new Error("formato");
+      // Las fotografías de un respaldo versión 2 vienen aparte del registro.
+      let fotosPuestas = 0;
+      if(d.fotos && typeof d.fotos === "object"){
+        for(const f of Object.keys(d.fotos)){
+          try{ await guardarFoto(f, d.fotos[f]); fotosPuestas++; }catch(e){ break; }
+        }
+      }
       const existentes = new Set(datos.registros.map(r=>r.folio));
       let nuevos = 0, repetidos = 0;
       d.registros.forEach(r=>{
@@ -854,8 +1049,12 @@ document.getElementById("impFile").addEventListener("change", function(){
         .reduce((m,r)=>Math.max(m, parseInt(r.folio.split("-").pop(),10)||0), 0);
       datos.config.consecutivo = Math.max(datos.config.consecutivo, mayor+1);
       if(guardar()){
+        // Un respaldo versión 1 trae las fotografías dentro del registro.
+        fotosPuestas += await migrarFotos();
         pintarTodo();
-        alert("Importación terminada.\n\nBienes agregados: "+nuevos+"\nFolios que ya existían y se omitieron: "+repetidos);
+        alert("Importación terminada.\n\nBienes agregados: "+nuevos+
+              "\nFolios que ya existían y se omitieron: "+repetidos+
+              "\nFotografías incorporadas: "+fotosPuestas);
       }
     }catch(e){
       alert("El archivo no se pudo leer. Debe ser un respaldo descargado desde esta misma herramienta.");
@@ -873,6 +1072,7 @@ document.getElementById("borrar").onclick = () => {
   if(!datos.registros.length){ alert("No hay registros que borrar."); return; }
   if(confirm("Se eliminarán "+datos.registros.length+" registros de este dispositivo.\n\n¿Descargaste ya un respaldo? Esta acción no se puede deshacer.")){
     if(confirm("Confirma por última vez: ¿borrar todos los registros?")){
+      datos.registros.forEach(r => { if(r.foto) borrarFoto(r.folio); });
       datos.registros = []; datos.config.consecutivo = 1; guardar(); pintarTodo();
     }
   }
@@ -881,13 +1081,24 @@ document.getElementById("borrar").onclick = () => {
 /* ---------- Arranque ---------- */
 cargar();
 pintarTodo();
+migrarFotos().then(n => { if(n) pintarTodo(); });
 const hash = (location.hash||"").replace("#","");
 if(hash && document.getElementById("t-"+hash)) abrir("t-"+hash);
 /* ---- Lectura de una etiqueta ---- */
-function mostrarConsulta(r, origen){
+function pantallaConsulta(){
   document.querySelector("nav.tabs").hidden = true;
   document.querySelector("main").hidden = true;
   document.getElementById("consulta").hidden = false;
+}
+function avisoConsulta(etiqueta, folio, texto, conEnlace){
+  pantallaConsulta();
+  document.getElementById("cficha").innerHTML =
+    '<div class="et">'+esc(etiqueta)+'</div><h2>'+esc(folio)+'</h2>'+
+    '<p class="cnota" style="border:0;margin:10px 0 0;padding:0">'+texto+'</p>'+
+    (conEnlace ? '<div class="cacciones"><a class="p" href="./">Abrir el registro</a></div>' : '');
+}
+function mostrarConsulta(r, origen){
+  pantallaConsulta();
   const fila = (t,v) => v ? "<dt>"+t+"</dt><dd>"+esc(v)+"</dd>" : "";
   const prestado = r.procedencia === "Préstamo de una persona";
   document.getElementById("cficha").innerHTML =
@@ -909,10 +1120,43 @@ function mostrarConsulta(r, origen){
       fila("Registró", r.responsable)+
       fila("Fecha de registro", r.fecha ? fechaCorta(r.fecha) : "")+
     '</dl>'+
-    (r.foto ? '<img src="'+r.foto+'" alt="" style="width:100%;border-radius:8px;margin-top:16px">' : '')+
+    (r.foto ? '<div id="cajaFotoC"></div>' : '')+
     '<p class="cnota">'+origen+'</p>'+
     '<div class="cacciones"><a class="p" href="./">Abrir el registro</a>'+
     '<a href="../panel/">Panel de coordinación</a></div>';
+  pintarFoto(document.getElementById("cajaFotoC"), r, "width:100%;border-radius:8px;margin-top:16px");
+}
+
+// Un folio se busca en tres lugares, en este orden: el registro de este
+// dispositivo, que es el único con la ficha completa; el catálogo publicado,
+// que alcanza a cualquier teléfono; y al final los datos que lleva la propia
+// etiqueta, que sirven aunque no haya red.
+async function resolverFolio(folio, deLaEtiqueta){
+  const propio = datos.registros.find(x => x.folio === folio);
+  if(propio){
+    mostrarConsulta(propio, "Datos tomados del registro de este dispositivo, que incluye la ficha completa.");
+    return;
+  }
+  avisoConsulta("Consultando", folio,
+    "Buscando este folio en el catálogo publicado por la subcomisión…", false);
+  const publicado = await buscarEnCatalogo(folio);
+  if(publicado){
+    mostrarConsulta(publicado,
+      "Datos tomados del catálogo publicado por la subcomisión" +
+      (catalogo && catalogo.publicado ? ", al " + esc(fechaCorta(catalogo.publicado)) : "") +
+      ". El catálogo no incluye quién prestó el bien, quién lo registró ni las observaciones.");
+    return;
+  }
+  if(deLaEtiqueta){
+    mostrarConsulta(deLaEtiqueta,
+      "Datos tomados de la propia etiqueta. Este dispositivo no tiene el registro y el folio todavía "+
+      "no aparece en el catálogo publicado, así que no se muestran observaciones ni fotografía.");
+    return;
+  }
+  avisoConsulta("Folio sin datos", folio,
+    "Este folio no está en el registro de este dispositivo ni en el catálogo publicado. Puede tratarse "+
+    "de una etiqueta impresa con un formato anterior, o de un bien que aún no se publica. "+
+    "Conviene reportarlo con la subcomisión.", true);
 }
 
 const par = new URLSearchParams(location.search);
@@ -920,32 +1164,10 @@ const leido = par.get("b");
 const viejo = par.get("f");
 if(leido){
   const p = leido.split("|");
-  const dellado = datos.registros.find(x => x.folio === p[0]);
-  if(dellado){
-    mostrarConsulta(dellado, "Datos tomados del registro de este dispositivo, que incluye la ficha completa.");
-  }else{
-    mostrarConsulta({folio:p[0], descripcion:p[1], ubicacion:p[2], cantidad:p[3], estado:p[4],
-                     procedencia:p[5], prestador:p[6], fecha:p[7]},
-      "Datos tomados de la propia etiqueta. Este dispositivo no tiene el registro completo, "+
-      "así que no se muestran observaciones ni fotografía. Para la ficha completa, consulta el respaldo de la subcomisión.");
-  }
+  resolverFolio(p[0], {folio:p[0], descripcion:p[1], ubicacion:p[2], cantidad:p[3], estado:p[4],
+                       procedencia:p[5], prestador:p[6], fecha:p[7]});
 }else if(viejo){
-  const dellado = datos.registros.find(x => x.folio === viejo);
-  if(dellado){
-    mostrarConsulta(dellado, "Datos tomados del registro de este dispositivo.");
-  }else{
-    document.querySelector("nav.tabs").hidden = true;
-    document.querySelector("main").hidden = true;
-    document.getElementById("consulta").hidden = false;
-    document.getElementById("cficha").innerHTML =
-      '<div class="et">Etiqueta anterior</div>'+
-      '<h2>'+esc(viejo)+'</h2>'+
-      '<p class="cnota" style="border:0;margin:10px 0 0;padding:0">Esta etiqueta se imprimió con un formato '+
-      'anterior, en el que el código solo llevaba el folio y los datos se buscaban en el dispositivo. '+
-      'Las etiquetas nuevas ya traen la información dentro del código, así que se leen desde cualquier teléfono. '+
-      'Conviene reimprimir las etiquetas viejas.</p>'+
-      '<div class="cacciones"><a class="p" href="./">Abrir el registro</a></div>';
-  }
+  resolverFolio(viejo, null);
 }
 </script>
 </body>
