@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Catálogo de bienes bajo resguardo · Subcomisión de Inventariado UAM-I</title>
+<link rel="icon" type="image/png" href="../assets/logo-sub.png">
+<meta name="description" content="Catálogo público de los bienes bajo resguardo del Movimiento Estudiantil UAM-I, llevado por la Subcomisión de Inventariado y Auditoría Interna.">
+<meta name="theme-color" content="#0f8f45">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* Plan: cara pública del inventario. Mismo lenguaje de la herramienta interna,
+   pero pensado para quien llega de fuera y no conoce la subcomisión. */
+:root{
+  --paper:#f4f3ef; --ink:#15181f; --muted:#5a5f6b; --rule:#d7d9de; --card:#ffffff;
+  --accent:#0f8f45; --accent-sw:#e7f4ec;
+  --ok:#17794a; --med:#9a6a05; --mal:#b3261e; --inc:#6b3fa0;
+  --f:"Montserrat",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#14161b; --ink:#eceef2; --muted:#9ba2b0; --rule:#2e323b; --card:#1c1f26;
+    --accent:#34d27f; --accent-sw:#16241c;
+    --ok:#4cc48a; --med:#e0ac3c; --mal:#ff7a70; --inc:#b18ae6;
+    color-scheme:dark;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f);font-size:16px;line-height:1.6}
+a{color:var(--accent)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+h1,h2,h3{margin:0;text-wrap:balance}
+
+.top{background:#0b1410;color:#fff;border-bottom:4px solid var(--accent)}
+.top .wrap{display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding:20px}
+.top img.lg-com{width:170px;max-width:46%;height:auto;display:block}
+.top img.lg-sub{width:230px;max-width:56%;height:auto;display:block}
+.top .sep{width:1px;align-self:stretch;min-height:34px;background:rgba(255,255,255,.3)}
+.top .vuelta{margin-left:auto;font-size:.84rem;font-weight:700;color:rgba(255,255,255,.8);text-decoration:none}
+.top .vuelta:hover{color:#fff}
+
+main{padding:40px 0 70px}
+section{margin:0 0 44px}
+h1{font-size:clamp(1.7rem,4vw,2.4rem);font-weight:900;letter-spacing:-.02em;line-height:1.12}
+h2{font-size:1.28rem;font-weight:800;letter-spacing:-.01em}
+h3{font-size:1.02rem;font-weight:800}
+.et{font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--accent);margin:0 0 9px}
+.lede{color:var(--muted);max-width:72ch;margin:10px 0 0}
+.aviso{background:var(--accent-sw);border-left:4px solid var(--accent);padding:14px 17px;
+  border-radius:0 6px 6px 0;font-size:.92rem;max-width:80ch;margin:24px 0 0}
+.aviso.ojo{background:transparent;border-left-color:var(--med)}
+.aviso p{margin:0}
+.aviso p + p{margin-top:9px}
+
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin:26px 0 0}
+.tile{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:15px 17px}
+.tile b{display:block;font-size:1.85rem;font-weight:800;line-height:1.05;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.tile span{font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+
+.filtros{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin:0 0 20px}
+.campo{display:flex;flex-direction:column;gap:6px;min-width:0}
+.campo.ancho{grid-column:1/-1}
+label{font-size:.76rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+input,select,textarea{font:400 .97rem var(--f);color:var(--ink);background:var(--card);
+  border:1px solid var(--rule);border-radius:9px;padding:11px 13px;width:100%}
+textarea{resize:vertical;line-height:1.55}
+input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
+
+.tablawrap{overflow-x:auto;border:1px solid var(--rule);border-radius:11px;background:var(--card)}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--rule);vertical-align:top}
+tr:last-child td{border-bottom:0}
+th{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);
+  background:var(--paper);position:sticky;top:0;z-index:1}
+td.fol{font-weight:700;white-space:nowrap;font-variant-numeric:tabular-nums}
+td.n{font-variant-numeric:tabular-nums;white-space:nowrap}
+.etq{display:inline-block;font-size:.75rem;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap;
+  background:var(--accent-sw);color:var(--ok)}
+.etq.e-Regular{background:rgba(154,106,5,.14);color:var(--med)}
+.etq.e-Malo{background:rgba(179,38,30,.13);color:var(--mal)}
+.etq.e-Incompleto{background:rgba(107,63,160,.14);color:var(--inc)}
+.vacio{padding:34px 20px;text-align:center;color:var(--muted)}
+
+button.b{appearance:none;font:700 .92rem var(--f);border-radius:999px;padding:11px 22px;cursor:pointer;
+  border:1px solid var(--accent);background:var(--accent);color:#fff;transition:transform .18s ease}
+button.b:hover{transform:translateY(-2px)}
+button.b:active{transform:scale(.97)}
+button.b.sec{background:transparent;color:var(--accent)}
+button.b.sec:hover{background:var(--accent-sw)}
+.acciones{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:20px}
+
+.caja{background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:24px}
+pre.borrador{white-space:pre-wrap;word-break:break-word;font:400 .86rem ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  background:var(--paper);border:1px solid var(--rule);border-radius:9px;padding:16px;margin:20px 0 0;max-height:360px;overflow:auto}
+
+footer{border-top:1px solid var(--rule);padding:26px 0 50px;color:var(--muted);font-size:.85rem}
+footer p{margin:0 0 8px;max-width:80ch}
+[hidden]{display:none !important}
+@media (prefers-reduced-motion: reduce){*{transition:none !important}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <img class="lg-com" src="../assets/logo-cgo.png" alt="Comisión de Gestión y Operación, Movimiento Estudiantil UAM-I">
+    <span class="sep" aria-hidden="true"></span>
+    <img class="lg-sub" src="../assets/logo-sub-texto-blanco.png" alt="Subcomisión de Inventariado y Auditoría Interna">
+    <a class="vuelta" href="https://meuami.org/">← meuami.org</a>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section>
+    <p class="et">Subcomisión de Inventariado y Auditoría Interna</p>
+    <h1>Catálogo de bienes bajo resguardo</h1>
+    <p class="lede">Esta es la relación de los bienes que el Movimiento Estudiantil UAM-I tiene bajo
+    resguardo durante el paro: lo que es recurso propio y lo que distintas personas y colectivos
+    prestaron. Cada bien lleva un folio, una ubicación y un estado declarado, y puede consultarse aquí
+    por cualquier integrante de la comunidad universitaria.</p>
+    <p class="lede">La subcomisión publica este catálogo de manera periódica. Entre una publicación y la
+    siguiente puede haber altas que todavía no aparezcan.</p>
+
+    <div class="tiles" id="tiles" hidden></div>
+    <p class="lede" id="cuando"></p>
+  </section>
+
+  <section id="listado">
+    <h2>Relación de bienes</h2>
+    <p class="lede" style="margin-bottom:22px">Busca por folio, por descripción o por marca, o acota con los filtros.</p>
+
+    <div class="filtros">
+      <div class="campo ancho">
+        <label for="busca">Buscar</label>
+        <input id="busca" type="search" placeholder="Folio, descripción o marca" autocomplete="off">
+      </div>
+      <div class="campo"><label for="fCat">Categoría</label><select id="fCat"><option value="">Todas</option></select></div>
+      <div class="campo"><label for="fUbi">Ubicación</label><select id="fUbi"><option value="">Todas</option></select></div>
+      <div class="campo"><label for="fEst">Estado</label><select id="fEst"><option value="">Todos</option></select></div>
+      <div class="campo"><label for="fProc">Procedencia</label><select id="fProc"><option value="">Todas</option></select></div>
+    </div>
+
+    <p class="lede" id="cuantos" style="margin:0 0 14px"></p>
+    <div class="tablawrap">
+      <table>
+        <thead><tr>
+          <th scope="col">Folio</th><th scope="col">Bien</th><th scope="col">Categoría</th>
+          <th scope="col">Cant.</th><th scope="col">Ubicación</th><th scope="col">Estado</th>
+          <th scope="col">Procedencia</th><th scope="col">Alta</th>
+        </tr></thead>
+        <tbody id="cuerpo"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="solicitud">
+    <h2>Lo que este catálogo no incluye</h2>
+    <p class="lede">Quedan fuera, deliberadamente, tres cosas: <strong>quién prestó cada bien</strong>,
+    <strong>quién lo registró</strong> y <strong>las observaciones</strong> levantadas al recibirlo.
+    Son datos de personas, y publicarlos en abierto las expondría sin que medie ninguna necesidad.
+    Tampoco se publican las fotografías de los bienes.</p>
+    <p class="lede">Ese informe completo existe y la subcomisión lo entrega, pero a solicitud y de
+    manera directa, no en una página abierta. Llena los campos y se arma la solicitud; después la
+    haces llegar y la subcomisión resuelve.</p>
+
+    <div class="caja" style="margin-top:26px">
+      <h3>Solicitud del informe completo</h3>
+      <div class="filtros" style="margin-top:18px">
+        <div class="campo"><label for="sNombre">Nombre de quien solicita</label><input id="sNombre" autocomplete="name"></div>
+        <div class="campo"><label for="sAdscripcion">Adscripción, colectivo o matrícula</label><input id="sAdscripcion"></div>
+        <div class="campo"><label for="sContacto">Correo o medio de contacto</label><input id="sContacto" autocomplete="email"></div>
+        <div class="campo">
+          <label for="sAlcance">Qué necesitas consultar</label>
+          <select id="sAlcance">
+            <option>El inventario completo</option>
+            <option>Los bienes de una ubicación</option>
+            <option>Un bien en particular</option>
+            <option>Los bienes prestados por una persona o colectivo</option>
+          </select>
+        </div>
+        <div class="campo ancho"><label for="sDetalle">Detalle (folio, ubicación o lo que corresponda)</label><input id="sDetalle"></div>
+        <div class="campo ancho"><label for="sMotivo">Motivo de la solicitud</label><textarea id="sMotivo" rows="3"></textarea></div>
+      </div>
+      <div class="acciones">
+        <button class="b" id="armar">Armar la solicitud</button>
+        <button class="b sec" id="copiar" hidden>Copiar</button>
+        <button class="b sec" id="correo" hidden>Abrir el correo</button>
+      </div>
+      <p class="lede" id="sAviso" style="margin-top:12px"></p>
+      <pre class="borrador" id="borrador" hidden></pre>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Este catálogo es un instrumento interno del Movimiento Estudiantil UAM-I. No constituye
+    documentación oficial de la Universidad Autónoma Metropolitana ni de sus órganos, y los números
+    de inventario institucional que aparecen se reproducen únicamente para identificar los bienes.</p>
+    <p>Subcomisión de Inventariado y Auditoría Interna · adscrita a la Comisión de Gestión y Operación ·
+    Movimiento Estudiantil UAM-I · <a href="https://meuami.org/">meuami.org</a></p>
+  </div>
+</footer>
+
+<script>
+"use strict";
+// Dirección a la que llegan las solicitudes. Mientras esté vacía, la página
+// solo ofrece copiar el texto, para no publicar un correo que no exista.
+const CORREO_SOLICITUDES = "";
+
+const esc = s => String(s==null?"":s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let bienes = [];
+
+function fechaCorta(iso){
+  const d = new Date(iso);
+  if(isNaN(d)) return "";
+  return d.toLocaleDateString("es-MX", {day:"2-digit", month:"short", year:"numeric"});
+}
+function fechaLarga(iso){
+  const d = new Date(iso);
+  if(isNaN(d)) return "";
+  return d.toLocaleDateString("es-MX", {day:"numeric", month:"long", year:"numeric"});
+}
+function sinAcentos(t){
+  return String(t==null?"":t).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+}
+
+/* ---------- Filtros ---------- */
+function llenarFiltro(id, valores){
+  const sel = document.getElementById(id);
+  const primera = sel.options[0];
+  sel.innerHTML = "";
+  sel.appendChild(primera);
+  Array.from(new Set(valores.filter(v => v))).sort((a,b) => a.localeCompare(b,"es"))
+    .forEach(v => { const o = document.createElement("option"); o.value = v; o.textContent = v; sel.appendChild(o); });
+}
+function filtrados(){
+  const q = sinAcentos(document.getElementById("busca").value.trim());
+  const cat = document.getElementById("fCat").value;
+  const ubi = document.getElementById("fUbi").value;
+  const est = document.getElementById("fEst").value;
+  const proc = document.getElementById("fProc").value;
+  return bienes.filter(b =>
+    (!cat  || b.categoria === cat) &&
+    (!ubi  || b.ubicacion === ubi) &&
+    (!est  || b.estado === est) &&
+    (!proc || b.procedencia === proc) &&
+    (!q || sinAcentos([b.folio, b.descripcion, b.marca, b.inventario].join(" ")).indexOf(q) !== -1));
+}
+function pintarTabla(){
+  const lista = filtrados();
+  const cuerpo = document.getElementById("cuerpo");
+  if(!lista.length){
+    cuerpo.innerHTML = '<tr><td class="vacio" colspan="8">' +
+      (bienes.length ? "Ningún bien coincide con lo que buscas."
+                     : "Todavía no se publica ningún bien en este catálogo.") + "</td></tr>";
+    document.getElementById("cuantos").textContent = "";
+    return;
+  }
+  cuerpo.innerHTML = lista.map(b =>
+    "<tr>" +
+    '<td class="fol">' + esc(b.folio) + "</td>" +
+    "<td>" + esc(b.descripcion || "Sin descripción") +
+      (b.marca ? '<br><span style="color:var(--muted);font-size:.84rem">' + esc(b.marca) + "</span>" : "") +
+      (b.inventario ? '<br><span style="color:var(--muted);font-size:.84rem">Inventario UAM ' + esc(b.inventario) + "</span>" : "") +
+    "</td>" +
+    "<td>" + esc(b.categoria || "Sin clasificar") + "</td>" +
+    '<td class="n">' + esc(b.cantidad == null ? 1 : b.cantidad) + "</td>" +
+    "<td>" + esc(b.ubicacion || "Sin ubicación") + "</td>" +
+    '<td><span class="etq e-' + esc(b.estado || "Bueno") + '">' + esc(b.estado || "Sin declarar") + "</span></td>" +
+    "<td>" + esc(b.procedencia || "") + "</td>" +
+    '<td class="n">' + esc(fechaCorta(b.fecha)) + "</td>" +
+    "</tr>").join("");
+  const n = lista.length;
+  document.getElementById("cuantos").textContent = n === bienes.length
+    ? (n === 1 ? "1 bien en el catálogo." : n + " bienes en el catálogo.")
+    : (n === 1 ? "1 bien coincide, de " + bienes.length + "." : n + " bienes coinciden, de " + bienes.length + ".");
+}
+
+/* ---------- Carga ---------- */
+async function cargar(){
+  let cat = null;
+  try{
+    const resp = await fetch("../inventariado/catalogo.json", {cache:"no-cache"});
+    if(!resp.ok) throw new Error("respuesta " + resp.status);
+    cat = await resp.json();
+  }catch(e){
+    document.getElementById("cuerpo").innerHTML =
+      '<tr><td class="vacio" colspan="8">El catálogo no se pudo cargar en este momento. ' +
+      "Vuelve a intentarlo más tarde o escribe a la subcomisión.</td></tr>";
+    return;
+  }
+  bienes = Array.isArray(cat.bienes) ? cat.bienes : [];
+
+  if(cat.publicado){
+    document.getElementById("cuando").textContent =
+      "Última publicación: " + fechaLarga(cat.publicado) + ".";
+  }
+  if(bienes.length){
+    const piezas = bienes.reduce((s,b) => s + (parseInt(b.cantidad,10) || 1), 0);
+    const ubis = new Set(bienes.map(b => b.ubicacion).filter(v => v)).size;
+    const prestados = bienes.filter(b => /stamo/i.test(b.procedencia || "")).length;
+    document.getElementById("tiles").innerHTML =
+      '<div class="tile"><b>' + bienes.length + "</b><span>Folios</span></div>" +
+      '<div class="tile"><b>' + piezas + "</b><span>Piezas</span></div>" +
+      '<div class="tile"><b>' + ubis + "</b><span>Ubicaciones</span></div>" +
+      '<div class="tile"><b>' + prestados + "</b><span>En calidad de préstamo</span></div>";
+    document.getElementById("tiles").hidden = false;
+  }
+  llenarFiltro("fCat",  bienes.map(b => b.categoria));
+  llenarFiltro("fUbi",  bienes.map(b => b.ubicacion));
+  llenarFiltro("fEst",  bienes.map(b => b.estado));
+  llenarFiltro("fProc", bienes.map(b => b.procedencia));
+  pintarTabla();
+}
+["busca","fCat","fUbi","fEst","fProc"].forEach(id =>
+  document.getElementById(id).addEventListener("input", pintarTabla));
+
+/* ---------- Solicitud ---------- */
+function textoSolicitud(){
+  const v = id => document.getElementById(id).value.trim();
+  const linea = (t, x) => t + ": " + (x || "(sin especificar)");
+  return [
+    "SOLICITUD DE INFORME DE INVENTARIO",
+    "Subcomisión de Inventariado y Auditoría Interna",
+    "Movimiento Estudiantil UAM-I",
+    "",
+    "Fecha de la solicitud: " + fechaLarga(new Date().toISOString()),
+    "",
+    linea("Solicitante", v("sNombre")),
+    linea("Adscripción", v("sAdscripcion")),
+    linea("Contacto", v("sContacto")),
+    "",
+    linea("Alcance", document.getElementById("sAlcance").value),
+    linea("Detalle", v("sDetalle")),
+    "",
+    "Motivo:",
+    v("sMotivo") || "(sin especificar)",
+    "",
+    "Quien suscribe hace constar que la información que reciba se empleará únicamente",
+    "para el fin señalado y que no difundirá los datos personales que contenga."
+  ].join("\n");
+}
+document.getElementById("armar").onclick = () => {
+  const faltan = [["sNombre","tu nombre"],["sContacto","un medio de contacto"],["sMotivo","el motivo"]]
+    .filter(([id]) => !document.getElementById(id).value.trim()).map(([,t]) => t);
+  const aviso = document.getElementById("sAviso");
+  if(faltan.length){
+    aviso.style.color = "var(--mal)";
+    aviso.textContent = "Falta " + faltan.join(", ") + ". Sin eso la subcomisión no puede responder.";
+    return;
+  }
+  aviso.style.color = "";
+  const texto = textoSolicitud();
+  const pre = document.getElementById("borrador");
+  pre.textContent = texto;
+  pre.hidden = false;
+  document.getElementById("copiar").hidden = false;
+  document.getElementById("correo").hidden = !CORREO_SOLICITUDES;
+  aviso.textContent = CORREO_SOLICITUDES
+    ? "Solicitud lista. Ábrela en tu correo o cópiala y mándala por donde prefieras."
+    : "Solicitud lista. Cópiala y hazla llegar a la subcomisión.";
+};
+document.getElementById("copiar").onclick = async function(){
+  const texto = document.getElementById("borrador").textContent;
+  const antes = this.textContent;
+  try{
+    await navigator.clipboard.writeText(texto);
+    this.textContent = "Copiada";
+  }catch(e){
+    // Sin permiso para el portapapeles, al menos se deja seleccionada.
+    const r = document.createRange();
+    r.selectNodeContents(document.getElementById("borrador"));
+    const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+    this.textContent = "Selecciónala y cópiala";
+  }
+  setTimeout(() => { this.textContent = antes; }, 2500);
+};
+document.getElementById("correo").onclick = () => {
+  if(!CORREO_SOLICITUDES) return;
+  location.href = "mailto:" + CORREO_SOLICITUDES +
+    "?subject=" + encodeURIComponent("Solicitud de informe de inventario") +
+    "&body=" + encodeURIComponent(document.getElementById("borrador").textContent);
+};
+
+cargar();
+</script>
+</body>
+</html>

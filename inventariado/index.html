@@ -195,7 +195,8 @@ footer a{color:var(--accent)}
     <img class="lg-com" src="../assets/logo-cgo.png" alt="Comisión de Gestión y Operación, Movimiento Estudiantil UAM-I">
     <span class="sep" aria-hidden="true"></span>
     <img class="lg-sub" src="../assets/logo-sub-texto-blanco.png" alt="Subcomisión de Inventariado y Auditoría Interna">
-    <a class="vuelta" href="https://meuami.org/">← meuami.org</a>
+    <a class="vuelta" href="../catalogo/">Catálogo público</a>
+    <a class="vuelta" href="https://meuami.org/" style="margin-left:14px">← meuami.org</a>
   </div>
 </header>
 
@@ -383,6 +384,9 @@ footer a{color:var(--accent)}
     <p class="lede">Los registros viven únicamente en este navegador. Descarga un respaldo al terminar cada jornada y guárdalo donde la subcomisión acuerde.</p>
 
     <div class="aviso">
+      <strong>El respaldo cifrado</strong> se protege con una contraseña tuya: si se pierde la memoria donde lo llevas, o lo mandas por un chat, sin esa contraseña nadie puede abrirlo. Se importa en esta misma herramienta. La hoja de cálculo, en cambio, va sin cifrar, porque su razón de ser es abrirse en Excel.
+    </div>
+    <div class="aviso">
       <strong>Para juntar el trabajo de varias personas.</strong> Cada quien descarga su archivo de respaldo y lo comparte con la subcomisión. Después, en un solo dispositivo, se cargan los archivos uno por uno con el botón de importar: los folios repetidos se omiten y los nuevos se suman.
     </div>
 
@@ -394,6 +398,7 @@ footer a{color:var(--accent)}
 
     <div class="acciones" style="border:0;padding-top:0;margin-top:0">
       <button class="b" id="expJson">Descargar respaldo</button>
+      <button class="b sec" id="expCifrado">Descargar respaldo cifrado</button>
       <button class="b sec" id="expCsv">Descargar hoja de cálculo</button>
       <button class="b sec" id="impBtn">Importar respaldo</button>
       <input id="impFile" type="file" accept="application/json,.json" hidden>
@@ -442,6 +447,26 @@ footer a{color:var(--accent)}
 
 <dialog id="dlg"><div class="dlg" id="dlgCuerpo"></div></dialog>
 
+<dialog id="dlgClave"><form class="dlg" id="formClave">
+  <h3 id="clTitulo">Contraseña</h3>
+  <p id="clTexto" class="lede" style="margin:8px 0 18px"></p>
+  <div class="campos" style="grid-template-columns:1fr">
+    <div class="campo">
+      <label for="clClave">Contraseña</label>
+      <input id="clClave" type="password" autocomplete="new-password" minlength="8" required>
+    </div>
+    <div class="campo" id="clRepetirCampo">
+      <label for="clRepetir">Escríbela otra vez</label>
+      <input id="clRepetir" type="password" autocomplete="new-password">
+    </div>
+  </div>
+  <p id="clError" style="color:var(--mal);font-size:.88rem;margin:12px 0 0;min-height:1.2em"></p>
+  <div class="acciones">
+    <button class="b" type="submit" id="clAccion">Continuar</button>
+    <button class="b sec" type="button" id="clCancelar">Cancelar</button>
+  </div>
+</form></dialog>
+
 <script src="vendor/qrcode.js"></script>
 <script>
 "use strict";
@@ -473,6 +498,91 @@ function guardar(){
     return false;
   }
 }
+
+/* ---------- Cifrado de los respaldos ---------- */
+// Un respaldo sale de este dispositivo y viaja en memorias o por mensajería.
+// Cifrarlo es de los pocos candados que en un sitio sin servidor protegen de
+// verdad: la llave se deriva de la contraseña con PBKDF2 y el contenido se
+// sella con AES-GCM, que además delata cualquier alteración del archivo.
+// Sin la contraseña no hay forma de recuperar el contenido, ni para nosotros.
+const CIFRA = {formato:"sia-respaldo-cifrado", version:1, iteraciones:310000};
+function hayCripto(){
+  return !!(window.crypto && window.crypto.subtle && window.isSecureContext);
+}
+// Se trocea para no desbordar la pila: un respaldo con fotografías pesa megabytes.
+function aB64(buffer){
+  const bytes = new Uint8Array(buffer);
+  let texto = "";
+  for(let i = 0; i < bytes.length; i += 0x8000){
+    texto += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+  }
+  return btoa(texto);
+}
+const deB64 = t => Uint8Array.from(atob(t), c => c.charCodeAt(0));
+
+async function llaveDe(clave, sal, iteraciones){
+  const base = await crypto.subtle.importKey(
+    "raw", new TextEncoder().encode(clave), "PBKDF2", false, ["deriveKey"]);
+  return crypto.subtle.deriveKey(
+    {name:"PBKDF2", salt:sal, iterations:iteraciones, hash:"SHA-256"},
+    base, {name:"AES-GCM", length:256}, false, ["encrypt","decrypt"]);
+}
+async function cifrar(texto, clave){
+  const sal = crypto.getRandomValues(new Uint8Array(16));
+  const vector = crypto.getRandomValues(new Uint8Array(12));
+  const llave = await llaveDe(clave, sal, CIFRA.iteraciones);
+  const sellado = await crypto.subtle.encrypt(
+    {name:"AES-GCM", iv:vector}, llave, new TextEncoder().encode(texto));
+  return {
+    formato: CIFRA.formato,
+    version: CIFRA.version,
+    algoritmo: "AES-GCM-256",
+    derivacion: {nombre:"PBKDF2-SHA256", iteraciones:CIFRA.iteraciones, hash:"SHA-256"},
+    sal: aB64(sal), vector: aB64(vector), datos: aB64(sellado),
+    creado: new Date().toISOString(),
+    nota: "Respaldo cifrado de la Subcomisión de Inventariado y Auditoría Interna, " +
+          "Movimiento Estudiantil UAM-I. Para abrirlo, impórtalo en la herramienta de " +
+          "registro en meuami.org/inventariado y escribe la contraseña con que se creó. " +
+          "Sin esa contraseña su contenido no se puede recuperar."
+  };
+}
+async function descifrar(sobre, clave){
+  const it = (sobre.derivacion && sobre.derivacion.iteraciones) || CIFRA.iteraciones;
+  const llave = await llaveDe(clave, deB64(sobre.sal), it);
+  const plano = await crypto.subtle.decrypt(
+    {name:"AES-GCM", iv:deB64(sobre.vector)}, llave, deB64(sobre.datos));
+  return new TextDecoder().decode(plano);
+}
+const esCifrado = d => !!(d && d.formato === CIFRA.formato && d.sal && d.vector && d.datos);
+
+// Pide la contraseña en un diálogo. Devuelve null si la persona se arrepiente.
+function pedirClave(op){
+  return new Promise(resolve=>{
+    const dlg = document.getElementById("dlgClave");
+    const forma = document.getElementById("formClave");
+    document.getElementById("clTitulo").textContent = op.titulo;
+    document.getElementById("clTexto").textContent = op.texto;
+    document.getElementById("clAccion").textContent = op.boton;
+    document.getElementById("clRepetirCampo").hidden = !op.confirmar;
+    document.getElementById("clError").textContent = "";
+    forma.reset();
+    let elegida = null;
+    forma.onsubmit = ev => {
+      ev.preventDefault();
+      const a = document.getElementById("clClave").value;
+      const b = document.getElementById("clRepetir").value;
+      const err = document.getElementById("clError");
+      if(a.length < 8){ err.textContent = "La contraseña necesita ocho caracteres o más."; return; }
+      if(op.confirmar && a !== b){ err.textContent = "Las dos contraseñas no coinciden."; return; }
+      elegida = a;
+      dlg.close();
+    };
+    dlg.addEventListener("close", () => resolve(elegida), {once:true});
+    dlg.showModal();
+    setTimeout(()=>document.getElementById("clClave").focus(), 60);
+  });
+}
+document.getElementById("clCancelar").onclick = () => document.getElementById("dlgClave").close();
 
 /* ---------- Catálogo publicado ---------- */
 // El registro vive en este dispositivo, así que una etiqueta leída desde otro
@@ -969,20 +1079,48 @@ document.getElementById("imprimir").onclick = () => {
 document.getElementById("imprimirActa").onclick = () => window.print();
 
 /* ---------- Respaldo ---------- */
-document.getElementById("expJson").onclick = async function(){
-  const antes = this.textContent;
-  this.disabled = true; this.textContent = "Preparando el respaldo…";
-  // El respaldo se lleva también las fotografías, porque ya no viajan dentro
-  // del registro y de otro modo se quedarían en este dispositivo.
+// El respaldo se lleva también las fotografías, porque ya no viajan dentro
+// del registro y de otro modo se quedarían en este dispositivo.
+async function armarRespaldo(){
   const conFoto = datos.registros.filter(r => r.foto).map(r => r.folio);
   const imagenes = await fotosDe(conFoto);
   const fotos = {};
   conFoto.forEach((f,i)=>{ if(imagenes[i]) fotos[f] = imagenes[i]; });
-  const hoy = new Date().toISOString().slice(0,10);
-  descargar("inventario-"+datos.config.unidad+"-"+hoy+".json",
-    JSON.stringify({version:2, exportado:new Date().toISOString(), config:datos.config,
-                    registros:datos.registros, fotos:fotos}, null, 2),
-    "application/json");
+  return {version:2, exportado:new Date().toISOString(), config:datos.config,
+          registros:datos.registros, fotos:fotos};
+}
+const nombreRespaldo = sufijo =>
+  "inventario-" + datos.config.unidad + "-" + new Date().toISOString().slice(0,10) + sufijo + ".json";
+
+document.getElementById("expJson").onclick = async function(){
+  const antes = this.textContent;
+  this.disabled = true; this.textContent = "Preparando el respaldo…";
+  descargar(nombreRespaldo(""), JSON.stringify(await armarRespaldo(), null, 2), "application/json");
+  this.disabled = false; this.textContent = antes;
+};
+document.getElementById("expCifrado").onclick = async function(){
+  if(!hayCripto()){
+    alert("Este navegador no ofrece las funciones de cifrado, o la página no se abrió por una " +
+          "conexión segura.\n\nAbre la herramienta desde https://meuami.org/inventariado/ " +
+          "y vuelve a intentarlo.");
+    return;
+  }
+  const clave = await pedirClave({
+    titulo: "Contraseña del respaldo",
+    texto: "Con esta contraseña se cifra el archivo. Anótala en un lugar seguro: si se pierde, " +
+           "el respaldo queda ilegible para siempre, también para la subcomisión.",
+    boton: "Cifrar y descargar",
+    confirmar: true
+  });
+  if(!clave) return;
+  const antes = this.textContent;
+  this.disabled = true; this.textContent = "Cifrando…";
+  try{
+    const sobre = await cifrar(JSON.stringify(await armarRespaldo()), clave);
+    descargar(nombreRespaldo("-cifrado"), JSON.stringify(sobre, null, 2), "application/json");
+  }catch(e){
+    alert("No se pudo cifrar el respaldo: " + e.message);
+  }
   this.disabled = false; this.textContent = antes;
 };
 document.getElementById("expCsv").onclick = () => {
@@ -1027,7 +1165,19 @@ document.getElementById("impFile").addEventListener("change", function(){
   const lector = new FileReader();
   lector.onload = async () => {
     try{
-      const d = JSON.parse(lector.result);
+      let d = JSON.parse(lector.result);
+      if(esCifrado(d)){
+        if(!hayCripto()) throw new Error("sin cripto");
+        const clave = await pedirClave({
+          titulo: "Respaldo cifrado",
+          texto: "Este archivo está cifrado. Escribe la contraseña con que se creó para abrirlo.",
+          boton: "Abrir el respaldo",
+          confirmar: false
+        });
+        if(!clave){ this.value = ""; return; }
+        try{ d = JSON.parse(await descifrar(d, clave)); }
+        catch(e){ throw new Error("clave"); }
+      }
       if(!d || !Array.isArray(d.registros)) throw new Error("formato");
       // Las fotografías de un respaldo versión 2 vienen aparte del registro.
       let fotosPuestas = 0;
@@ -1057,7 +1207,17 @@ document.getElementById("impFile").addEventListener("change", function(){
               "\nFotografías incorporadas: "+fotosPuestas);
       }
     }catch(e){
-      alert("El archivo no se pudo leer. Debe ser un respaldo descargado desde esta misma herramienta.");
+      if(e.message === "clave"){
+        alert("La contraseña no abre este respaldo.\n\nRevisa que sea exactamente la que se usó " +
+              "al cifrarlo. También puede ser que el archivo se haya dañado al copiarse: el cifrado " +
+              "detecta cualquier alteración y se niega a abrirlo.");
+      }else if(e.message === "sin cripto"){
+        alert("El archivo está cifrado, pero este navegador no ofrece las funciones necesarias " +
+              "para abrirlo.\n\nAbre la herramienta desde https://meuami.org/inventariado/ " +
+              "y vuelve a intentarlo.");
+      }else{
+        alert("El archivo no se pudo leer. Debe ser un respaldo descargado desde esta misma herramienta.");
+      }
     }
     this.value = "";
   };
