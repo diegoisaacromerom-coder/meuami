@@ -1,0 +1,13 @@
+# Configuración del servidor de la subcomisión.
+# La clave de escritura NO va aquí: se pone como secreto, con
+#   npx wrangler secret put CLAVE_ESCRITURA
+# o desde el tablero, en Settings · Variables and Secrets.
+
+name = "inventario-meuami"
+main = "src/index.js"
+compatibility_date = "2026-01-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "inventario"
+database_id = "pendiente-de-crear"

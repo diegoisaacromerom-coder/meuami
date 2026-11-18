@@ -1,0 +1,16 @@
+{
+  "name": "inventario-meuami",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Servidor de la Subcomisión de Inventariado y Auditoría Interna, Movimiento Estudiantil UAM-I",
+  "scripts": {
+    "local": "wrangler dev --local",
+    "esquema:local": "wrangler d1 execute inventario --local --file=esquema.sql",
+    "esquema:remoto": "wrangler d1 execute inventario --remote --file=esquema.sql",
+    "publicar": "wrangler deploy",
+    "prueba": "node pruebas.mjs"
+  },
+  "devDependencies": {
+    "wrangler": "^4.164.0"
+  }
+}
