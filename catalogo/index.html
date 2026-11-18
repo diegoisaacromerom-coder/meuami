@@ -43,8 +43,11 @@ h1,h2,h3{margin:0;text-wrap:balance}
 .top .vuelta{margin-left:auto;font-size:.84rem;font-weight:700;color:rgba(255,255,255,.8);text-decoration:none}
 .top .vuelta:hover{color:#fff}
 
-main{padding:40px 0 70px}
-section{margin:0 0 44px}
+main.wrap{padding:60px 20px 84px}
+section{margin:0 0 52px}
+/* La misma franja que encabeza la tarjeta de la portada: liga las dos páginas. */
+.portada::before{content:"";display:block;width:62px;height:4px;border-radius:999px;margin:0 0 18px;
+  background:linear-gradient(90deg,#34d27f,#1f9fe0)}
 h1{font-size:clamp(1.7rem,4vw,2.4rem);font-weight:900;letter-spacing:-.02em;line-height:1.12}
 h2{font-size:1.28rem;font-weight:800;letter-spacing:-.01em}
 h3{font-size:1.02rem;font-weight:800}
@@ -61,7 +64,10 @@ h3{font-size:1.02rem;font-weight:800}
 .tile b{display:block;font-size:1.85rem;font-weight:800;line-height:1.05;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
 .tile span{font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
 
-.filtros{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin:0 0 20px}
+/* align-items:end alinea los campos por abajo: si una etiqueta ocupa dos
+   renglones, su recuadro ya no queda escalonado respecto a los demás. */
+.filtros{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px 16px;
+  margin:0 0 20px;align-items:end}
 .campo{display:flex;flex-direction:column;gap:6px;min-width:0}
 .campo.ancho{grid-column:1/-1}
 label{font-size:.76rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
@@ -74,6 +80,8 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px soli
 table{border-collapse:collapse;width:100%;font-size:.9rem}
 th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--rule);vertical-align:top}
 tr:last-child td{border-bottom:0}
+tbody tr{transition:background-color .18s ease}
+tbody tr:hover{background:var(--accent-sw)}
 th{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);
   background:var(--paper);position:sticky;top:0;z-index:1}
 td.fol{font-weight:700;white-space:nowrap;font-variant-numeric:tabular-nums}
@@ -83,7 +91,8 @@ td.n{font-variant-numeric:tabular-nums;white-space:nowrap}
 .etq.e-Regular{background:rgba(154,106,5,.14);color:var(--med)}
 .etq.e-Malo{background:rgba(179,38,30,.13);color:var(--mal)}
 .etq.e-Incompleto{background:rgba(107,63,160,.14);color:var(--inc)}
-.vacio{padding:34px 20px;text-align:center;color:var(--muted)}
+.vacio{padding:56px 24px;text-align:center;color:var(--muted);font-size:.95rem;line-height:1.7}
+.vacio b{display:block;color:var(--ink);font-weight:700;font-size:1.02rem;margin-bottom:5px}
 
 button.b{appearance:none;font:700 .92rem var(--f);border-radius:999px;padding:11px 22px;cursor:pointer;
   border:1px solid var(--accent);background:var(--accent);color:#fff;transition:transform .18s ease}
@@ -100,7 +109,24 @@ pre.borrador{white-space:pre-wrap;word-break:break-word;font:400 .86rem ui-monos
 footer{border-top:1px solid var(--rule);padding:26px 0 50px;color:var(--muted);font-size:.85rem}
 footer p{margin:0 0 8px;max-width:80ch}
 [hidden]{display:none !important}
-@media (prefers-reduced-motion: reduce){*{transition:none !important}}
+
+/* Aparición */
+@keyframes surgeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes abrirFranja{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.top{animation:surgeIn .5s cubic-bezier(.2,.7,.3,1) both}
+.portada::before{transform-origin:left;animation:abrirFranja .6s cubic-bezier(.2,.7,.3,1) both;animation-delay:.18s}
+.portada .et,.portada h1,.portada .lede{animation:surgeIn .55s cubic-bezier(.2,.7,.3,1) both}
+.portada .et{animation-delay:.22s}
+.portada h1{animation-delay:.29s}
+.portada .lede:nth-of-type(1){animation-delay:.36s}
+.portada .lede:nth-of-type(2){animation-delay:.42s}
+html.js-reveal .rv{opacity:0;transform:translateY(18px)}
+html.js-reveal .rv.vista{opacity:1;transform:none;
+  transition:opacity .6s ease, transform .6s cubic-bezier(.2,.7,.3,1)}
+@media (prefers-reduced-motion: reduce){
+  *{transition:none !important;animation:none !important}
+  html.js-reveal .rv{opacity:1;transform:none}
+}
 </style>
 </head>
 <body>
@@ -116,7 +142,7 @@ footer p{margin:0 0 8px;max-width:80ch}
 
 <main class="wrap">
 
-  <section>
+  <section class="portada">
     <p class="et">Subcomisión de Inventariado y Auditoría Interna</p>
     <h1>Catálogo de bienes bajo resguardo</h1>
     <p class="lede">Esta es la relación de los bienes que el Movimiento Estudiantil UAM-I tiene bajo
@@ -217,13 +243,21 @@ const CORREO_SOLICITUDES = "";
 const esc = s => String(s==null?"":s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 let bienes = [];
 
+// Una fecha sin hora ("2026-11-13") la interpreta el navegador como UTC, y en
+// México, que va seis horas atrás, termina mostrando el día anterior. Se arma
+// a mano como fecha local para que el día que se lee sea el que se registró.
+function comoFecha(valor){
+  const t = String(valor == null ? "" : valor);
+  const solo = t.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  return solo ? new Date(+solo[1], +solo[2] - 1, +solo[3]) : new Date(t);
+}
 function fechaCorta(iso){
-  const d = new Date(iso);
+  const d = comoFecha(iso);
   if(isNaN(d)) return "";
   return d.toLocaleDateString("es-MX", {day:"2-digit", month:"short", year:"numeric"});
 }
 function fechaLarga(iso){
-  const d = new Date(iso);
+  const d = comoFecha(iso);
   if(isNaN(d)) return "";
   return d.toLocaleDateString("es-MX", {day:"numeric", month:"long", year:"numeric"});
 }
@@ -258,8 +292,10 @@ function pintarTabla(){
   const cuerpo = document.getElementById("cuerpo");
   if(!lista.length){
     cuerpo.innerHTML = '<tr><td class="vacio" colspan="8">' +
-      (bienes.length ? "Ningún bien coincide con lo que buscas."
-                     : "Todavía no se publica ningún bien en este catálogo.") + "</td></tr>";
+      (bienes.length
+        ? "<b>Ningún bien coincide con lo que buscas.</b>Prueba con menos filtros, o busca solo por el folio."
+        : "<b>Todavía no se publica ningún bien.</b>La subcomisión aún no da a conocer el primer corte del inventario.") +
+      "</td></tr>";
     document.getElementById("cuantos").textContent = "";
     return;
   }
@@ -390,6 +426,30 @@ document.getElementById("correo").onclick = () => {
 };
 
 cargar();
+
+/* ---------- Aparición al desplazarse ---------- */
+(function(){
+  const menos = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if(menos || !("IntersectionObserver" in window)) return;
+  document.documentElement.classList.add("js-reveal");
+  const io = new IntersectionObserver(ents => {
+    ents.forEach(e => {
+      if(e.isIntersecting){ e.target.classList.add("vista"); io.unobserve(e.target); }
+    });
+  }, {threshold:0.08, rootMargin:"0px 0px -6% 0px"});
+  [".tile", "#listado > h2", "#listado > .lede", ".filtros", ".tablawrap",
+   "#solicitud > h2", "#solicitud > .lede", "#solicitud .caja"].forEach(sel => {
+    document.querySelectorAll(sel).forEach((el, i) => {
+      el.classList.add("rv");
+      el.style.transitionDelay = Math.min(i, 6) * 55 + "ms";
+      io.observe(el);
+    });
+  });
+  // Al imprimir, o si algo falla, nada puede quedarse invisible.
+  const mostrarTodo = () => document.querySelectorAll(".rv").forEach(el => el.classList.add("vista"));
+  window.addEventListener("beforeprint", mostrarTodo);
+  setTimeout(mostrarTodo, 6000);
+})();
 </script>
 </body>
 </html>
