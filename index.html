@@ -158,20 +158,57 @@ main > section > h2::before,.fuentes-sec h2::before{content:counter(sec,decimal-
 .next p{margin:6px 0 0;font-size:.92rem}
 
 /* Pliego */
-.common{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:0;border-top:2px solid var(--ink);margin-bottom:28px}
-.common div{padding:14px 16px 14px 0;border-bottom:1px solid var(--rule)}
-.common b{display:block}
-.common span{color:var(--muted);font-size:.92rem}
-.pliegos{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;align-items:start}
-.pl{background:var(--card);border-left:8px solid var(--c);padding:16px 18px}
-.pl header{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
-.pl .meta{font-family:var(--mono);font-size:.78rem;color:var(--muted)}
-.pl ul{margin:10px 0;padding-left:20px}
-.pl li{margin:2px 0}
-.pl .st{font-size:.9rem;border-top:1px solid var(--rule);padding-top:8px;margin:0}
 .callout{margin-top:22px;background:var(--card);padding:18px 20px 20px;max-width:80ch;font-size:.95rem;
   border:1px solid var(--rule);border-left:5px solid var(--accent)}
 .callout h3{margin-bottom:7px}
+
+/* Pliego: los ejes del documento */
+.doc{display:flex;flex-wrap:wrap;align-items:center;gap:18px 26px;margin:24px 0 30px;padding:20px 22px;
+  background:var(--card);border:1px solid var(--rule);border-left:5px solid var(--accent)}
+.doc .cifras{display:flex;gap:26px;flex-wrap:wrap;margin:0;padding:0;list-style:none;font-family:var(--mono);font-size:.84rem}
+.doc .cifras b{font-family:var(--display);font-weight:800;font-size:1.5rem;display:block;line-height:1;letter-spacing:-.01em}
+.doc .baja{margin-left:auto;font-family:var(--mono);font-weight:600;font-size:.86rem;text-decoration:none;
+  border:1px solid var(--accent);color:var(--accent);padding:10px 18px;border-radius:999px;
+  transition:background-color .2s ease,color .2s ease,transform .2s ease;white-space:nowrap}
+.doc .baja:hover{background:var(--accent);color:#fff;transform:translateY(-2px)}
+
+.ejes{display:grid;gap:18px}
+.eje{background:var(--card);border:1px solid var(--rule);border-left:6px solid var(--izt)}
+.ejh{padding:17px 20px 15px;border-bottom:1px solid var(--rule)}
+.ejn{font-family:var(--mono);font-weight:600;font-size:.74rem;text-transform:uppercase;letter-spacing:.09em;
+  color:var(--accent);margin:0 0 5px}
+.ejh h3{margin:0;font-size:1.12rem;line-height:1.28}
+.ejc{font-family:var(--mono);font-size:.78rem;color:var(--muted);margin:6px 0 0}
+
+.pt{border-bottom:1px solid var(--rule)}
+.eje .pt:last-child{border-bottom:0}
+.pt > summary{display:flex;gap:13px;align-items:baseline;cursor:pointer;padding:13px 20px;
+  list-style:none;transition:background-color .18s ease}
+.pt > summary::-webkit-details-marker{display:none}
+.pt > summary:hover{background:color-mix(in srgb, var(--accent) 7%, transparent)}
+.pt > summary::after{content:"+";margin-left:auto;font-family:var(--mono);font-size:1.1rem;
+  color:var(--muted);line-height:1;transition:transform .2s ease}
+.pt[open] > summary::after{transform:rotate(45deg)}
+.pt .cl{font-family:var(--mono);font-size:.82rem;font-weight:600;color:var(--accent);
+  flex:none;min-width:2.6em;font-variant-numeric:tabular-nums}
+.pt > summary b{font-weight:700;font-size:.97rem;line-height:1.4}
+.ptc{padding:2px 20px 20px;max-width:82ch}
+.ptc > p{margin:0 0 10px;font-size:.94rem;color:var(--muted)}
+.inc{margin:12px 0 0;padding:0;list-style:none;display:grid;gap:9px}
+.inc li{display:flex;gap:11px;font-size:.92rem;color:var(--muted)}
+.inc li span{font-family:var(--mono);font-size:.78rem;font-weight:600;color:var(--accent);
+  flex:none;min-width:3.1em;padding-top:.15em}
+.fund{margin:14px 0 0;padding:11px 14px;background:var(--paper);border:1px solid var(--rule);
+  font-size:.83rem;color:var(--muted);line-height:1.6}
+.fund span{display:block;font-family:var(--mono);font-weight:600;font-size:.7rem;text-transform:uppercase;
+  letter-spacing:.08em;color:var(--accent);margin-bottom:4px}
+.cierre{margin-top:26px}
+.cierre ul{margin:12px 0 0;padding-left:21px}
+.cierre li{margin:7px 0}
+@media (max-width:620px){
+  .doc .baja{margin-left:0}
+  .pt > summary{flex-wrap:wrap;gap:4px 13px}
+}
 
 /* Cronología */
 .tlgrid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:38px;align-items:start}
@@ -357,17 +394,263 @@ html.js-reveal .rv.vista{opacity:1;transform:none;
 
   <section id="pliego">
     <h2>Pliego petitorio</h2>
-    <p class="lede">No existe un pliego único: cada unidad entregó el propio. A continuación se presentan las demandas comunes a todas ellas.</p>
-    <div class="common">
-      <div><b>Infraestructura</b><span>Rehabilitación de bibliotecas, sanitarios, cafeterías y espacios deportivos.</span></div>
-      <div><b>Laboratorios y talleres</b><span>Equipo, herramientas y materiales suficientes para la práctica académica.</span></div>
-      <div><b>Más profesores</b><span>Contratación docente para cubrir las plazas faltantes.</span></div>
-      <div><b>Planes de estudio</b><span>Actualización de los programas de estudio.</span></div>
-      <div><b>Violencia de género</b><span>Prevención, atención y protocolos efectivos, con sanciones claras.</span></div>
-      <div><b>Servicios</b><span>Alimentación, mantenimiento y apoyos estudiantiles.</span></div>
-      <div><b>Transparencia</b><span>Información pública sobre el ejercicio del presupuesto.</span></div>
+    <p class="lede">Este es el pliego petitorio unificado del Movimiento Estudiantil UAM-I, suscrito por estudiantes de las divisiones de Ciencias Sociales y Humanidades, Ciencias Biológicas y de la Salud, y Ciencias Básicas e Ingeniería, y dirigido a la Rectoría de Unidad, la Rectoría General y las demás instancias correspondientes.</p>
+    <p class="lede">Cada punto se reproduce aquí íntegro, tal como fue entregado. Toca cualquiera para leerlo completo.</p>
+
+    <div class="doc">
+      <ul class="cifras">
+        <li><b>4</b>ejes</li>
+        <li><b>32</b>puntos</li>
+        <li><b>21</b>páginas</li>
+      </ul>
+      <a class="baja" href="/assets/pliego-petitorio-uami.pdf" download>Descargar el documento</a>
     </div>
-    <div class="pliegos" id="pliegos"></div>
+
+    <div class="ejes">
+    <article class="eje" id="eje1">
+      <header class="ejh"><p class="ejn">Eje 1</p><h3>Biblioteca: Servicios, transparencia, diagnóstico y reapertura segura</h3><p class="ejc">6 puntos</p></header>
+      <details class="pt">
+        <summary><span class="cl">1.1</span><b>Expediente completo de la obra de la biblioteca</b></summary>
+        <div class="ptc"><p>Ejerciendo nuestro derecho a desarrollar nuestras actividades en un ambiente universitario de seguridad, equidad e inclusión, así como a recibir información oportuna respecto de los servicios e instalaciones institucionales, exigimos a Rectoría y Secretaría de Unidad la entrega, e incorporación al Portal de Transparencia, todos y cada uno de los documentos siguientes respecto a la biblioteca de acuerdo con CPEUM (ART. 6, Apartado A):</p>
+          <ul class="inc">
+            <li><span>1.1.a</span>Expediente completo del procedimiento de adjudicación.</li>
+            <li><span>1.1.b</span>Versión pública del contrato de obra y la totalidad de sus convenios modificatorios de plazo o monto.</li>
+            <li><span>1.1.c</span>Dictamen o peritaje de seguridad estructural y proyecto ejecutivo.</li>
+            <li><span>1.1.d</span>El desglose del presupuesto asignado, junto con las estimaciones de gasto pagadas y los informes de avance financiero presentados ante el Consejo Académico.</li>
+            <li><span>1.1.e</span>El cronograma formal de ejecución con las metas e indicadores institucionales de reapertura.</li>
+            <li><span>1.1.f</span>Ante la interrupción prolongada del servicio, el documento oficial fundado y motivado que exprese explícitamente a la comunidad las razones técnicas o administrativas que originaron la suspensión del recinto.</li>
+          </ul>
+          <p class="fund"><span>Fundamento</span>La exigencia de la documentación requerida se fundamenta directamente en: el Reglamento Para La Transparencia De La Información Y La Protección De Datos Personales (RETRA, 19, frac. XVIII, XX, XXVIII, XXXVII y XXXIX; 60, fracs. V y VIII), el Reglamento Para Las Adjudicaciones (REPLA, Arts. 21; 22; 24, frac. VII; 42, frac. I, inc. a; 43, 45 y 46), el Reglamento De Estudios Superiores (RES, Art. 34, frac. VI, inc. c), el Reglamento Del Presupuesto (RPR, Arts. 6, 7 y 24) y el Reglamento Orgánico (RO, Arts. 40; 62, frac. VIII; 81), CPEUM (ART. 6 párrafos 2 y 3 , inciso A en su totalidad).</p>
+        </div>
+      </details>
+      <details class="pt">
+        <summary><span class="cl">1.2</span><b>Presupuesto e informes públicos de UNIGÉNERO</b></summary>
+        <div class="ptc"><p>Exigimos que la Rectoría de Unidad incluya e impulse una propuesta de aumento presupuestario para UNIGÉNERO dentro del Anteproyecto de Presupuesto que se someta a la aprobación del Consejo Académico, así como la publicación periódica de informes sobre el funcionamiento, los recursos humanos, materiales y presupuestarios asignados a dicha unidad, su ejercicio y las actividades realizadas. Estos informes deberán incluir indicadores sobre la cobertura de los servicios, tiempos de atención, acciones de prevención, acompañamiento y canalización, así como las necesidades institucionales identificadas para mejorar su funcionamiento. Solicitamos también establecer mecanismos de evaluación y supervisión institucional a través de las instancias internas competentes para verificar el cumplimiento de los protocolos de atención, así como promover la colaboración con organismos e instituciones especializadas, tales como ONU Mujeres y la Secretaría de las Mujeres, mediante convenios de colaboración y asesoría técnica con el propósito de fortalecer la capacitación, el acompañamiento y la calidad de los servicios ofrecidos. Toda información deberá presentarse de manera agregada y anónima, garantizando estrictamente la confidencialidad, la protección de datos personales y la no revictimización de quienes solicitan atención.</p>
+        </div>
+      </details>
+      <details class="pt">
+        <summary><span class="cl">1.3</span><b>Cuentas trimestrales de CELEX y COSIB</b></summary>
+        <div class="ptc"><p>Exigimos a la Rectoría y a la Secretaría de Unidad garantizar la publicación y actualización periódica trimestral en el Portal de Transparencia de la información relativa al funcionamiento de la Coordinación de Enseñanza de Lenguas Extranjeras (CELEX) y de la Coordinación de Servicios Integrales para el Bienestar (COSIB). Esta información deberá incluir el desglose del presupuesto asignado y ejercido, las fuentes de financiamiento, los ingresos propios generados por el cobro de cuotas o servicios (con la especificación de las personas responsables de administrarlos y su destino), así como, los gastos de operación, mantenimiento, adquisición de insumos, contratación de personal y demás recursos necesarios para su funcionamiento, permitiendo a la comunidad universitaria conocer la administración de dichos recursos e identificar posibles deficiencias presupuestarias u operativas que afecten la calidad, accesibilidad y continuidad de los servicios ofrecidos.</p>
+          <p class="fund"><span>Fundamento</span>Esta exigencia se fundamenta en el RETRA (Art. 5, Art. 19 fracs. VIII, IX, XVIII, XX, XXII, XXX, XXXVII y XXXIX, y Art. 20 fracs. VII y XIV), el RPR (Arts. 1, 3, 5, 6 y 24), RO (Art. 62 fracs. VIII y X, y Art. 81 fracs. I y IX), RA (Art. 4 fracs. X y XV, y Punto 2.1 de su Exposición de Motivos), y en las Políticas Generales (PG, Puntos 5.2.3 y 5.2.5), CPEUM (ART. 6 Apartado A en su totalidad).</p>
+        </div>
+      </details>
+      <details class="pt">
+        <summary><span class="cl">1.4</span><b>Auditoría y cancelación de privilegios a funcionarios</b></summary>
+        <div class="ptc"><p>Exigimos a la Rectoría General, a la Rectoría de Unidad y al Colegio Académico la realización de una auditoría integral y la abrogación o revocación inmediata de todos los acuerdos administrativos, lineamientos, circulares, convenios o disposiciones internas que otorguen beneficios económicos extraordinarios, esquemas de cofinanciamiento, subsidios para la adquisición o arrendamiento de bienes particulares, o privilegios patrimoniales a personal de mando medio, superior o funcionarios de la Universidad. Demandamos que todo recurso institucional actualmente destinado a sostener prebendas burocráticas sea cancelado y reorientado formalmente a las partidas de infraestructura asistencial, comedores, laboratorios y becas estudiantiles. La vigencia de disposiciones internas que subsidian bienes de uso personal para las autoridades vulnera flagrantemente el principio de primacía del interés institucional, genera una distribución inequitativa del erario universitario y contradice abiertamente las políticas de austeridad.</p>
+          <p class="fund"><span>Fundamento</span>Esta exigencia se fundamenta en los artículos 127 y 134 de la Constitución Política de los Estados Unidos Mexicanos (CPEUM); en la Ley Federal de Austeridad Republicana (LFAR, Arts. 1, 4, 16 fracs. I y II, y Art. 20), en el RPR (Art. 1, Art. 2, Art. 6 frac. XIV, y Art. 24), en el REPLA (Art. 2 y su Exposición de Motivos), el RO (Art. 62, Art. 81, y Art. 92 frac. II) y en el RETRA (Art. 19 fracs. XV, XVIII, XXII y XXXVII) CPEUM (ART. 6 parrafos 2 y 3 , inciso A en su totalidad), PIDESC (art. 12 Y 13), Protocolo De San Salvador (Art. 13).</p>
+        </div>
+      </details>
+      <details class="pt">
+        <summary><span class="cl">1.5</span><b>Auditoría de la gestión de la ex titular de Rectoría</b></summary>
+        <div class="ptc"><p>Exigimos la entrega inmediata y la máxima publicidad de los expedientes de auditoría, dictámenes financieros y rendición de cuentas relativos a la gestión presupuestal de la Dra. Verónica Medina Bañuelos como ex-titular de la Rectoría de la Unidad Iztapalapa, haciendo efectivos los mecanismos institucionales de fiscalización, evaluación del gasto y transparencia sobre el ejercicio de los recursos públicos durante todo su periodo de gestión. El desglose de la documentación requerida es como sigue: A cargo de la Contraloría de la Universidad.</p>
+          <ul class="inc">
+            <li><span>1.5.a</span>Cédula con conclusiones de auditoría.</li>
+            <li><span>1.5.b</span>Cédula de verificación de cumplimiento presupuestal.</li>
+            <li><span>1.5.c</span>Dictamen de evaluación del ejercicio del gasto.</li>
+            <li><span>1.5.d</span>Informe final de resultados de las auditorías practicadas.</li>
+            <li><span>1.5.e</span>Informe circunstanciado que indique: persona o equipo a cargo de la auditoría, pruebas de auditoría aplicadas, así como el catálogo de observaciones preliminares y definitivas. A cargo de la ex-titular de la Rectoría de Unidad (Dra. Verónica Medina Bañuelos) y de la Rectoría de Unidad.</li>
+            <li><span>1.5.f</span>El informe anual del ejercicio del presupuesto de egresos correspondiente a cada uno de los años de su gestión.</li>
+            <li><span>1.5.g</span>En caso de que la revisión interna haya arrojado observaciones, el dictamen de la Auditoría Externa remitido al Colegio Académico.</li>
+            <li><span>1.5.h</span>Los estados financieros dictaminados por la Auditoría Externa, así como el informe de recomendaciones emitido por el Patronato y puesto a conocimiento del Colegio Académico. Derivado del inciso anterior, deben presentarse los estados financieros dictaminados por la Auditoría Externa, además de un informe de las recomendaciones emitidas por el Patronato y que son de conocimiento del Colegio Académico.</li>
+          </ul>
+          <p class="fund"><span>Fundamento</span>Esta exigencia se fundamenta en la Ley Orgánica (Art. 20 frac. VI y Art. 26 frac. IV); en el RO (Art. 24 frac. XVIII, Art. 62 frac. VIII y Art. 79 fracs. II y VII); en el RPR (Art. 24, Art. 26 frac. IV, y Arts. 27, 28, 29 y 30); y en el RETRA (Art. 5, Art. 19 fracs. XVIII, XIX, XXIII y XXIX, y Art. 20 fracs. VII y XIII), ordenamientos que imponen la obligación ineludible de auditar periódicamente el gasto, rendir informes anuales de ejercicio presupuestal ante los órganos colegiados y mantener publicada y accesible a la comunidad la información financiera y de fiscalización.</p>
+        </div>
+      </details>
+      <details class="pt">
+        <summary><span class="cl">1.6</span><b>Si no se entrega: intervención de la Auditoría Superior de la Federación</b></summary>
+        <div class="ptc"><p>En caso de que no se entreguen todos y cada uno de los documentos expuestos en el punto anterior en un plazo previo a la fecha: 31 de diciembre de 2026; hacemos explícita la intención justificada de la comunidad estudiantil de buscar transparencia, solicitando que la Auditoría Superior de la Federación tome las medidas necesarias para el esclarecimiento del ejercicio presupuestal de dicho periodo de gestión.</p>
+        </div>
+      </details>
+    </article>
+    <article class="eje" id="eje2">
+      <header class="ejh"><p class="ejn">Eje 2</p><h3>Infraestructura básica</h3><p class="ejc">14 puntos</p></header>
+      <details class="pt">
+        <summary><span class="cl">2.1</span><b>Agua, jabón y papel en todos los baños</b></summary>
+        <div class="ptc"><p>Exigimosgarantizar el suministro permanente de agua potable e insumos de higiene (jabón, papel y toallas sanitarias) en la totalidad de los módulos sanitarios de la Unidad. Demandamos la reparación de lavabos, herrajes, cerraduras y del alcantarillado de áreas específicas de la Unidad (existen evidencias, por ejemplo, sobre la inundación en horas tempranas del día de los baños de los edificios B y C) y la colocación o sustitución de puertas operativas en los cubículos individuales de todos los baños, garantizando el derecho del alumnado a la privacidad, intimidad, salubridad y dignidad humana. Citamos el Reglamento del Alumnado (RA, Art. 4, fracs. I, XIV y XV), RO (Art. 81, frac. I), en las Políticas Transversales de Inclusión (PTIEAND), Puntos 4.1.3 y 4.1.5), y REPLA (Art. 2).</p>
+        </div>
+      </details>
+      <details class="pt">
+        <summary><span class="cl">2.2</span><b>Abrir los sanitarios cerrados con llave</b></summary>
+        <div class="ptc"><p>Exigimos la apertura y el cese inmediato de la restricción de acceso a los sanitarios que han sido cerrados con llave a razón de permanecer reservados para uso exclusivo del personal docente o sectores específicos de la comunidad. Recordamos que la reserva o privatización de instalaciones comunitarias vulnera el derecho del alumnado a un uso equitativo, incluyente y libre de discriminación de los bienes universitarios, e incurre en tratos de jerarquización prohibidos por el RA y PTIEAND.</p>
+        </div>
+      </details>
+      <details class="pt">
+        <summary><span class="cl">2.3</span><b>Baños neutros e incluyentes, señalizados</b></summary>
+        <div class="ptc"><p>Exigimos la habilitación, adecuación y señalización clara de baños neutros e incluyentes en los distintos edificios y plantas de la Unidad, garantizando condiciones óptimas de accesibilidad, privacidad, seguridad, higiene y dignidad. Demandamos que esta medida responda a una política institucional permanente de inclusión y no discriminación que garantice el libre uso de las instalaciones sanitarias a personas de la diversidad sexogenérica (incluidas personas trans, no binarias y de género fluido) y a la comunidad en general, erradicando barreras físicas, simbólicas y tratos excluyentes que vulneran el bienestar y la permanencia universitaria.</p>
+          <p class="fund"><span>Fundamento</span>Esta exigencia se fundamenta en el artículo 1° de la Constitución Política de los Estados Unidos Mexicanos, que prohíbe toda discriminación motivada por género, identidad o preferencia sexual; en las PTIEAND (Apartado 1, Puntos 1.1 a 1.4 y 1.6; Apartado 2, Puntos 2.2 y 2.3; Apartado 4, Puntos 4.1.1 a 4.1.3 y 4.1.5; y Apartado 10, Punto 10.2; en las Políticas Transversales para Erradicar la Violencia por Razones de Género (PAVRG, Apartado 1, Puntos 1.1, 1.2, 1.3, 1.11 y 1.26), en el RA (Art. 4, fracs. I, XIV, XV y XXII, y Art. 10, frac. II), el RO (Art. 40, frac. II, Art. 62, fracs. I y XVIII, y Art. 81, fracs. I y IX), y REDDU (Art. 2 y Art. 5, frac. XV)., CPEUM (ART. 6 párrafos 2 y 3 , inciso A en su totalidad) CPEUM (ART. 1 Párrafo 5).</p>
+        </div>
+      </details>
+      <details class="pt">
+        <summary><span class="cl">2.4</span><b>Cuentas de la cafetería, comedores y kioscos</b></summary>
+        <div class="ptc"><p>Exigimos a la Rectoría y a la Secretaría de Unidad la publicación inmediata e íntegra en el Portal de Transparencia de un informe técnico y financiero sobre la administración de la cafetería, comedores y kioscos. Este documento deberá transparentar el ejercicio de los $15,000,000.00 MXN anuales destinados a egresos de operación y el destino detallado de los $3,262,884.49 MXN recuperados como ingresos directos institucionales. Asimismo, solicitamos la entrega de la auditoría de costos unitarios de insumos, las versiones públicas de los expedientes, bases, fallos, contratos y anexos técnicos vigentes que amparan las atenciones registradas, exigimos a su vez transparencia en la publicación de inventarios históricos (periodo 2023-actualidad); este inventario debe contener materia prima y productos adquiridos para su venta a la comunidad universitaria (651,000 en comedor y 616,000 en kioscos en 253 días de servicio); así como se establece en el RETRA (Art. 19, fracs. XVIII, XX, XXII y XXXVII), el RO (Art. 20, frac. XIV; Art. 62, frac. VIII; Art. 81, frac. I), el RPR (Arts. 3, 5, 6 y 24) y el REPLA (Arts. 2, 48 y 51), CPEUM (ART. 6 párrafos 2 y 3, inciso A en su totalidad).</p>
+        </div>
+      </details>
+      <details class="pt">
+        <summary><span class="cl">2.5</span><b>Servicio regular de alimentos y comedor universitario</b></summary>
+        <div class="ptc"><p>Considerando que el servicio de cafetería y comedor universitario constituye un medio indispensable para garantizar el derecho a una alimentación adecuada y apoyar la permanencia y bienestar de los estudiantes, así como del personal académico y administrativo, exigimos el cumplimiento inmediato e irrestricto de las siguientes demandas:</p>
+          <ul class="inc">
+            <li><span>2.5.a</span>Exigimos una explicación pública, formal y detallada por parte de las autoridades competentes donde se informen las causas por las cuales no se ha brindado el servicio regular de alimentos.</li>
+            <li><span>2.5.b</span>De no existir argumentos técnicos de fuerza mayor debidamente acreditados, exigimos la reanudación inmediata de las labores operativas correspondientes al servicio de cafetería. Se recuerda a la administración que el acceso al comedor es un derecho institucional de la comunidad universitaria que debe cumplirse sin dilación.</li>
+            <li><span>2.5.c</span>Exigimos a la Rectoría y Secretaría de Unidad la apertura inmediata de una investigación exhaustiva ante las denuncias de contaminación biológica (presencia de larvas y gusanos en los alimentos ofrecidos), la solicitud de una inspección sanitaria y validación del dictamen correspondiente por parte de la COFEPRIS, y la aplicación expedita de las sanciones administrativas e imposición de penas o rescisión contractual a los proveedores responsables por falta grave a la salud pública. Asimismo, demandamos garantizar que la totalidad de los insumos y platillos ofertados sean frescos, estén dentro de su periodo de consumo y sean preparados bajo estrictos estándares de inocuidad conforme a la NOM-251-SSA1-2009, publicando de forma permanente en el Portal de Transparencia los informes de salubridad, evidencias y resultados de las auditorías de higiene desde el periodo de 2023 a la actualidad.</li>
+            <li><span>2.5.d</span>Se debe garantizar la elaboración de menús variados, equilibrados, nutritivos y con porciones suficientes, erradicando la venta predominante de frituras o alimentos ultraprocesados que contengan al menos un sello nutrimental, en apego a los lineamientos y criterios legales aplicables a los espacios educativos, en particular la NOM-051 y reformas a la Ley General de Educación (modificaciones hechas al art. 75). Asimismo, exigimos la inclusión de una oferta alimentaria diversa, accesible y nutricionalmente adecuada que contemple las distintas necesidades y preferencias alimentarias de la comunidad universitaria, incluyendo opciones vegetarianas y veganas. Estas deberán consistir en platillos completos, equilibrados y con porciones suficientes, sin limitarse únicamente a frutas, verduras o guarniciones, garantizando así alternativas de alimentación adecuadas para toda la comunidad universitaria.</li>
+            <li><span>2.5.e</span>Exigimos a la Rectoría de Unidad, a la Secretaría de Unidad y al Consejo Académico la reestructuración y ampliación inmediata de la capacidad operativa y presupuestal del comedor universitario, ajustando la producción diaria de raciones a la matrícula real del campus. Denunciamos que mientras en periodos anteriores (como el año 2023) el servicio abarcaba un margen continuo de atención de varias horas, actualmente la comida se agota en menos de una hora, dejando desprotegida a la comunidad. Esta precariedad presupuestal se confirma mediante los datos oficiales: a pesar del crecimiento constante de la comunidad en la Unidad Iztapalapa, que alcanza aproximadamente 15,500 alumnos y 2,000 trabajadores, impulsado por una expansión de la oferta académica que para 2026 incrementó la capacidad de selección general en un 16% e integró programas de alta demanda como la Licenciatura en Medicina, el presupuesto asignado de forma directa a los insumos alimenticios de la cafetería y kiosco (Partida 2210201) resulta dramáticamente deficiente; tras incrementarse de $9.44 MDP en 2024 a $14.92 MDP en 2025, la partida se mantuvo congelada en $14.92 MDP para 2026, lo que al distribuirse entre los 200 días lectivos del año representa una inversión irrisoria de apenas $4.27 MXN diarios por persona ($4.82 MXN si se calcula únicamente sobre la matrícula estudiantil). Ante el próximo proceso de selección e ingreso de nuevo alumnado, demandamos con carácter urgente la implementación de un plan de contingencia y la asignación de recursos suficientes que eviten que la incorporación de nuevas generaciones agrave el colapso del servicio.</li>
+            <li><span>2.5.f</span>Exigimos la apertura y cobertura formal del servicio de comida en turno vespertino con la cantidad de alimentos necesaria para atender a la totalidad del alumnado y trabajadores de dicho turno.</li>
+            <li><span>2.5.g</span>Exigimos la revisión de las tablas de precios, porciones y calidad alimentaria conforme a principios de economía y eficiencia que mantengan costos accesibles y que protejan la economía estudiantil. Consecuentemente, solicitamos a los órganos competentes la inclusión de una partida destinada a esquemas de subsidio alimentario en el Anteproyecto de Presupuesto de Ingresos y Egresos de la Unidad, orientada a sostener la permanencia de estudiantes en desventaja económica. Este se ampara en el derecho del alumnado a recibir servicios universitarios adecuados y en las políticas de apoyo a sectores vulnerables del RA (Art. 4, fracs. X y XV) y las PG (Punto 5.2), CPEUM (Art. 4 párrafo 3)</li>
+          </ul>
+          <p class="fund"><span>Fundamento</span>Esta exigencia se fundamenta en el RA (Art. 4, fracs. I, XIV y XV, y Punto 2.1 de su Exposición de Motivos), el RPR (Arts. 1, 3, 5, 6 fracs. I, II, IV, VI, VIII, XI, XII, XIII y XIV; y 24), RES (Art. 34, frac. VI, incs. c y d), , RO (Arts. 40, frac. II; 62, fracs. I, VIII y X; y 81, fracs. I y IX), las PG (Punto 5.2), y PTIEAND (Puntos 1.1, 1.2 y 1.7), CPEUM (Art. 4 párrafo 3)</p>
+        </div>
+      </details>
+      <details class="pt">
+        <summary><span class="cl">2.6</span><b>Conectividad e internet inalámbrico en todos los edificios</b></summary>
+        <div class="ptc"><p>Exigimos a la administración de la Unidad la ampliación y reforzamiento integral de la infraestructura de conectividad e internet inalámbrico (Wi-Fi) en todos los edificios de Unidad, asegurando la continuidad pedagógica en las modalidades presencial y mixta reguladas por el RES. La inoperatividad tecnológica y las barreras de acceso a la Biblioteca vulneran el derecho del alumnado al aprovechamiento libre y responsable de los recintos escolares, acervos bibliográficos y bases de datos digitales necesarios para su formación académica, además, obstaculiza el acceso a clases en línea homologadas para otras Unidades. Demandamos la adscripción presupuestal y la inmediata ejecución del procedimiento de adjudicación correspondiente conforme al REPLA, garantizando criterios de accesibilidad digital y diseño universal para la comunidad.</p>
+        </div>
+      </details>
+      <details class="pt">
+        <summary><span class="cl">2.7</span><b>Convenios para libros, licencias y programas académicos</b></summary>
+        <div class="ptc"><p>Exigimos a las autoridades universitarias competentes garantizar y facilitar el acceso equitativo a recursos bibliográficos, herramientas tecnológicas y programas informáticos necesarios para el adecuado desarrollo de las actividades de docencia, aprendizaje e investigación. Para ello, se solicita promover, establecer y mantener convenios institucionales con librerías, editoriales y empresas de desarrollo de software, con el propósito de proporcionar descuentos, licencias académicas gratuitas o de bajo costo y acceso a herramientas especializadas, tanto fuera como dentro de la Unidad.</p>
+        </div>
+      </details>
+      <details class="pt">
+        <summary><span class="cl">2.8</span><b>Actualización del acervo bibliográfico y de BIDIUAM</b></summary>
+        <div class="ptc"><p>Exigimos a las autoridades universitarias competentes la actualización, ampliación y diversificación permanente del acervo bibliográfico de la Unidad Iztapalapa, así como el fortalecimiento de los recursos académicos disponibles mediante la Biblioteca Digital UAM (BIDIUAM), con el propósito de garantizar el acceso a materiales actualizados y especializados para el desarrollo de las actividades de docencia, aprendizaje e investigación. Asimismo, solicitamos establecer mecanismos periódicos de consulta con la comunidad estudiantil y docente de las tres divisiones académicas, a fin de identificar las necesidades bibliográficas y de investigación de los distintos planes y programas de estudio. Estas consultas deberán orientar la adquisición de nuevos materiales, la actualización de los acervos y la ampliación y renovación de las suscripciones a revistas científicas, libros electrónicos y bases de datos especializadas.</p>
+        </div>
+      </details>
+      <details class="pt">
+        <summary><span class="cl">2.9</span><b>Agua potable libre de contaminantes en los bebederos</b></summary>
+        <div class="ptc"><p>Exigimos la intervención inmediata de la red de agua potable y la totalidad de los bebederos de la Unidad, garantizando el suministro permanente de agua libre de contaminantes físicos, químicos o biológicos. Demandamos que cuando se presente una irregularidad en los dispensadores, se haga la inhabilitación preventiva en un lapso no mayor a 24 horas de aquellos módulos con agua visiblemente turbia, proveyendo estaciones provisionales de suministro de agua potable en tanto se ejecuta, en un plazo máximo de 5 días hábiles, la sustitución de filtros, lavado de cisternas y la realización de estudios de laboratorio que certifiquen su potabilidad. Asimismo, exigimos la publicación del Dictamen de Salubridad del Agua en el Portal de Transparencia y la implementación de un Programa Permanente de Mantenimiento con Bitácora Trimestral Pública.</p>
+          <p class="fund"><span>Fundamento</span>Esta exigencia se fundamenta en el RA (Art. 4, fracs. I, XIV y XV, y Punto 2.1 de su Exposición de Motivos), el RO (Art. 81, frac. I y Art. 62, fracs. I y X), REPLA (Art. 2 y su Exposición de Motivos), RETRA (Arts. 5, 19 fracs. XXIX y XXX, y Art. 60 fracs. II, VI y VIII), CPEUM (ART. 6 párrafos 2 y 3 , inciso A en su totalidad). , que obligan a documentar las competencias institucionales y sanciona la falta de transparencia o negligencia en los servicios públicos.</p>
+        </div>
+      </details>
+      <details class="pt">
+        <summary><span class="cl">2.10</span><b>Instructivo de uso de aulas, salas y cubículos</b></summary>
+        <div class="ptc"><p>Exigimos al Consejo Académico de la Unidad la inmediata elaboración, aprobación y publicación del Instructivo respecto del funcionamiento interno y operativo para el uso de aulas, salas y cubículos provisionales, que fije criterios públicos, razonables y equitativos de aforo, higiene y uso académico. Demandamos el cese irrestricto de cualquier acto de desalojo arbitrario o restricción injustificada contra les estudiantes en usufructo de las instalaciones institucionales, en respeto a la libertad de reunión, libre asociación e independencia estudiantil garantizadas por la Ley Orgánica y el RA.</p>
+        </div>
+      </details>
+      <details class="pt">
+        <summary><span class="cl">2.11</span><b>Enfermería equipada y con protocolos de emergencia</b></summary>
+        <div class="ptc"><p>En concordancia con el punto 2.1 de la Exposición de Motivos del RA, exigimos que el área de enfermería cuente con el equipamiento adecuado. Es inaceptable que se niegue la atención a emergencias graves o se obligue a estudiantes y trabajadores con lesiones físicas a trasladarse por sus propios medios sin el apoyo de una ambulancia o de personal capacitado. Se demanda establecer protocolos de respuesta inmediata, insumos médicos suficientes y atención humana de calidad dentro de la Unidad.</p>
+        </div>
+      </details>
+      <details class="pt">
+        <summary><span class="cl">2.12</span><b>Mantenimiento del gimnasio y las canchas</b></summary>
+        <div class="ptc"><p>Exigimos a la Rectoría de Unidad y a la Secretaría de Unidad la ejecución inmediata de un programa integral, técnico y permanente de mantenimiento preventivo y correctivo en la infraestructura deportiva del campus Iztapalapa, que comprenda:</p>
+          <ul class="inc">
+            <li><span>2.12.a</span>Sustitución, reparación y reacondicionamiento del equipo e instrumentos del gimnasio escolar;</li>
+            <li><span>2.12.b</span>La reparación de mallas perimetrales, sellado de grietas, nivelación de pisos y pintura en las canchas de básquetbol, voleibol y tenis;</li>
+            <li><span>2.12.c</span>El reemplazo, soldadura y fijación perimetral de tablas y estructuras en las porterías de las canchas de fútbol rápido; y</li>
+            <li><span>2.12.d</span>El deshierbe, retiro de maleza, nivelación del terreno y establecimiento de un calendario continuo de conservación del campo de fútbol soccer.</li>
+          </ul>
+        </div>
+      </details>
+      <details class="pt">
+        <summary><span class="cl">2.13</span><b>Inventario y reposición del material deportivo</b></summary>
+        <div class="ptc"><p>Exigimos a la Rectoría de Unidad y a la Secretaría de Unidad la realización de un diagnóstico e inventario detallado del material deportivo del campus para dar de baja el equipo deteriorado e instrumentar la compra y distribución periódica de insumos reglamentarios, asegurando:</p>
+          <ul class="inc">
+            <li><span>2.13.a</span>El abastecimiento suficiente y proporcional a la matrícula estudiantil de balones en óptimas condiciones para fútbol soccer, fútbol rápido, básquetbol y voleibol, así como raquetas y pelotas para tenis;</li>
+            <li><span>2.13.b</span>La provisión completa de accesorios de entrenamiento (conos, aros, redes, escaleras de coordinación, cuerdas y vallas) para todas las disciplinas; y</li>
+            <li><span>2.13.c</span>El establecimiento de un mecanismo trimestral de revisión y sustitución por desgaste ordinario.</li>
+          </ul>
+        </div>
+      </details>
+      <details class="pt">
+        <summary><span class="cl">2.14</span><b>Accesibilidad en las instalaciones deportivas</b></summary>
+        <div class="ptc"><p>Exigimos al Consejo Académico, a la Rectoría de Unidad y a la Secretaría de Unidad la adecuación física de las instalaciones bajo criterios de accesibilidad e inclusión, así como la regulación de su uso operativo, garantizando:</p>
+          <ul class="inc">
+            <li><span>2.14.a</span>La eliminación de barreras arquitectónicas que impidan el acceso autónomo y seguro de personas con discapacidad o en situación de vulnerabilidad al gimnasio y canchas deportivas; y</li>
+            <li><span>2.14.b</span>La actualización y publicación del instructivo de uso de las instalaciones deportivas para asegurar la gratuidad, la reserva equitativa de espacios y la prohibición de actos de comercio o cobros no autorizados.</li>
+          </ul>
+        </div>
+      </details>
+    </article>
+    <article class="eje" id="eje3">
+      <header class="ejh"><p class="ejn">Eje 3</p><h3>Seguridad, protección civil, y mantenimiento</h3><p class="ejc">8 puntos</p></header>
+      <details class="pt">
+        <summary><span class="cl">3.1</span><b>Diagnóstico estructural de los edificios dañados</b></summary>
+        <div class="ptc"><p>Exigimos la presentación en urgencia de un diagnóstico técnico actualizado sobre las condiciones estructurales, de seguridad y funcionamiento de los edificios e instalaciones de la Unidad, con especial atención a aquellos que han presentado daños, deterioro, restricciones de acceso o intervenciones posteriores a eventos sísmicos (como lo son los edificios: T, S y C). El diagnóstico deberá identificar los inmuebles evaluados, las fechas de inspección, las personas especialistas responsables, los riesgos y deficiencias detectadas, así como las medidas preventivas, correctivas y de rehabilitación recomendadas. Solicitamos las versiones públicas de los dictámenes estructurales, informes de inspección y documentos técnicos disponibles, así como un calendario para la realización de las evaluaciones pendientes.</p>
+        </div>
+      </details>
+      <details class="pt">
+        <summary><span class="cl">3.2</span><b>Programas Internos de Protección Civil verificables</b></summary>
+        <div class="ptc"><p>Exigimos el acceso a información verificable sobre exigencias, actualización e implementación de los Programas Internos de Protección Civil aplicables a las instalaciones universitarias. Estos deberán contemplar la identificación y evaluación de riesgos, señalización y mantenimiento de rutas de evacuación, salidas de emergencia, sistemas de alarma, extintores y demás equipos de protección contra incendios. Asimismo, solicitamos información sobre la realización de simulacros, capacitación de brigadas, difusión de protocolos de emergencia y medidas de evacuación para personas con discapacidad (física, sensorial o de cualquier otro tipo) o movilidad reducida. Particularmente, solicitamos que se informe sobre el estado actual de los proyectos de construcción de escaleras de emergencia para los edificios: C, D, F y T, identificados como pendientes en el Informe de Avances del Plan de Reconstrucción de la Unidad Iztapalapa 2022-2026, así como las medidas de seguridad existentes y los plazos previstos para su conclusión.</p>
+        </div>
+      </details>
+      <details class="pt">
+        <summary><span class="cl">3.3</span><b>Seguridad vial y policial en los accesos a la Unidad</b></summary>
+        <div class="ptc"><p>Exigimos tanto a Rectoría como a Secretaría de Unidad realizar de inmediato las gestiones de vinculación e intervención interinstitucional ante el Gobierno de la Ciudad de México y la Alcaldía Iztapalapa para implementar una estrategia integral de seguridad física y vial en los accesos e inmediaciones de la Unidad, orientada a erradicar los recurrentes asaltos, agresiones violentas y riesgos de tránsito que vulneran a la comunidad. Solicitamos un diagnóstico situacional que sustente la gestión de patrullaje coordinado, iluminación en senderos externos, cruces peatonales seguros, semaforización y control vehicular; así como un informe sobre el estado de los accesos peatonales, priorizando la habilitación del Acceso Poniente contemplado en el Plan de Reconstrucción.</p>
+          <p class="fund"><span>Fundamento</span>Esta exigencia se fundamenta en el RA (Art. 4, fracs. I y XV), las Políticas Transversales de Cultura de Paz (PTCP, Puntos 1.1, 4.3 y 6.1) y PTIEAND (Puntos 1.2 y 4.1.7) y las PG (Puntos 8.1 y 8.3) que norman la vinculación con el sector público para atender problemas sociales. Además, las rutas seguras de transporte, alumbrado público y botones de pánico se encuentran dentro de los acuerdos firmados en las mesas de diálogo del paro del 2023.</p>
+        </div>
+      </details>
+      <details class="pt">
+        <summary><span class="cl">3.4</span><b>Diagnóstico de laboratorios y talleres</b></summary>
+        <div class="ptc"><p>Exigimos un diagnóstico integral de las condiciones físicas, operativas y de seguridad de los laboratorios de docencia, de investigación y talleres universitarios, especialmente aquellos que se encuentren fuera de servicio o presenten restricciones de funcionamiento. Solicitamos la presentación de un programa de compra y renovación, rehabilitación, mantenimiento, reparación y calibración de equipos, acompañado de recursos presupuestarios, responsables institucionales y fechas previstas de atención. Asimismo, deberán verificarse las instalaciones eléctricas, equipos de protección, señalización, manuales de seguridad y procedimientos para el manejo de materiales y sustancias peligrosas, según las actividades desarrolladas. Se deberá priorizar la recuperación de los espacios indispensables para el cumplimiento de los planes y programas de estudio de las tres divisiones académicas, garantizando condiciones seguras para su utilización.</p>
+        </div>
+      </details>
+      <details class="pt">
+        <summary><span class="cl">3.5</span><b>Conclusión de los módulos de Ciencia y Tecnología</b></summary>
+        <div class="ptc"><p>Exigimos a la Rectoría y a las autoridades universitarias competentes la presentación de un informe actualizado sobre las condiciones físicas, presupuestarias y administrativas de los módulos A, B y C del edificio de Ciencia y Tecnología, así como de las acciones necesarias para su conclusión y puesta en funcionamiento. Consideramos indispensable atender los retrasos acumulados en estas obras, particularmente ante las necesidades de infraestructura académica evidenciada por el sismo de septiembre de 2017 y las posteriores medidas de reubicación de laboratorios, personal académico y actividades de investigación. De acuerdo con el Informe de Avances del Plan de Recuperación de la Unidad Iztapalapa 2022-2026, publicado en enero de 2026, el módulo A presentaba trabajos pendientes de habilitación; el módulo B registra avance físico, aproximadamente de un 60%, con obras detenidas desde septiembre de 2022 y el módulo C tenía pendientes la conclusión de las escaleras.</p>
+        </div>
+      </details>
+      <details class="pt">
+        <summary><span class="cl">3.6</span><b>Publicación permanente de los programas de obra</b></summary>
+        <div class="ptc"><p>Exigimos la publicación periódica y permanente de información sobre los programas de mantenimiento, rehabilitación, adecuación y seguridad de las instalaciones universitarias hasta que estas obras sean concluídas en su totalidad. Esta información deberá incluir las obras programadas, los avances físicos, los recursos presupuestarios asignados y ejercidos, las modificaciones a los calendarios y las instancias responsables. Solicitamos el acceso a las versiones públicas de contratos, dictámenes, expedientes de obra, informes de inspección, registro de mantenimiento y demás documentación correspondiente ya descrita a detalle anteriormente.</p>
+        </div>
+      </details>
+      <details class="pt">
+        <summary><span class="cl">3.7</span><b>Seguimiento con representación estudiantil</b></summary>
+        <div class="ptc"><p>Exigimos establecer un mecanismo institucional de seguimiento y verificación de las observaciones de seguridad y de los programas de rehabilitación y mantenimiento de la infraestructura universitaria. Dicho mecanismo deberá contemplar informes periódicos, cronogramas de cumplimiento y reuniones de seguimiento con representación estudiantil, para conocer los avances, las acciones pendientes y las medidas correctivas implementadas. Solicitamos que bajo previa autorización y condiciones seguras, se permita la participación de representantes estudiantiles en calidad de observadores en los recorridos institucionales de verificación que correspondan. Esta participación tendrá carácter de observación y seguimiento documental, sin sustituir las evaluaciones, dictámenes o responsabilidades del personal técnico competente.</p>
+        </div>
+      </details>
+      <details class="pt">
+        <summary><span class="cl">3.8</span><b>Acuerdos que sobrevivan al cambio de autoridades</b></summary>
+        <div class="ptc"><p>Asimismo, exigimos que los acuerdos, medidas y resultados derivados del presente pliego petitorio tengan un carácter institucional, permanente y verificable, garantizando su continuidad independiente de los cambios en las autoridades universitarias, incluidas la Rectoría, la Secretaría de Unidad, las Direcciones Divisionales y demás instancias competentes. Para ello solicitamos que los compromisos adquiridos sean formalizados por escrito e incorporados, según corresponda a los programas, procedimientos, instrumentos normativos y mecanismos presupuestarios institucionales, estableciendo responsables, plazos e indicadores de cumplimiento. De igual manera, exigimos que cualquier modificación o suspensión de las medidas acordadas sea debidamente fundamentada, justificada y comunicada públicamente a la comunidad universitaria, evitando que los avances alcanzados queden sujetos a decisiones discrecionales de administraciones posteriores.</p>
+        </div>
+      </details>
+    </article>
+    <article class="eje" id="eje4">
+      <header class="ejh"><p class="ejn">Eje 4</p><h3>Impunidad y violación de los acuerdos del paro de 2023</h3><p class="ejc">4 puntos</p></header>
+      <details class="pt">
+        <summary><span class="cl">4.1</span><b>UNIGÉNERO autónoma, con presupuesto y equipo propio</b></summary>
+        <div class="ptc"><p>Exigimos la culminación de la reestructuración de UNIGÉNERO como una instancia permanente, autónoma y con presupuesto propio, dotada de un equipo multidisciplinario integral que incluya profesionales en psicología clínica, acompañamiento jurídico y servicios de salud especializada, garantizando la redistribución presupuestal para su contratación. Como resultados inmediatos, demandamos la aplicación de medidas de tolerancia cero a filtraciones mediante sanciones administrativas inmediatas al personal responsable, la implementación ineludible de un código de anonimato desde el registro de la queja hasta su notificación, la censura de datos personales en las oficinas técnicas de los Consejos Divisionales y la firma de acuerdos formales de confidencialidad por parte de los miembros de las Comisiones de Faltas.</p>
+          <p class="fund"><span>Fundamento</span>Esta exigencia se fundamenta en el RETRA (Arts. 23, 29, 30 y 60), el RA (Arts. 4, 16-1, 17 y 23), el RO (Art. 92), integrando los Puntos 1.1, 7 y 10.2.2 de los acuerdos de la mesa de diálogo de 2023 y el instructivo de la COSIB. De manera imperativa, la demanda se ancla en el criterio vinculante establecido por la Recomendación No. 02/2020 de la Comisión Nacional de Derechos Humanos (CNDH), la cual acreditó violaciones graves a los derechos humanos por parte de autoridades universitarias y de la Defensoría al exponer a las víctimas públicamente; bajo este antecedente, la CNDH ordena a la institución garantizar la confidencialidad absoluta y erradicar cualquier acto de revictimización o violencia institucional en el tratamiento de los casos.</p>
+        </div>
+      </details>
+      <details class="pt">
+        <summary><span class="cl">4.2</span><b>Separación del cargo durante procedimientos por violencia de género</b></summary>
+        <div class="ptc"><p>Exigimos la emisión de Lineamientos de Medidas Precautorias y Cautelares de Protección en la Unidad Iztapalapa que decreten de forma inmediata la separación temporal o reasignación de funciones (evitando el contacto con la comunidad estudiantil) para cualquier integrante del personal académico, administrativo o alumnado que enfrente un procedimiento formal por violencia de género. De forma concurrente, exigimos que la inhabilitación definitiva para acceder a cargos de representación, distinciones o asignación de presupuesto se ejecute de manera estricta e incontestable una vez que la resolución sancionatoria quede firme. Como resultado de justicia restaurativa, demandamos la revisión, el retiro y la higienización inmediata de placas, reconocimientos o condecoraciones en la Unidad Iztapalapa que ostenten nombres de agresores comprobados, garantizando con ello la no repetición de los actos y la dignificación del espacio universitario. El sustento normativo reside en el RA (Art. 31), el RO (Arts. 34, 44, 49, 64 y 86) y en los Puntos 1 (Acuerdo 4) y 10.1 de los acuerdos de la mesa de diálogo de 2023, que mandatan expresamente la inhabilitación por denuncias y la integración de la justicia restaurativa. Asimismo,</p>
+          <ul class="inc">
+            <li><span>4.2.a</span>La necesidad de establecer estas medidas se hace indispensable a partir de la grave afrenta institucional ocurrida el 14 de octubre de 2026, durante la Sesión 800 del Consejo Divisional de Ciencias Sociales y Humanidades. En dicha sesión, por invitación directa de la Dra. Sonia Pérez Toledo, Directora de la División y Presidenta del Consejo, y el Dr. José Antonio Carrera Barroso se permitió y celebró la participación de José Régulo N., exdirector de la División, desatendiendo de manera irresponsable los antecedentes de denuncia por violencia sexual en su contra y su previa separación de funciones en la Universidad. Condenamos enérgicamente que se haya permitido su participación en este espacio institucional, pues consideramos que este hecho vulnera gravemente la dignidad de las personas sobrevivientes, revictimiza a las víctimas y quebranta la construcción de un entorno universitario libre de violencia. Este caso pone de manifiesto la urgente necesidad de que las autoridades actúen con congruencia respecto a sus obligaciones de prevención y atención de la violencia de género, evitando decisiones que contradigan los principios de respeto, protección y no revictimización que deben regir la vida universitaria.</li>
+            <li><span>4.2.b</span>En virtud de la grave afrenta institucional ocurrida el 14 de octubre de 2026 durante la Sesión 800 del Consejo Divisional de CSH, donde se promovió y celebró la participación del exdirector José Régulo N. denunciado por violencia sexual, la Dra. Sonia Pérez Toledo incurrió en violaciones directas graves al RO (Art. 92 fr. VI y VII), al revictimizar a las personas sobrevivientes e inobservar las Políticas Transversales de Género. Exigimos tanto a la Dra. Sonia Pérez Toledo que, por congruencia ética, responsabilidad institucional y en estricto apego a las Políticas Transversales de Género, proceda a la separación voluntaria e inmediata de su cargo mediante la presentación de su renuncia por escrito ante el Consejo Académico de la Unidad Iztapalapa, en términos de lo dispuesto en el artículo 65, párrafo cuarto del RO.</li>
+            <li><span>4.2.c</span>Asimismo, para el supuesto de que dicha separación voluntaria no sea presentada de inmediato, exigimos a la Rectoría de Unidad la convocatoria e instalación urgente de una Sesión Especial y Permanente del Consejo Académico de la Unidad Iztapalapa, realizada obligatoriamente a puertas abiertas y que permita la representación estudiantil, a fin de substanciar el procedimiento formal de remoción por la incurrencia en falta grave establecida en el artículo 92, fracción VI del RO, instruyendo el cauce procesal señalado en los artículos 96 y 100 del mismo ordenamiento, ordenándose paralelamente el retiro permanente de la fotografía de José Régulo N. de la Sala del Consejo Divisional de CSH para erradicar cualquier homenaje o presencia simbólica de agresores en los espacios universitarios.</li>
+            <li><span>4.2.d</span>En el último supuesto de que la Universidad Autónoma Metropolitana no aplique las sanciones que el RO contempla para este caso y además viole el artículo 94 del mismo ordenamiento; hacemos explícito el derecho irrenunciable de la comunidad universitaria fundamentado en los artículos 1°, 13° y 17° de la CPEUM; de acceder a la jurisdicción del Estado y recurrir a instancias oficiales, gubernamentales, ministeriales, judiciales y de derechos humanos competentes, ésto de forma independiente y sin perjuicio de los procedimientos de sanción que deban desahogarse de forma interna conforme a la legislación universitaria.</li>
+          </ul>
+          <p class="fund"><span>Fundamento</span>esta exigencia se fundamenta en los artículos 3, 4 y 7 de la Convención Interamericana para Prevenir, Sancionar y Erradicar la Violencia contra la Mujer (Convención de Belém do Pará), que reconocen el derecho de las mujeres a una vida libre de violencia, a la protección de sus derechos humanos y a que las instituciones adopten medidas para prevenir, sancionar y erradicarla. En el ámbito nacional, se sustenta en el artículo 1° de la Constitución Política de los Estados Unidos Mexicanos, así como en los artículos 3, 18 y 18 Bis de la Ley General de Acceso de las Mujeres a una Vida Libre de Violencias, relativos a la aplicación de esta ley, la violencia institucional y la obligación de investigar, sancionar y reparar las violaciones a los derechos humanos de las mujeres con perspectiva de género. De igual manera, se fundamenta en el apartado 1, «Espacio universitario libre de violencia», puntos 1.1, 1.3, 1.5, 1.7, 1.10, 1.14, 1.18, 1.20, 1.23, 1.25, 1.26 y 1.27 de las Políticas Transversales para Erradicar la Violencia por Razones de Género, así como en los principios 2.1, 2.6, 2.7, 2.8 y 2.12 del Código de Ética de la Universidad Autónoma Metropolitana.</p>
+        </div>
+      </details>
+      <details class="pt">
+        <summary><span class="cl">4.3</span><b>Protocolo Extramuros para las prácticas de campo</b></summary>
+        <div class="ptc"><p>Exigimos la modificación normativa de los instructivos operativos, especialmente el de Prácticas de Campo, para incorporar un "Protocolo Extramuros" obligatorio que dicte las rutas de denuncia, la responsabilidad del profesorado y las acciones de emergencia ante actos de violencia de género ocurridos fuera de la Unidad. Para lograr este resultado, demandamos la asignación de una partida presupuestal que amplíe la plantilla de UNIGÉNERO, permitiendo la cobertura y acompañamiento remoto, así como el establecimiento de convenios interinstitucionales con instancias de procuración de justicia de la CDMX y el Estado de México. La fundamentación de esta demanda emana del propio Protocolo de Actuación para la Atención a las Violencias de la UAM-I, el cual reconoce que el deber de prevención y protección ampara a la comunidad en el entorno y en actividades afines o vinculadas a la vida universitaria, sin importar el espacio físico. De igual forma, se sostiene en el RES, el RA, las Políticas Operacionales de Docencia y las PTIEAND, respaldándose directamente en los Puntos 1.7 y 10.2.2 de los acuerdos de la mesa de diálogo de 2023, que obligan a la institución a expandir sus alcances de acompañamiento profesional e institucional más allá del cerco perimetral de la Unidad.</p>
+        </div>
+      </details>
+      <details class="pt">
+        <summary><span class="cl">4.4</span><b>Respuesta institucional ante la violencia digital</b></summary>
+        <div class="ptc"><p>Exigimos el establecimiento de un mecanismo de pronunciación institucional inmediato frente al acoso virtual masivo, la violencia digital y las amenazas, derivando en la apertura de investigaciones de oficio y la baja inmediata de los accesos informáticos institucionales de las personas agresoras. Como resultado concurrente, demandamos el otorgamiento expedito de medidas cautelares de protección para las víctimas y la acreditación obligatoria de cursos de formación en perspectiva de género e inclusión para la totalidad del personal académico y administrativo, priorizando urgentemente a quienes ocupan cargos de gestión.</p>
+          <p class="fund"><span>Fundamento</span>Este punto se fundamenta en el Instructivo de VIRTUAMI (Arts. 30 y 31), que tipifica y sanciona directamente la violencia digital, así como en el Protocolo de Violencias de la Unidad, que clasifica el acoso cibernético y las amenazas como agresiones graves. A la par de los Puntos 3, 3.1 y 12 de los acuerdos de la mesa de diálogo de 2023, esta exigencia cobra carácter vinculante supremo a través de la Recomendación QUINTA de la Recomendación No. 02/2020 de la CNDH, la cual mandata de forma incuestionable a la Universidad la impartición de formación obligatoria a sus autoridades, órganos de representación y personal en materia de debida diligencia, perspectiva de género y no revictimización, como eje rector para evitar la repetición del daño.</p>
+        </div>
+      </details>
+    </article>
+    </div>
+
+    <div class="callout cierre">
+      <h3>Lo que el pliego pide como procedimiento</h3>
+      <p style="margin:0">Además de los 32 puntos, la sección final del documento establece las condiciones bajo las que la comunidad estudiantil plantea resolver el conflicto:</p>
+      <ul>
+        <li>La instalación de una <strong>Mesa Institucional de Negociación</strong> con la Rectoría de Unidad, las Direcciones Divisionales, la Rectoría General y la Secretaría General, con representación equitativa del alumnado.</li>
+        <li><strong>Actas de acceso público</strong> y transmisión abierta de las sesiones.</li>
+        <li>Respuesta <strong>por escrito y firmada</strong> dentro de las 72 horas siguientes a la entrega del documento. Para lo que competa a órganos colegiados, una ruta crítica y un calendario de sometimiento institucional.</li>
+        <li><strong>Garantías expresas de no represalias</strong> de carácter académico, administrativo, legal o físico contra quienes participan.</li>
+        <li>Que los acuerdos se formalicen mediante <strong>Acuerdos del Rector General publicados en el Semanario de la UAM</strong> y resoluciones colegiadas, para que subsistan a los cambios de administración.</li>
+      </ul>
+    </div>
 
     <div class="callout">
       <h3>Contexto: la adquisición de vehículos eléctricos</h3>
@@ -377,7 +660,7 @@ html.js-reveal .rv.vista{opacity:1;transform:none;
 
   <section id="cronologia">
     <h2>Cronología</h2>
-    <p class="lede">Del primer día en la Unidad Iztapalapa a la fecha. Los puntos sin relleno corresponden a fechas próximas.</p>
+    <p class="lede">De los primeros reclamos en la Unidad Iztapalapa a la fecha. Los antecedentes de octubre provienen de la Sección I del pliego petitorio; el resto, de notas de prensa y comunicados. Los puntos sin relleno corresponden a fechas próximas.</p>
     <div class="tlgrid">
       <div>
         <ol class="tl" id="tl"></ol>
@@ -409,6 +692,7 @@ html.js-reveal .rv.vista{opacity:1;transform:none;
       <li id="s6"><a href="https://24-horas.mx/cdmx/paro-en-la-uam-se-extiende-a-sus-cinco-unidades-en-medio-de-polemica-por-autos-de-lujo/">24 Horas: el paro en la UAM y la polémica por los vehículos</a></li>
       <li id="s7"><a href="https://www.cronica.com.mx/nacional/2026/11/11/crisis-en-la-uam-que-pasara-con-las-becas-y-se-perdera-el-trimestre-estas-son-las-medidas-anunciadas/">Crónica, 11 nov 2026: qué pasará con las becas y el trimestre</a></li>
       <li id="s8"><a href="https://www.publimetro.com.mx/noticias/2026/11/02/paro-en-la-uam-cinco-planteles-sin-clases-por-protestas-estudiantiles-estas-son-las-causas/">Publimetro, 2 nov 2026: causas del paro estudiantil en la UAM</a></li>
+      <li id="s9"><a href="/assets/pliego-petitorio-uami.pdf">Pliego petitorio unificado del Movimiento Estudiantil UAM-I, Sección I: antecedentes y considerandos</a></li>
     </ol>
   </div>
 </section>
@@ -467,12 +751,13 @@ const unidad = {
   s:[4,5]
 };
 
-const pliegos = [
-  {u:"izt", meta:"Respuesta institucional: 31 oct", items:["Biblioteca en pleno funcionamiento y segura","Mantenimiento de los sanitarios","Espacios deportivos en condiciones","Servicio de comedor","Transparencia presupuestal"], st:"El 5 de noviembre, el rector general informó que la biblioteca está en condiciones de reabrir, tras los trabajos de reforzamiento derivados del sismo de 2017.", s:[4]}
-];
-
 const tl = [
-  {d:"20 oct", u:"izt", t:"Inicia el paro en la Unidad Iztapalapa por las condiciones de la biblioteca, los sanitarios, el comedor y los espacios deportivos.", s:[4]},
+  {d:"1 oct", u:"izt", t:"La comunidad estudiantil de CSH entrega un pliego a la Secretaría de Unidad en el que pide una fecha concreta de reapertura de la biblioteca y la cafetería.", s:[9]},
+  {d:"9 oct", u:"izt", t:"Estudiantes de CBI y CBS entregan un pliego ante el Consejo Divisional de CBI, respaldado por más de 150 firmas, con un plazo de cinco días hábiles para recibir respuesta escrita.", s:[9]},
+  {d:"13 oct", u:"izt", t:"Asamblea estudiantil de las tres divisiones académicas.", s:[9]},
+  {d:"16 oct", u:"izt", t:"Reabre la cafetería. El pliego del 1 de octubre sigue sin respuesta formal.", s:[9]},
+  {d:"19 oct", u:"izt", t:"Mesa de diálogo con la Secretaría de Unidad, de unas cinco horas. Se acuerdan la difusión del dictamen de seguridad de la biblioteca, la apertura de todos los sanitarios con insumos, un reporte de reparaciones con cronograma y la revisión estructural del edificio T.", s:[9]},
+  {d:"20 oct", u:"izt", t:"Con la participación de 880 integrantes de la comunidad estudiantil, la asamblea determina el paro total indefinido y de efecto inmediato.", s:[9,4]},
   {d:"23 oct", u:"gen", t:"La comunidad estudiantil presenta sus demandas ante la Rectoría General.", s:[1]},
   {d:"29 oct", u:"gen", t:"Comunicado conjunto de las autoridades: manifiestan disposición al diálogo y reconocen el derecho de la comunidad estudiantil a organizarse.", s:[1]},
   {d:"31 oct", u:"izt", t:"La Unidad Iztapalapa publica su respuesta institucional al pliego.", s:[1]},
@@ -496,13 +781,6 @@ function render(){
     `<span class="pill">${unidad.st}</span>
      <dl><div><dt>En paro desde</dt><dd>${unidad.start}</dd></div>
      <div><dt>Último reporte</dt><dd>${unidad.now}${src(unidad.s)}</dd></div></dl>`;
-
-  document.getElementById("pliegos").innerHTML = pliegos.map(x =>
-    `<article class="pl" data-u="${x.u}" style="--c:var(--${x.u})">
-      <header><h3>${U[x.u].n}</h3><span class="meta">${x.meta}</span></header>
-      <ul>${x.items.map(i => `<li>${i}</li>`).join("")}</ul>
-      <p class="st">${x.st}${src(x.s)}</p>
-    </article>`).join("");
 
   document.getElementById("tl").innerHTML = tl.map(x =>
     `<li data-u="${x.u}" class="${x.f ? "future" : ""}" style="--c:var(--${x.u})">
@@ -557,7 +835,7 @@ render();
   const menos = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (menos || !("IntersectionObserver" in window)) return;
   document.documentElement.classList.add("js-reveal");
-  const grupos = [".estado", ".next > div", ".common > div", ".pliegos .pl",
+  const grupos = [".estado", ".next > div", ".doc", ".eje",
                   ".callout", ".tlfoto", ".tl li", ".coms .com", ".flist li"];
   const io = new IntersectionObserver(ents => {
     ents.forEach(e => {
