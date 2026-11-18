@@ -413,6 +413,29 @@ footer a{color:var(--accent)}
     </div>
     <p id="estadoCat" class="lede" style="margin-top:10px"></p>
 
+    <h3 style="margin-top:34px;font-size:1.05rem;font-weight:800">Servidor de la subcomisión</h3>
+    <p class="lede" style="margin-top:6px">Mientras no pongas nada aquí, la herramienta trabaja igual que siempre: todo vive en este dispositivo. Al configurar el servidor, el registro se sincroniza y el catálogo público se actualiza solo, sin que tengas que subir ningún archivo.</p>
+    <p class="lede">Sigue trabajando sin conexión: la captura nunca depende de la red. Lo que hagas sin señal se envía la próxima vez que sincronices.</p>
+    <div class="campos" style="margin-top:18px">
+      <div class="campo ancho">
+        <label for="srvUrl">Dirección del servidor</label>
+        <input id="srvUrl" type="url" autocomplete="off" placeholder="https://inventario-meuami.tu-cuenta.workers.dev">
+      </div>
+      <div class="campo ancho">
+        <label for="srvClave">Clave de escritura</label>
+        <input id="srvClave" type="password" autocomplete="off">
+      </div>
+    </div>
+    <div class="acciones" style="border:0;padding-top:0;margin-top:14px">
+      <button class="b" id="srvSync">Sincronizar</button>
+      <button class="b sec" id="srvProbar">Probar la conexión</button>
+      <button class="b sec" id="srvOlvidar">Olvidar la clave</button>
+    </div>
+    <p id="srvEstado" class="lede" style="margin-top:12px"></p>
+    <div class="aviso ojo" style="margin-top:16px">
+      <strong>La clave se queda en este dispositivo</strong>, guardada por el navegador. En una computadora compartida conviene olvidarla al terminar. Las fotografías no viajan al servidor: pesan demasiado y se quedan en el equipo donde se tomaron.
+    </div>
+
     <h3 style="margin-top:34px;font-size:1.05rem;font-weight:800">Configuración del folio</h3>
     <p class="lede" style="margin-top:6px">El folio se forma con las siglas de la subcomisión, la unidad, el año y un consecutivo.</p>
     <div class="campos" style="max-width:520px">
@@ -474,7 +497,7 @@ const LLAVE = "sia-inventario-v1";
 const CATS = ["Equipo de cómputo","Equipo de laboratorio","Equipo audiovisual","Mobiliario",
               "Herramienta","Material y papelería","Llaves y accesos","Acervo bibliográfico","Otro"];
 
-let datos = {config:{unidad:"IZT", consecutivo:1}, registros:[]};
+let datos = {config:{unidad:"IZT", consecutivo:1}, registros:[], bajas:[]};
 let sel = new Set();                    // etiquetas marcadas para imprimir
 let editando = null;                    // folio que se está corrigiendo
 const LLAVE_IMP = "sia-impresas-v1";    // folios cuya etiqueta ya se imprimió
@@ -487,7 +510,11 @@ function cargar(){
     const crudo = localStorage.getItem(LLAVE);
     if(crudo){
       const d = JSON.parse(crudo);
-      if(d && Array.isArray(d.registros)) datos = {config:Object.assign({unidad:"IZT",consecutivo:1}, d.config||{}), registros:d.registros};
+      if(d && Array.isArray(d.registros)) datos = {
+        config: Object.assign({unidad:"IZT", consecutivo:1}, d.config || {}),
+        registros: d.registros,
+        bajas: Array.isArray(d.bajas) ? d.bajas : []
+      };
     }
   }catch(e){ console.warn("No se pudo leer el almacenamiento:", e); }
 }
@@ -584,6 +611,175 @@ function pedirClave(op){
 }
 document.getElementById("clCancelar").onclick = () => document.getElementById("dlgClave").close();
 
+/* ---------- Servidor ---------- */
+// La herramienta sigue siendo la dueña de los datos mientras se captura: todo
+// se guarda primero aquí y después se concilia. Así el paro no depende del
+// wifi del campus. La sincronización es a botón, nunca a escondidas.
+const LLAVE_SRV = "sia-servidor-v1";
+let servidor = {url:"", clave:"", ultimaSync:""};
+
+function cargarServidor(){
+  try{
+    const d = JSON.parse(localStorage.getItem(LLAVE_SRV) || "null");
+    if(d) servidor = Object.assign(servidor, d);
+  }catch(e){ /* se queda sin configurar */ }
+  const u = document.getElementById("srvUrl"), c = document.getElementById("srvClave");
+  if(u) u.value = servidor.url || "";
+  if(c) c.value = servidor.clave || "";
+}
+function guardarServidor(){
+  try{ localStorage.setItem(LLAVE_SRV, JSON.stringify(servidor)); }catch(e){ /* sin espacio */ }
+}
+function leerCampos(){
+  servidor.url = (document.getElementById("srvUrl").value || "").trim().replace(/\/+$/, "");
+  servidor.clave = document.getElementById("srvClave").value || "";
+}
+const hayServidor = () => !!(servidor.url && servidor.clave);
+
+async function alServidor(ruta, op){
+  op = op || {};
+  const cab = {"Authorization": "Bearer " + servidor.clave};
+  if(op.cuerpo) cab["Content-Type"] = "application/json";
+  const resp = await fetch(servidor.url + ruta, {
+    method: op.metodo || "GET",
+    headers: cab,
+    body: op.cuerpo ? JSON.stringify(op.cuerpo) : undefined
+  });
+  const d = await resp.json().catch(() => null);
+  if(!resp.ok){
+    if(resp.status === 401) throw new Error("La clave no es la que espera el servidor.");
+    throw new Error((d && d.error) || ("El servidor respondió " + resp.status + "."));
+  }
+  return d;
+}
+
+// Traduce un renglón del servidor al registro que maneja esta herramienta.
+function deServidor(b, local){
+  return {
+    folio:b.folio, fecha:b.fecha, categoria:b.categoria, procedencia:b.procedencia,
+    prestador:b.prestador, descripcion:b.descripcion, marca:b.marca,
+    inventario:b.inventario, cantidad:b.cantidad, ubicacion:b.ubicacion,
+    estado:b.estado, observaciones:b.observaciones, responsable:b.responsable,
+    // La fotografía no viaja: si este dispositivo ya la tiene, se conserva.
+    foto: local && local.foto ? local.foto : false,
+    actualizado: b.actualizado
+  };
+}
+const selloDe = r => r.actualizado || r.fecha || "";
+
+async function sincronizar(){
+  const desde = servidor.ultimaSync;
+  const quien = (datos.registros.length && datos.registros[datos.registros.length-1].responsable) || "";
+
+  // 1. Lo que cambió del otro lado.
+  const remoto = await alServidor("/api/bienes" + (desde ? "?desde=" + encodeURIComponent(desde) : ""));
+  const vivos = new Map(datos.registros.map(r => [r.folio, r]));
+  const bajas = new Map((datos.bajas || []).map(b => [b.folio, b]));
+  let llegaron = 0, cambiaron = 0, dadosDeBaja = 0;
+
+  (remoto.bienes || []).forEach(b => {
+    const local = vivos.get(b.folio);
+    if(b.baja){
+      if(local){
+        vivos.delete(b.folio);
+        bajas.set(b.folio, {folio:b.folio, descripcion:b.descripcion || "", cuando:b.actualizado});
+        dadosDeBaja++;
+      }
+      return;
+    }
+    if(!local){ vivos.set(b.folio, deServidor(b)); llegaron++; return; }
+    // Gana la versión modificada más tarde. Regla simple y predecible.
+    if((b.actualizado || "") > selloDe(local)){ vivos.set(b.folio, deServidor(b, local)); cambiaron++; }
+  });
+
+  datos.registros = Array.from(vivos.values()).sort((a,b) => a.folio.localeCompare(b.folio));
+  datos.bajas = Array.from(bajas.values());
+
+  // 2. Lo que cambió de este lado desde la última vez.
+  const nuevo = r => !desde || selloDe(r) > desde;
+  const aMandar = datos.registros.filter(nuevo)
+    .concat(datos.bajas.filter(b => !desde || (b.cuando || "") > desde)
+      .map(b => ({folio:b.folio, descripcion:b.descripcion, baja:1, fecha:b.cuando})));
+
+  let enviado = {altas:0, cambios:0, rechazados:[], cuando:remoto.cuando};
+  if(aMandar.length){
+    enviado = await alServidor("/api/bienes", {metodo:"POST", cuerpo:{quien, bienes:aMandar}});
+  }
+
+  // 3. La hora la pone el servidor: los relojes de los dispositivos no coinciden.
+  servidor.ultimaSync = enviado.cuando || remoto.cuando || new Date().toISOString();
+  guardarServidor();
+
+  // El consecutivo local nunca debe quedar por debajo de lo ya usado.
+  const mayor = datos.registros.concat(datos.bajas)
+    .map(r => parseInt(String(r.folio).split("-").pop(), 10))
+    .filter(n => Number.isFinite(n));
+  if(mayor.length) datos.config.consecutivo = Math.max(datos.config.consecutivo, Math.max(...mayor) + 1);
+
+  guardar();
+  pintarTodo();
+  return {llegaron, cambiaron, dadosDeBaja, enviados:aMandar.length,
+          altas:enviado.altas || 0, cambios:enviado.cambios || 0,
+          rechazados:(enviado.rechazados || []).length};
+}
+
+function srvDice(texto, malo){
+  const c = document.getElementById("srvEstado");
+  c.textContent = texto;
+  c.style.color = malo ? "var(--mal)" : "";
+}
+
+document.getElementById("srvProbar").onclick = async function(){
+  leerCampos();
+  if(!servidor.url){ srvDice("Falta la dirección del servidor.", true); return; }
+  this.disabled = true;
+  srvDice("Preguntando al servidor…");
+  try{
+    const d = await alServidor("/api/salud");
+    guardarServidor();
+    srvDice("El servidor responde. Tiene " + d.bienes +
+            (d.bienes === 1 ? " bien registrado" : " bienes registrados") +
+            (hayServidor() ? "." : ". Falta la clave para poder sincronizar."));
+  }catch(e){
+    srvDice("No se pudo hablar con el servidor: " + e.message, true);
+  }
+  this.disabled = false;
+};
+
+document.getElementById("srvSync").onclick = async function(){
+  leerCampos();
+  if(!hayServidor()){ srvDice("Hacen falta la dirección y la clave.", true); return; }
+  this.disabled = true;
+  const antes = this.textContent;
+  this.textContent = "Sincronizando…";
+  try{
+    guardarServidor();
+    const r = await sincronizar();
+    const partes = [];
+    if(r.altas)        partes.push(r.altas + (r.altas === 1 ? " bien subido" : " bienes subidos"));
+    if(r.cambios)      partes.push(r.cambios + (r.cambios === 1 ? " cambio enviado" : " cambios enviados"));
+    if(r.llegaron)     partes.push(r.llegaron + (r.llegaron === 1 ? " bien recibido" : " bienes recibidos"));
+    if(r.cambiaron)    partes.push(r.cambiaron + (r.cambiaron === 1 ? " actualizado" : " actualizados"));
+    if(r.dadosDeBaja)  partes.push(r.dadosDeBaja + (r.dadosDeBaja === 1 ? " dado de baja" : " dados de baja"));
+    srvDice(partes.length ? "Listo: " + partes.join(", ") + "."
+                          : "Listo. No había nada que mover de ningún lado." );
+    if(r.rechazados) srvDice(document.getElementById("srvEstado").textContent +
+                             " El servidor rechazó " + r.rechazados + ".", true);
+  }catch(e){
+    srvDice("No se pudo sincronizar: " + e.message +
+            " Lo que capturaste sigue guardado en este dispositivo.", true);
+  }
+  this.textContent = antes;
+  this.disabled = false;
+};
+
+document.getElementById("srvOlvidar").onclick = () => {
+  servidor.clave = "";
+  document.getElementById("srvClave").value = "";
+  guardarServidor();
+  srvDice("La clave se borró de este dispositivo. La dirección se quedó.");
+};
+
 /* ---------- Catálogo publicado ---------- */
 // El registro vive en este dispositivo, así que una etiqueta leída desde otro
 // teléfono no encontraría nada. El catálogo es un archivo que se publica en el
@@ -614,7 +810,10 @@ function catalogoPublico(){
 async function traerCatalogo(){
   if(catalogo !== null) return catalogo;
   try{
-    const resp = await fetch(CAT_URL, {cache:"no-cache"});
+    // Con servidor configurado el catálogo llega al momento; si no, se lee el
+    // archivo que se publicó a mano.
+    const donde = servidor.url ? servidor.url + "/api/catalogo" : CAT_URL;
+    const resp = await fetch(donde, {cache:"no-cache"});
     if(!resp.ok) throw new Error("respuesta " + resp.status);
     const d = await resp.json();
     catalogo = (d && Array.isArray(d.bienes)) ? d : false;
@@ -719,6 +918,18 @@ function folioDe(n){
   return "SIA-" + datos.config.unidad + "-" + new Date().getFullYear() + "-" + String(n).padStart(4,"0");
 }
 function proximoFolio(){ return folioDe(datos.config.consecutivo); }
+// Con servidor configurado el folio se aparta allá, para que dos personas
+// capturando al mismo tiempo no tomen el mismo número. Sin red, se sigue
+// usando el consecutivo de este dispositivo.
+async function apartarFolio(){
+  if(hayServidor()){
+    try{
+      const d = await alServidor("/api/folio", {metodo:"POST", cuerpo:{unidad:datos.config.unidad}});
+      if(d && d.folio) return {folio:d.folio, local:false};
+    }catch(e){ console.warn("No se pudo apartar folio en el servidor:", e.message); }
+  }
+  return {folio:proximoFolio(), local:true};
+}
 
 /* ---------- Utilidades ---------- */
 const esc = s => String(s==null?"":s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -786,8 +997,9 @@ document.getElementById("form").addEventListener("submit", async function(ev){
   const boton = this.querySelector('button[type="submit"]');
   boton.disabled = true;
   const fotoNueva = await reducirFoto(document.getElementById("foto").files[0]);
+  const apartado = editando ? {folio:editando, local:true} : await apartarFolio();
   const reg = {
-    folio: proximoFolio(),
+    folio: apartado.folio,
     fecha: new Date().toISOString(),
     categoria: document.getElementById("categoria").value || "Sin clasificar",
     procedencia: document.getElementById("procedencia").value,
@@ -800,7 +1012,10 @@ document.getElementById("form").addEventListener("submit", async function(ev){
     estado: document.getElementById("estado").value,
     observaciones: document.getElementById("observaciones").value.trim(),
     responsable: document.getElementById("responsable").value.trim(),
-    foto: false
+    foto: false,
+    // Sello de la última modificación. Es lo que decide, al sincronizar, cuál
+    // de dos versiones de un mismo folio es la buena.
+    actualizado: new Date().toISOString()
   };
   if(editando){
     const i = datos.registros.findIndex(x => x.folio === editando);
@@ -828,7 +1043,7 @@ document.getElementById("form").addEventListener("submit", async function(ev){
   }
   datos.registros.push(reg);
   sel.add(reg.folio);
-  datos.config.consecutivo++;
+  if(apartado.local) datos.config.consecutivo++;
   if(fotoNueva){
     try{ await guardarFoto(reg.folio, fotoNueva); reg.foto = true; }
     catch(e){ reg.foto = false; avisoFoto(); }
@@ -842,7 +1057,8 @@ document.getElementById("form").addEventListener("submit", async function(ev){
     pintarTodo();
     verDetalle(reg.folio);
   }else{
-    datos.registros.pop(); datos.config.consecutivo--;
+    datos.registros.pop();
+    if(apartado.local) datos.config.consecutivo--;
   }
   boton.disabled = false;
 });
@@ -881,6 +1097,11 @@ function verDetalle(folio){
   document.getElementById("borrarUno").onclick = () => {
     if(confirm("¿Eliminar el registro "+r.folio+"? Esta acción no se puede deshacer.")){
       datos.registros = datos.registros.filter(x => x.folio !== r.folio);
+      // Queda constancia de la baja. Sin esto, al sincronizar el bien volvería
+      // desde el servidor como si nada hubiera pasado.
+      if(!datos.bajas) datos.bajas = [];
+      datos.bajas.push({folio:r.folio, descripcion:r.descripcion || "",
+                        cuando:new Date().toISOString()});
       borrarFoto(r.folio);
       guardar(); dlg.close(); pintarTodo();
     }
@@ -1240,6 +1461,7 @@ document.getElementById("borrar").onclick = () => {
 
 /* ---------- Arranque ---------- */
 cargar();
+cargarServidor();
 pintarTodo();
 migrarFotos().then(n => { if(n) pintarTodo(); });
 const hash = (location.hash||"").replace("#","");
