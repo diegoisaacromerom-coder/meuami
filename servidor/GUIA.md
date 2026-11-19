@@ -1,85 +1,79 @@
 # Cómo montar el servidor del inventario
 
-Todo se hace a clics en el tablero de Cloudflare. No hace falta terminal ni
-saber programar. Son unos veinte minutos.
+## Camino corto, de unos 6 minutos
 
-Cuesta cero: el plan gratuito de Workers y de D1 cubre de sobra este tamaño.
+### 1. Crea la cuenta de Cloudflare
 
----
+En `dash.cloudflare.com/sign-up`. No pide tarjeta.
 
-## 1. Crear la cuenta de Cloudflare
+Usa el correo que te quede más fácil; mudarlo después cuesta poco.
 
-Entra a `dash.cloudflare.com/sign-up` y date de alta.
+### 2. Aprieta este botón
 
-**Usa un correo de la subcomisión, no el personal.** Si la cuenta cuelga del
-correo de una sola persona, el inventario de la subcomisión depende de esa
-persona. Ese mismo correo sirve para las solicitudes del informe completo.
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/diegoisaacromerom-coder/meuami/tree/main/servidor)
 
-No hace falta mover el dominio a Cloudflare. `meuami.org` se queda en Porkbun
-y el sitio sigue en GitHub Pages, igual que hoy.
+O pega esta dirección en el navegador:
 
-## 2. Crear la base de datos
+    https://deploy.workers.cloudflare.com/?url=https://github.com/diegoisaacromerom-coder/meuami/tree/main/servidor
 
-En el menú de la izquierda: **Storage & Databases → D1 SQL Database →
-Create**.
+Cloudflare copia el servidor a tu cuenta de GitHub, **crea la base de datos D1
+sola, la enlaza sola** y publica el servidor. Te va a pedir autorizar GitHub la
+primera vez.
 
-Nómbrala exactamente `inventario` y créala.
+Esto hace de un jalón lo que antes eran cuatro pasos a mano: crear la base,
+crear el Worker, pegar el código y enlazarlos.
 
-## 3. Poner las tablas
+### 3. Pon la clave de escritura
 
-Dentro de la base, pestaña **Console**. Abre el archivo `esquema.sql` de esta
-misma carpeta, copia todo su contenido, pégalo y ejecútalo.
+Es lo único que queda a mano, y no puede automatizarse: es el secreto que
+separa a quien puede registrar de quien solo puede consultar.
 
-Debe decir que se crearon tres tablas: `bienes`, `bitacora` y `consecutivos`.
-Volver a ejecutarlo no rompe nada, por si quedaste con la duda.
+En el Worker recién creado: **Settings → Variables and Secrets → Add**.
 
-## 4. Crear el servidor
-
-En el menú: **Compute (Workers) → Workers & Pages → Create → Start with
-Hello World → Deploy**.
-
-Nómbralo `inventario-meuami`. Se publica un ejemplo; lo sustituimos enseguida.
-
-Entra a **Edit code**, borra todo lo que trae y pega el contenido completo de
-`src/index.js` de esta carpeta. Guarda y publica.
-
-## 5. Enlazar el servidor con la base
-
-En el Worker: **Settings → Bindings → Add → D1 database**.
-
-- Variable name: `DB` (así, en mayúsculas; el código la busca por ese nombre)
-- D1 database: `inventario`
+- Tipo: **Secret**, no "Text". Un secreto no se puede volver a leer desde el
+  tablero, que es justo lo que queremos.
+- Nombre: `CLAVE_ESCRITURA`
+- Valor: una frase larga, cuatro o cinco palabras sin relación entre sí.
+  Anótala donde guardes tus contraseñas.
 
 Guarda y vuelve a publicar.
 
-## 6. Poner la clave de escritura
+### 4. Comprueba y conéctalo
 
-Es la que permite registrar y leer los datos completos. Sin ella, el servidor
-solo entrega el catálogo público.
+Abre la dirección del Worker con `/api/salud` al final:
 
-En el Worker: **Settings → Variables and Secrets → Add**.
+    https://inventario-meuami.TU-SUBDOMINIO.workers.dev/api/salud
 
-- Tipo: **Secret** (no "Text": un secreto no se puede volver a leer desde el
-  tablero, que es justo lo que queremos)
-- Nombre: `CLAVE_ESCRITURA`
-- Valor: una frase larga, de las que no se adivinan. Algo como cuatro o cinco
-  palabras sin relación entre sí. Anótala donde guardes las contraseñas.
-
-Guarda y publica.
-
-## 7. Comprobar que vive
-
-Copia la dirección del Worker, que se ve así:
-
-    https://inventario-meuami.TU-SUBDOMINIO.workers.dev
-
-Ábrela en el navegador con `/api/salud` al final. Debe responder algo como:
+Debe responder algo así:
 
     {"ok":true,"bienes":0,"ultimoCambio":null,"hora":"..."}
 
-Si eso sale, está listo. Pásame la dirección y conecto las herramientas.
+Si eso sale, está listo. Ponla en la herramienta de registro, pestaña
+**Respaldo → Servidor de la subcomisión**, junto con la clave, y aprieta
+**Sincronizar**. Lo que hayas capturado en local sube solo, y los demás
+teléfonos hacen lo mismo con la misma dirección y la misma clave.
+
+**Las tablas se crean solas** la primera vez que alguien llama al servidor. No
+hay que pegar ningún esquema en ninguna consola.
 
 ---
+
+## Si el botón no funciona
+
+Puede fallar si el repositorio dejara de ser público o si Cloudflare cambia el
+flujo. El camino a mano, que es el de siempre:
+
+1. **Storage & Databases → D1 SQL Database → Create**, nómbrala `inventario`.
+2. **Compute (Workers) → Create → Start with Hello World → Deploy**, nómbralo
+   `inventario-meuami`.
+3. **Edit code**, borra todo y pega el contenido de `src/index.js`. Guarda y
+   publica.
+4. **Settings → Bindings → Add → D1 database**. Variable name: `DB`, así, en
+   mayúsculas, que es como lo busca el código. Database: `inventario`.
+5. El paso 3 de arriba: la clave de escritura.
+
+El archivo `esquema.sql` queda como referencia de lo que el servidor crea solo.
+No hace falta ejecutarlo.
 
 ## Lo que hace cada ruta
 

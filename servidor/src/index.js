@@ -13,6 +13,27 @@
  * no recibe los datos, por más que modifique su navegador.
  */
 
+// El esquema va aquí dentro para que la base se arme sola la primera vez que
+// alguien llama al servidor. Antes había que pegarlo a mano en la consola del
+// tablero, que era un paso más y un lugar más donde equivocarse.
+const ESQUEMA = [
+  "CREATE TABLE IF NOT EXISTS bienes ( folio TEXT PRIMARY KEY, unidad TEXT NOT NULL DEFAULT 'IZT', fecha TEXT NOT NULL, categoria TEXT NOT NULL DEFAULT '', procedencia TEXT NOT NULL DEFAULT '', descripcion TEXT NOT NULL DEFAULT '', marca TEXT NOT NULL DEFAULT '', inventario TEXT NOT NULL DEFAULT '', cantidad INTEGER NOT NULL DEFAULT 1, ubicacion TEXT NOT NULL DEFAULT '', estado TEXT NOT NULL DEFAULT 'Bueno', prestador TEXT NOT NULL DEFAULT '', responsable TEXT NOT NULL DEFAULT '', observaciones TEXT NOT NULL DEFAULT '', tiene_foto INTEGER NOT NULL DEFAULT 0, baja INTEGER NOT NULL DEFAULT 0, creado TEXT NOT NULL, actualizado TEXT NOT NULL, capturado_por TEXT NOT NULL DEFAULT '' )",
+  "CREATE INDEX IF NOT EXISTS idx_bienes_unidad ON bienes (unidad, baja)",
+  "CREATE INDEX IF NOT EXISTS idx_bienes_ubicacion ON bienes (ubicacion)",
+  "CREATE INDEX IF NOT EXISTS idx_bienes_procedencia ON bienes (procedencia)",
+  "CREATE INDEX IF NOT EXISTS idx_bienes_actualizado ON bienes (actualizado)",
+  "CREATE TABLE IF NOT EXISTS bitacora ( id INTEGER PRIMARY KEY AUTOINCREMENT, cuando TEXT NOT NULL, folio TEXT NOT NULL, accion TEXT NOT NULL, quien TEXT NOT NULL DEFAULT '', detalle TEXT NOT NULL DEFAULT '' )",
+  "CREATE INDEX IF NOT EXISTS idx_bitacora_folio ON bitacora (folio)",
+  "CREATE INDEX IF NOT EXISTS idx_bitacora_cuando ON bitacora (cuando)",
+  "CREATE TABLE IF NOT EXISTS consecutivos ( unidad TEXT PRIMARY KEY, ultimo INTEGER NOT NULL DEFAULT 0 )"
+];
+let baseLista = false;
+async function prepararBase(env){
+  if(baseLista) return;
+  await env.DB.batch(ESQUEMA.map(q => env.DB.prepare(q)));
+  baseLista = true;
+}
+
 const ORIGENES = [
   "https://meuami.org",
   "https://www.meuami.org"
@@ -260,6 +281,12 @@ export default {
 
     const ruta = RUTAS[pet.method + " " + u.pathname];
     if (!ruta) return falla(pet, 404, "Esa ruta no existe en este servidor.");
+
+    try { await prepararBase(env); }
+    catch (e) {
+      console.error("no se pudo preparar la base: " + (e && e.stack || e));
+      return falla(pet, 503, "La base de datos no está lista todavía.");
+    }
 
     if (!ruta.abierta && !autorizado(pet, env)) {
       return falla(pet, 401, "Hace falta la clave de la subcomisión para esta operación.");
