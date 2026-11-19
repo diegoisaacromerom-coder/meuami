@@ -95,10 +95,26 @@ h3{font-size:1.05rem;margin:0}
   filter:drop-shadow(0 0 2px rgba(255,255,255,.5)) drop-shadow(0 0 18px rgba(255,255,255,.26)) drop-shadow(0 8px 20px rgba(0,0,0,.5))}
 .brand .lg-cgo{max-width:248px;max-height:116px;
   filter:drop-shadow(0 6px 16px rgba(0,0,0,.45))}
+/* En teléfono el hero medía más que la pantalla completa y obligaba a bajar
+   una pantalla y media antes de ver nada. Se compacta para que el contenido
+   asome sin tanto desplazamiento. */
 @media (max-width:560px){
-  .brand{gap:18px}
-  .brand .lg-mov{max-width:230px}
-  .brand .lg-cgo{max-width:168px}
+  .hero-inner{padding:24px 18px 30px}
+  .brand{gap:14px;margin:0 0 16px;flex-wrap:nowrap}
+  .brand .lg-mov{max-width:min(46vw,186px);max-height:84px;object-fit:contain}
+  .brand .lg-cgo{max-width:min(37vw,148px);max-height:74px;object-fit:contain}
+  .hero .kicker{font-size:.74rem;letter-spacing:.05em;margin-bottom:8px}
+  .hero .sub{font-size:.97rem}
+  .facts{gap:14px 18px;margin-top:18px}
+  .facts li{flex:1 1 0;min-width:0}
+  .facts b{font-size:1.32rem}
+  .facts li:first-child{flex-basis:100%}
+  .facts li:first-child b{font-size:1.8rem}
+}
+@media (max-width:380px){
+  .brand{flex-wrap:wrap;gap:10px}
+  .brand .lg-mov{max-width:58vw}
+  .brand .lg-cgo{max-width:48vw}
 }
 .hero .kicker{color:rgba(255,255,255,.82);margin:0 0 10px}
 .hero h1{color:#fff}
@@ -118,6 +134,21 @@ nav.sec{position:sticky;top:0;z-index:5;background:color-mix(in srgb, var(--pape
   border-bottom:1px solid var(--rule);transition:box-shadow .25s ease,border-color .25s ease}
 nav.sec.stuck{box-shadow:0 6px 20px rgba(0,0,0,.09);border-bottom-color:transparent}
 nav.sec .wrap{display:flex;gap:4px 20px;flex-wrap:wrap;padding-top:10px;padding-bottom:10px}
+/* En pantallas angostas los seis enlaces se partían en tres renglones y la
+   barra fija se comía un cuarto de la pantalla. Pasan a un solo renglón que
+   se desliza de lado. */
+@media (max-width:720px){
+  nav.sec .wrap{flex-wrap:nowrap;overflow-x:auto;gap:18px;padding:9px 20px;
+    scrollbar-width:none;-ms-overflow-style:none;
+    scroll-snap-type:x proximity;overscroll-behavior-x:contain}
+  nav.sec .wrap::-webkit-scrollbar{display:none}
+  nav.sec a{white-space:nowrap;font-size:.9rem;scroll-snap-align:start}
+  /* Sombra al borde derecho: avisa que la lista sigue. */
+  nav.sec{position:sticky;--ancho-sombra:26px}
+  nav.sec::after{content:"";position:absolute;top:0;right:0;bottom:1px;width:var(--ancho-sombra);
+    pointer-events:none;background:linear-gradient(90deg,transparent,var(--paper))}
+  section,.fuentes-sec{scroll-margin-top:52px}
+}
 nav.sec a{font-weight:600;text-decoration:none;font-size:.95rem;padding:4px 0;border-bottom:2px solid transparent;
   color:var(--muted);transition:color .2s ease,border-color .2s ease}
 nav.sec a:hover{color:var(--ink);border-bottom-color:var(--ink)}
@@ -207,14 +238,18 @@ main > section > h2::before,.fuentes-sec h2::before{content:counter(sec,decimal-
 .cierre li{margin:7px 0}
 @media (max-width:620px){
   .doc .baja{margin-left:0}
-  .pt > summary{flex-wrap:wrap;gap:4px 13px}
+  /* En rejilla de tres columnas el signo de abrir se queda en su sitio: con
+     flex-wrap se iba solo a un renglón aparte. */
+  .pt > summary{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:3px 12px;align-items:baseline}
+  .pt > summary::after{margin-left:0}
+  .pt .cl{min-width:0}
 }
 
 /* Documentos firmados */
 .docs{display:grid;gap:16px}
 .dcard{background:var(--card);border:1px solid var(--rule);border-left:6px solid var(--izt);padding:19px 21px 21px}
-.dk{font-family:var(--mono);font-weight:600;font-size:.73rem;text-transform:uppercase;letter-spacing:.09em;
-  color:var(--accent);margin:0 0 6px}
+.dcard > p.dk{font-family:var(--mono);font-weight:600;font-size:.73rem;text-transform:uppercase;
+  letter-spacing:.09em;color:var(--accent);margin:0 0 6px}
 .dcard h3{margin:0 0 9px;font-size:1.08rem;line-height:1.3}
 .dcard > p{margin:0 0 12px;color:var(--muted);font-size:.94rem;max-width:80ch}
 .firmas{margin:0 0 15px;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:6px}
@@ -361,7 +396,7 @@ html.js-reveal .rv.vista{opacity:1;transform:none;
       <img class="lg-cgo" src="assets/logo-cgo.png" alt="Comisión de Gestión y Operación, Movimiento Estudiantil UAM-I">
     </div>
     <div class="hero-card">
-      <p class="kicker">Unidad Iztapalapa · información revisada el 18 de noviembre de 2026</p>
+      <p class="kicker">Unidad Iztapalapa<span id="revHero"></span></p>
       <h1>Paro <em>UAM-I</em> 2026</h1>
       <p class="sub">Este sitio da seguimiento al paro estudiantil en la <strong>Unidad Iztapalapa</strong>, donde inició el movimiento: su pliego petitorio, su cronología y los comunicados que lo atañen. Cada dato remite a su fuente.</p>
       <ul class="facts">
@@ -791,7 +826,7 @@ html.js-reveal .rv.vista{opacity:1;transform:none;
           </svg>@me_uami
         </a>
       </div>
-      <p class="fmeta">meuami.org · Información revisada el 16 de noviembre de 2026</p>
+      <p class="fmeta">meuami.org<span id="revPie"></span></p>
     </div>
 
     <nav class="fcol fr" aria-label="Enlaces">
@@ -814,6 +849,20 @@ const src = ids => ' <span class="src">[' + ids.map(i => '<a href="#s'+i+'">'+i+
 
 // Estado de la unidad. Lo etiquetado como "gen" son determinaciones de la
 // Universidad que alcanzan a Iztapalapa, no situación de otras unidades.
+// Fecha de revisión del sitio. Se cambia aquí y en ningún otro lado: antes
+// estaba escrita a mano en el encabezado y en el pie, y las dos dejaron de
+// coincidir sin que nadie lo notara.
+const REVISADO = "2026-11-19";
+(function(){
+  const p = REVISADO.split("-");
+  const texto = new Date(+p[0], +p[1] - 1, +p[2])
+    .toLocaleDateString("es-MX", {day:"numeric", month:"long", year:"numeric"});
+  const a = document.getElementById("revHero");
+  const b = document.getElementById("revPie");
+  if(a) a.textContent = " · información revisada el " + texto;
+  if(b) b.textContent = " · información revisada el " + texto;
+})();
+
 const unidad = {
   start:"20 de octubre", st:"Paro indefinido",
   now:"Unidad donde inició el movimiento. Las autoridades firmaron el compromiso de no represalias y la Secretaría de Unidad convocó las mesas de diálogo para el 23 de noviembre.",
@@ -883,6 +932,8 @@ function render(){
 (function(){
   const nav = document.querySelector("nav.sec");
   const barra = document.getElementById("progreso");
+  const mueve = !(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  let ultimaActiva = -1;
   const enlaces = Array.from(document.querySelectorAll("nav.sec a"));
   const secciones = enlaces.map(a => document.querySelector(a.getAttribute("href")));
 
@@ -894,6 +945,17 @@ function render(){
     let actual = -1;
     secciones.forEach((s, i) => { if (s && s.getBoundingClientRect().top <= 96) actual = i; });
     enlaces.forEach((a, i) => a.classList.toggle("activa", i === actual));
+    // En teléfono la barra es un solo renglón que se desliza; el enlace activo
+    // se trae a la vista para que no quede fuera de la pantalla.
+    if (actual >= 0 && actual !== ultimaActiva) {
+      ultimaActiva = actual;
+      const caja = nav && nav.querySelector(".wrap");
+      const a = enlaces[actual];
+      if (caja && a && caja.scrollWidth > caja.clientWidth + 4) {
+        const destino = a.offsetLeft - (caja.clientWidth - a.offsetWidth) / 2;
+        caja.scrollTo({left: Math.max(0, destino), behavior: mueve ? "smooth" : "auto"});
+      }
+    }
   }
   window.addEventListener("scroll", alDesplazar, {passive:true});
   window.addEventListener("resize", alDesplazar);

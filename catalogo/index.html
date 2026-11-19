@@ -91,7 +91,28 @@ td.n{font-variant-numeric:tabular-nums;white-space:nowrap}
 .etq.e-Regular{background:rgba(154,106,5,.14);color:var(--med)}
 .etq.e-Malo{background:rgba(179,38,30,.13);color:var(--mal)}
 .etq.e-Incompleto{background:rgba(107,63,160,.14);color:var(--inc)}
+.sec2{color:var(--muted);font-size:.84rem}
 .vacio{padding:56px 24px;text-align:center;color:var(--muted);font-size:.95rem;line-height:1.7}
+/* En teléfono, ocho columnas obligan a arrastrar la tabla de lado. Cada
+   renglón pasa a ser una ficha con sus etiquetas. Los papeles ARIA van en el
+   marcado para que la tabla siga anunciándose como tabla. */
+@media (max-width:640px){
+  .tablawrap{border:0;background:transparent;overflow:visible;border-radius:0}
+  .tablawrap table,.tablawrap tbody,.tablawrap tr,.tablawrap td{display:block;width:auto}
+  .tablawrap thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  .tablawrap tbody tr{background:var(--card);border:1px solid var(--rule);border-left:5px solid var(--accent);
+    border-radius:0 10px 10px 0;margin:0 0 12px;padding:6px 0}
+  .tablawrap tbody tr:hover{background:var(--card)}
+  .tablawrap td{border:0;padding:6px 15px;display:grid;grid-template-columns:7.4em minmax(0,1fr);
+    gap:4px 12px;align-items:baseline;font-size:.92rem}
+  .tablawrap td::before{content:attr(data-th);font-family:inherit;font-size:.68rem;font-weight:700;
+    text-transform:uppercase;letter-spacing:.06em;color:var(--muted);line-height:1.5}
+  .tablawrap td:empty{display:none}
+  .tablawrap td.fol{padding-top:11px}
+  .tablawrap td.fol::before{align-self:center}
+  .tablawrap td.vacio{display:block;padding:44px 20px}
+  .tablawrap td.vacio::before{content:none}
+}
 .vacio b{display:block;color:var(--ink);font-weight:700;font-size:1.02rem;margin-bottom:5px}
 
 button.b{appearance:none;font:700 .92rem var(--f);border-radius:999px;padding:11px 22px;cursor:pointer;
@@ -173,8 +194,8 @@ html.js-reveal .rv.vista{opacity:1;transform:none;
 
     <p class="lede" id="cuantos" style="margin:0 0 14px"></p>
     <div class="tablawrap">
-      <table>
-        <thead><tr>
+      <table role="table">
+        <thead><tr role="row">
           <th scope="col">Folio</th><th scope="col">Bien</th><th scope="col">Categoría</th>
           <th scope="col">Cant.</th><th scope="col">Ubicación</th><th scope="col">Estado</th>
           <th scope="col">Procedencia</th><th scope="col">Alta</th>
@@ -291,7 +312,7 @@ function pintarTabla(){
   const lista = filtrados();
   const cuerpo = document.getElementById("cuerpo");
   if(!lista.length){
-    cuerpo.innerHTML = '<tr><td class="vacio" colspan="8">' +
+    cuerpo.innerHTML = '<tr role="row"><td role="cell" class="vacio" colspan="8">' +
       (bienes.length
         ? "<b>Ningún bien coincide con lo que buscas.</b>Prueba con menos filtros, o busca solo por el folio."
         : "<b>Todavía no se publica ningún bien.</b>La subcomisión aún no da a conocer el primer corte del inventario.") +
@@ -299,19 +320,23 @@ function pintarTabla(){
     document.getElementById("cuantos").textContent = "";
     return;
   }
+  // data-th alimenta la etiqueta de cada celda cuando la tabla se vuelve ficha.
   cuerpo.innerHTML = lista.map(b =>
-    "<tr>" +
-    '<td class="fol">' + esc(b.folio) + "</td>" +
-    "<td>" + esc(b.descripcion || "Sin descripción") +
-      (b.marca ? '<br><span style="color:var(--muted);font-size:.84rem">' + esc(b.marca) + "</span>" : "") +
-      (b.inventario ? '<br><span style="color:var(--muted);font-size:.84rem">Inventario UAM ' + esc(b.inventario) + "</span>" : "") +
-    "</td>" +
-    "<td>" + esc(b.categoria || "Sin clasificar") + "</td>" +
-    '<td class="n">' + esc(b.cantidad == null ? 1 : b.cantidad) + "</td>" +
-    "<td>" + esc(b.ubicacion || "Sin ubicación") + "</td>" +
-    '<td><span class="etq e-' + esc(b.estado || "Bueno") + '">' + esc(b.estado || "Sin declarar") + "</span></td>" +
-    "<td>" + esc(b.procedencia || "") + "</td>" +
-    '<td class="n">' + esc(fechaCorta(b.fecha)) + "</td>" +
+    '<tr role="row">' +
+    '<td role="cell" class="fol" data-th="Folio">' + esc(b.folio) + "</td>" +
+    // El valor va envuelto: así la marca no cae en la columna de la etiqueta
+    // cuando la tabla se vuelve ficha.
+    '<td role="cell" data-th="Bien"><span class="v">' + esc(b.descripcion || "Sin descripción") +
+      (b.marca ? '<br><span class="sec2">' + esc(b.marca) + "</span>" : "") +
+      (b.inventario ? '<br><span class="sec2">Inventario UAM ' + esc(b.inventario) + "</span>" : "") +
+    "</span></td>" +
+    '<td role="cell" data-th="Categoría">' + esc(b.categoria || "Sin clasificar") + "</td>" +
+    '<td role="cell" class="n" data-th="Cantidad">' + esc(b.cantidad == null ? 1 : b.cantidad) + "</td>" +
+    '<td role="cell" data-th="Ubicación">' + esc(b.ubicacion || "Sin ubicación") + "</td>" +
+    '<td role="cell" data-th="Estado"><span class="etq e-' + esc(b.estado || "Bueno") + '">' +
+      esc(b.estado || "Sin declarar") + "</span></td>" +
+    '<td role="cell" data-th="Procedencia">' + esc(b.procedencia || "") + "</td>" +
+    '<td role="cell" class="n" data-th="Alta">' + esc(fechaCorta(b.fecha)) + "</td>" +
     "</tr>").join("");
   const n = lista.length;
   document.getElementById("cuantos").textContent = n === bienes.length
@@ -328,7 +353,7 @@ async function cargar(){
     cat = await resp.json();
   }catch(e){
     document.getElementById("cuerpo").innerHTML =
-      '<tr><td class="vacio" colspan="8">El catálogo no se pudo cargar en este momento. ' +
+      '<tr role="row"><td role="cell" class="vacio" colspan="8">El catálogo no se pudo cargar en este momento. ' +
       "Vuelve a intentarlo más tarde o escribe a la subcomisión.</td></tr>";
     return;
   }
