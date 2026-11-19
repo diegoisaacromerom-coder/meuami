@@ -502,9 +502,21 @@ footer a{color:var(--accent)}
         </select>
       </div>
       <div class="campo">
+        <label for="desde">Empezar el consecutivo en</label>
+        <input id="desde" type="number" min="1" step="1">
+        <span class="hint">Solo si captura más de una persona a la vez.</span>
+      </div>
+      <div class="campo">
         <label>Siguiente folio</label>
         <input id="muestraFolio" readonly>
       </div>
+    </div>
+    <p id="avisoFolio" class="lede" style="margin-top:10px"></p>
+    <div class="aviso ojo" style="margin-top:14px">
+      <strong>Si van a capturar en varios dispositivos al mismo tiempo</strong>, dale a cada uno un
+      número de arranque distinto y separado: 1 en el primero, 500 en el segundo, 1000 en el tercero.
+      Sin eso los dos empiezan en el mismo folio, y al juntar los respaldos los repetidos se descartan
+      y se pierde el trabajo de alguien.
     </div>
 
     <h3 style="margin-top:34px;font-size:1.05rem;font-weight:800">Borrar todo</h3>
@@ -1343,6 +1355,7 @@ function pintarRespaldo(){
   // Las fotografías no pesan aquí: viven en IndexedDB, aparte del registro.
   contarFotos().then(n => { document.getElementById("nFotos").textContent = n; });
   document.getElementById("unidad").value = datos.config.unidad;
+  document.getElementById("desde").value = datos.config.consecutivo;
   document.getElementById("muestraFolio").value = proximoFolio();
 }
 function pintarTodo(){
@@ -1555,6 +1568,32 @@ document.getElementById("impFile").addEventListener("change", function(){
 });
 document.getElementById("unidad").addEventListener("change", function(){
   datos.config.unidad = this.value;
+  guardar(); pintarTodo();
+});
+
+// Cuando capturan varias personas a la vez y no hay servidor que reparta los
+// folios, cada dispositivo arranca en un número distinto para que las series
+// no se encimen. No se permite retroceder por debajo de lo ya usado: eso
+// generaría folios repetidos dentro de este mismo registro.
+document.getElementById("desde").addEventListener("change", function(){
+  const aviso = document.getElementById("avisoFolio");
+  const usados = datos.registros.concat(datos.bajas || [])
+    .map(r => parseInt(String(r.folio).split("-").pop(), 10))
+    .filter(n => Number.isFinite(n));
+  const piso = usados.length ? Math.max(...usados) + 1 : 1;
+  let n = parseInt(this.value, 10);
+  if(!Number.isFinite(n) || n < 1) n = piso;
+  aviso.style.color = "";
+  if(n < piso){
+    n = piso;
+    aviso.style.color = "var(--mal)";
+    aviso.textContent = "El consecutivo no puede quedar por debajo de " + piso +
+      ": ese folio ya está usado en este dispositivo y se repetiría.";
+  }else{
+    aviso.textContent = "Listo. El siguiente bien que registres será " + folioDe(n) + ".";
+  }
+  datos.config.consecutivo = n;
+  this.value = n;
   guardar(); pintarTodo();
 });
 document.getElementById("form").addEventListener("reset", () => { if(editando) salirDeEdicion(); });
