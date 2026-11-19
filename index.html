@@ -210,6 +210,22 @@ main > section > h2::before,.fuentes-sec h2::before{content:counter(sec,decimal-
   .pt > summary{flex-wrap:wrap;gap:4px 13px}
 }
 
+/* Documentos firmados */
+.docs{display:grid;gap:16px}
+.dcard{background:var(--card);border:1px solid var(--rule);border-left:6px solid var(--izt);padding:19px 21px 21px}
+.dk{font-family:var(--mono);font-weight:600;font-size:.73rem;text-transform:uppercase;letter-spacing:.09em;
+  color:var(--accent);margin:0 0 6px}
+.dcard h3{margin:0 0 9px;font-size:1.08rem;line-height:1.3}
+.dcard > p{margin:0 0 12px;color:var(--muted);font-size:.94rem;max-width:80ch}
+.firmas{margin:0 0 15px;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:6px}
+.firmas li{font-family:var(--mono);font-size:.75rem;color:var(--muted);
+  border:1px solid var(--rule);border-radius:999px;padding:4px 11px}
+.dcard .baja{display:inline-flex;align-items:baseline;gap:9px;font-family:var(--mono);font-weight:600;
+  font-size:.84rem;text-decoration:none;border:1px solid var(--accent);color:var(--accent);
+  padding:9px 17px;border-radius:999px;transition:background-color .2s ease,color .2s ease,transform .2s ease}
+.dcard .baja:hover{background:var(--accent);color:#fff;transform:translateY(-2px)}
+.dcard .baja span{font-weight:400;opacity:.75;font-size:.78rem}
+
 /* Cronología */
 .tlgrid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:38px;align-items:start}
 .tlfoto{margin:0;position:sticky;top:78px}
@@ -365,6 +381,7 @@ html.js-reveal .rv.vista{opacity:1;transform:none;
   <div class="wrap">
     <a href="#estado">Estado del paro</a>
     <a href="#pliego">Pliego petitorio</a>
+    <a href="#documentos">Documentos</a>
     <a href="#cronologia">Cronología</a>
     <a href="#comunicados">Comunicados</a>
     <a href="#fuentes">Fuentes</a>
@@ -380,6 +397,10 @@ html.js-reveal .rv.vista{opacity:1;transform:none;
     <div class="estado" id="estado-panel"></div>
 
     <div class="next">
+      <div>
+        <div class="d">Lun 23 nov</div>
+        <p>Instalación de las mesas de diálogo en la Sala Quetzalcalli, a las 10:30 horas. La Secretaría de Unidad fijó un aforo de 50 personas, a propuesta de Protección Civil. <span class="src">[<a href="#s12">12</a>]</span></p>
+      </div>
       <div>
         <div class="d">Vie 4 dic</div>
         <p>Último día de clases programado para el trimestre. La Universidad ha señalado que el paro no cancela el periodo de manera automática: la determinación corresponde al Colegio Académico. <span class="src">[<a href="#s2">2</a>]</span></p>
@@ -658,6 +679,49 @@ html.js-reveal .rv.vista{opacity:1;transform:none;
     </div>
   </section>
 
+  <section id="documentos">
+    <h2>Documentos</h2>
+    <p class="lede">Documentos firmados que ha recibido el Movimiento Estudiantil UAM-I en respuesta al pliego. Se publican completos y sin modificar, tal como fueron entregados. Son escaneos, así que algunos pesan varios megabytes.</p>
+
+    <div class="docs">
+      <article class="dcard">
+        <p class="dk">Carta compromiso</p>
+        <h3>Compromiso de no represalias de las autoridades de la Unidad</h3>
+        <p>Las autoridades se comprometen a garantizar que ningún estudiante sea objeto de represalias, intimidación, hostigamiento, discriminación o persecución por expresar inconformidades, presentar quejas o participar en actividades legítimas, dentro y fuera de la Unidad. El compromiso abarca las acciones directas y las que pudieran realizar terceros o subordinados, y fija un plazo máximo de tres días hábiles para atender cualquier denuncia de represalia.</p>
+        <ul class="firmas">
+          <li>Rectoría de Unidad</li><li>Secretaría de Unidad</li>
+          <li>Secretaría Académica CBI</li><li>Secretaría Académica CBS</li><li>Secretaría Académica CSH</li>
+        </ul>
+        <a class="baja" href="/assets/carta-no-represalias-autoridades.pdf">Ver el documento <span>PDF · 2.9 MB</span></a>
+      </article>
+
+      <article class="dcard">
+        <p class="dk">Carta compromiso · División de CSH</p>
+        <h3>Compromiso de no represalias de la División de Ciencias Sociales y Humanidades</h3>
+        <p>El mismo compromiso, suscrito en el ámbito divisional por 37 personas: la Dirección de División, la Secretaría Académica, las jefaturas de departamento y las coordinaciones de licenciatura, posgrado y línea. Precisa que ninguna persona sea sancionada ni condicionada en su trayectoria académica, evaluaciones, trámites o servicios como consecuencia de organizarse o manifestarse.</p>
+        <ul class="firmas">
+          <li>Dirección divisional</li><li>Secretaría Académica</li>
+          <li>4 jefaturas de departamento</li><li>Coordinaciones de licenciatura</li><li>Coordinaciones de posgrado</li>
+        </ul>
+        <a class="baja" href="/assets/carta-no-represalias-csh.pdf">Ver el documento <span>PDF · 4.0 MB</span></a>
+      </article>
+
+      <article class="dcard">
+        <p class="dk">Oficio SI.2344.2026 · 16 de noviembre</p>
+        <h3>Instalación de las mesas de diálogo</h3>
+        <p>La Secretaría de Unidad informa que adjunta las cartas de no represalias por división y <strong>reitera el compromiso de comenzar las mesas el lunes 23 de noviembre de 2026</strong>. El oficio detalla la preparación de la Sala Quetzalcalli y el programa del día: inicio de la mesa a las 10:30 horas, con un aforo de 50 personas fijado por la Unidad de Protección Civil. Atiende también la petición de transmitir las sesiones por los medios de difusión oficiales de la Universidad.</p>
+        <a class="baja" href="/assets/si-2344-2026.pdf">Ver el documento <span>PDF · 3.7 MB</span></a>
+      </article>
+
+      <article class="dcard">
+        <p class="dk">Oficio SI.2343.2026 · 16 de noviembre</p>
+        <h3>Retiro de la fotografía de la Sala del Consejo Divisional de CSH</h3>
+        <p>En seguimiento al punto 4.2.c del pliego, la Secretaría de Unidad requiere acceso a la Sala del Consejo Divisional de CSH el miércoles 18 de noviembre a las 12:00 horas para retirar la fotografía señalada, e informa que ya solicitó a la División su eliminación de los medios digitales, verificable a partir del viernes 20 de noviembre.</p>
+        <a class="baja" href="/assets/si-2343-2026.pdf">Ver el documento <span>PDF · 545 KB</span></a>
+      </article>
+    </div>
+  </section>
+
   <section id="cronologia">
     <h2>Cronología</h2>
     <p class="lede">De los primeros reclamos en la Unidad Iztapalapa a la fecha. Los antecedentes de octubre provienen de la Sección I del pliego petitorio; el resto, de notas de prensa y comunicados. Los puntos sin relleno corresponden a fechas próximas.</p>
@@ -693,6 +757,10 @@ html.js-reveal .rv.vista{opacity:1;transform:none;
       <li id="s7"><a href="https://www.cronica.com.mx/nacional/2026/11/11/crisis-en-la-uam-que-pasara-con-las-becas-y-se-perdera-el-trimestre-estas-son-las-medidas-anunciadas/">Crónica, 11 nov 2026: qué pasará con las becas y el trimestre</a></li>
       <li id="s8"><a href="https://www.publimetro.com.mx/noticias/2026/11/02/paro-en-la-uam-cinco-planteles-sin-clases-por-protestas-estudiantiles-estas-son-las-causas/">Publimetro, 2 nov 2026: causas del paro estudiantil en la UAM</a></li>
       <li id="s9"><a href="/assets/pliego-petitorio-uami.pdf">Pliego petitorio unificado del Movimiento Estudiantil UAM-I, Sección I: antecedentes y considerandos</a></li>
+      <li id="s10"><a href="/assets/carta-no-represalias-autoridades.pdf">Carta compromiso de no represalias firmada por las autoridades de la Unidad Iztapalapa</a></li>
+      <li id="s11"><a href="/assets/carta-no-represalias-csh.pdf">Carta compromiso de no represalias de la División de Ciencias Sociales y Humanidades</a></li>
+      <li id="s12"><a href="/assets/si-2344-2026.pdf">Oficio SI.2344.2026 de la Secretaría de Unidad, 16 de noviembre de 2026</a></li>
+      <li id="s13"><a href="/assets/si-2343-2026.pdf">Oficio SI.2343.2026 de la Secretaría de Unidad, 16 de noviembre de 2026</a></li>
     </ol>
   </div>
 </section>
@@ -702,6 +770,7 @@ html.js-reveal .rv.vista{opacity:1;transform:none;
     <nav class="fcol fl" aria-label="Secciones del sitio">
       <a href="#estado">Estado del paro</a>
       <a href="#pliego">Pliego petitorio</a>
+      <a href="#documentos">Documentos</a>
       <a href="#cronologia">Cronología</a>
       <a href="#comunicados">Comunicados</a>
       <a href="#fuentes">Fuentes</a>
@@ -747,8 +816,8 @@ const src = ids => ' <span class="src">[' + ids.map(i => '<a href="#s'+i+'">'+i+
 // Universidad que alcanzan a Iztapalapa, no situación de otras unidades.
 const unidad = {
   start:"20 de octubre", st:"Paro indefinido",
-  now:"Unidad donde inició el movimiento. La asamblea consideró que la respuesta institucional no cubre las condiciones mínimas del pliego.",
-  s:[4,5]
+  now:"Unidad donde inició el movimiento. Las autoridades firmaron el compromiso de no represalias y la Secretaría de Unidad convocó las mesas de diálogo para el 23 de noviembre.",
+  s:[10,12]
 };
 
 const tl = [
@@ -764,6 +833,9 @@ const tl = [
   {d:"2 nov", u:"gen", t:"La Rectoría General anuncia el retiro de los seis vehículos eléctricos y suspende el Acuerdo 03/2026.", s:[3,4]},
   {d:"5 nov", u:"gen", t:"El rector general reconoce deficiencias en sanitarios, abasto, comedores e instalaciones deportivas.", s:[3,4]},
   {d:"11 nov", u:"gen", t:"La Universidad informa que el paro no implica la cancelación del trimestre ni la suspensión de las becas.", s:[7]},
+  {d:"16 nov", u:"izt", t:"Las autoridades de la Unidad y la División de CSH firman las cartas compromiso de no represalias. La Secretaría de Unidad convoca las mesas de diálogo para el 23 de noviembre.", s:[10,11,12]},
+  {d:"18 nov", u:"izt", t:"La Secretaría de Unidad requiere acceso a la Sala del Consejo Divisional de CSH para retirar la fotografía señalada en el punto 4.2.c del pliego.", s:[13]},
+  {d:"23 nov", u:"izt", t:"Instalación de las mesas de diálogo en la Sala Quetzalcalli. Inicio a las 10:30 horas, con aforo de 50 personas fijado por Protección Civil.", s:[12], f:true},
   {d:"4 dic", u:"gen", t:"Fin de clases programado para el trimestre. El Colegio Académico determinará la situación del periodo.", s:[2], f:true}
 ];
 
