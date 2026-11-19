@@ -49,6 +49,53 @@ h1,h2,h3{text-wrap:balance;margin:0}
 .top .lg-com{width:252px}
 .top .lg-sub{width:230px}
 .top .sep{width:1px;align-self:stretch;background:rgba(255,255,255,.3);margin:4px 0}
+.top .enlaces{display:flex;gap:14px;flex-wrap:wrap;margin-left:auto}
+/* En teléfono el encabezado se comía media pantalla antes del contenido. */
+@media (max-width:720px){
+  .top .wrap{gap:12px 14px;padding-top:14px;padding-bottom:14px}
+  .top .lg-com{width:min(42vw,170px)}
+  .top .lg-sub{width:min(50vw,196px)}
+  .top .sep{min-height:34px}
+  .top .enlaces{margin-left:0;width:100%;gap:10px}
+  .top .vuelta{flex:1 1 0;text-align:center;padding:8px 12px;font-size:.76rem}
+}
+@media (max-width:420px){
+  .top .lg-com{width:38vw}
+  .top .lg-sub{width:46vw}
+}
+.sec2{color:var(--muted);font-size:.85em}
+/* Pista de que las pestañas siguen hacia la derecha. */
+nav.tabs{position:sticky;top:0;z-index:20;background:var(--paper);border-bottom:1px solid var(--rule)}
+nav.tabs::after{content:"";position:absolute;top:0;right:0;bottom:1px;width:28px;pointer-events:none;
+  opacity:0;transition:opacity .25s ease;background:linear-gradient(90deg,transparent,var(--paper))}
+nav.tabs.mas::after{opacity:1}
+
+@media (max-width:720px){
+  /* La tabla de bienes mide casi tres veces el ancho de un teléfono. Cada
+     renglón pasa a ficha con etiquetas; los papeles ARIA conservan la
+     semántica de tabla para los lectores de pantalla. */
+  #p-registro .tablawrap{overflow:visible;border:0;background:transparent;border-radius:0}
+  #p-registro .tablawrap table,#p-registro .tablawrap tbody,
+  #p-registro .tablawrap tr,#p-registro .tablawrap td{display:block;width:auto}
+  #p-registro .tablawrap thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  #p-registro .tablawrap tbody tr{background:var(--card);border:1px solid var(--rule);
+    border-left:5px solid var(--accent);border-radius:0 10px 10px 0;margin:0 0 11px;padding:7px 0}
+  #p-registro .tablawrap tbody tr:hover{background:var(--card)}
+  #p-registro .tablawrap td{border:0;padding:5px 15px;display:grid;
+    grid-template-columns:7.2em minmax(0,1fr);gap:3px 12px;align-items:baseline;font-size:.92rem}
+  #p-registro .tablawrap td::before{content:attr(data-th);font-size:.67rem;font-weight:700;
+    text-transform:uppercase;letter-spacing:.06em;color:var(--muted);line-height:1.6}
+  #p-registro .tablawrap td.folio{padding-top:10px}
+
+  /* Los cinco conteos ocupaban 650 px antes de llegar a los bienes. Quedan
+     en renglones de dos, compactos, con el número junto a su rótulo. */
+  .resumen{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-bottom:18px}
+  .tile{padding:11px 13px;display:grid;grid-template-columns:auto minmax(0,1fr);
+    gap:2px 10px;align-items:center}
+  .tile b{font-size:1.5rem}
+  .tile span{font-size:.68rem;line-height:1.35}
+}
+
 @media (max-width:640px){
   .top .wrap{gap:14px}
   .top .lg-com{width:208px} .top .lg-sub{width:196px}
@@ -195,8 +242,10 @@ footer a{color:var(--accent)}
     <img class="lg-com" src="../assets/logo-cgo.png" alt="Comisión de Gestión y Operación, Movimiento Estudiantil UAM-I">
     <span class="sep" aria-hidden="true"></span>
     <img class="lg-sub" src="../assets/logo-sub-texto-blanco.png" alt="Subcomisión de Inventariado y Auditoría Interna">
-    <a class="vuelta" href="../catalogo/">Catálogo público</a>
-    <a class="vuelta" href="https://meuami.org/" style="margin-left:14px">← meuami.org</a>
+    <span class="enlaces">
+      <a class="vuelta" href="../catalogo/">Catálogo público</a>
+      <a class="vuelta" href="https://meuami.org/">← meuami.org</a>
+    </span>
   </div>
 </header>
 
@@ -227,6 +276,10 @@ footer a{color:var(--accent)}
 
     <form class="reg" id="form">
       <div class="campos">
+        <div class="campo ancho">
+          <label for="descripcion">Descripción del bien</label>
+          <input id="descripcion" maxlength="160" placeholder="Ejemplo: Cafetera prestada por la asamblea de CBS">
+        </div>
         <div class="campo">
           <label for="categoria">Categoría</label>
           <select id="categoria">
@@ -256,6 +309,11 @@ footer a{color:var(--accent)}
           </select>
         </div>
         <div class="campo">
+          <label for="ubicacion">Edificio y espacio</label>
+          <input id="ubicacion" maxlength="100" placeholder="Ejemplo: Edificio S, cubículo 104">
+          <span class="hint">Se conserva para el siguiente bien.</span>
+        </div>
+        <div class="campo">
           <label for="procedencia">Procedencia</label>
           <select id="procedencia">
             <option>Bien de la Universidad</option>
@@ -264,14 +322,11 @@ footer a{color:var(--accent)}
             <option>Propiedad del movimiento</option>
             <option>Sin determinar</option>
           </select>
+          <span class="hint">Se conserva para el siguiente bien.</span>
         </div>
         <div class="campo">
           <label for="prestador">Prestado o entregado por</label>
           <input id="prestador" maxlength="90" placeholder="Nombre de quien lo prestó, si aplica">
-        </div>
-        <div class="campo ancho">
-          <label for="descripcion">Descripción del bien</label>
-          <input id="descripcion" maxlength="160" placeholder="Ejemplo: Cafetera prestada por la asamblea de CBS">
         </div>
         <div class="campo">
           <label for="marca">Marca y modelo</label>
@@ -281,14 +336,6 @@ footer a{color:var(--accent)}
           <label for="inventario">Núm. de inventario UAM</label>
           <input id="inventario" maxlength="60" placeholder="Si el bien trae etiqueta institucional">
         </div>
-        <div class="campo">
-          <label for="ubicacion">Edificio y espacio</label>
-          <input id="ubicacion" maxlength="100" placeholder="Ejemplo: Edificio S, cubículo 104">
-        </div>
-        <div class="campo">
-          <label for="responsable">Quién registra</label>
-          <input id="responsable" maxlength="80" placeholder="Nombre o iniciales">
-        </div>
         <div class="campo ancho">
           <label for="observaciones">Observaciones</label>
           <textarea id="observaciones" maxlength="600" placeholder="Daños visibles, piezas faltantes, condiciones del resguardo…"></textarea>
@@ -297,6 +344,11 @@ footer a{color:var(--accent)}
           <label for="foto">Fotografía del bien</label>
           <input id="foto" type="file" accept="image/*">
           <span class="hint">Opcional. La imagen se reduce automáticamente para no saturar el almacenamiento.</span>
+        </div>
+        <div class="campo">
+          <label for="responsable">Quién registra</label>
+          <input id="responsable" maxlength="80" placeholder="Nombre o iniciales">
+          <span class="hint">Se conserva para el siguiente bien.</span>
         </div>
       </div>
       <div class="acciones">
@@ -1056,12 +1108,12 @@ document.getElementById("form").addEventListener("submit", async function(ev){
     try{ await guardarFoto(reg.folio, fotoNueva); reg.foto = true; }
     catch(e){ reg.foto = false; avisoFoto(); }
   }
+  // Se anota antes de guardar: si se hiciera después, el cambio en la
+  // configuración no alcanzaría a escribirse en este dispositivo.
+  recordarContexto(reg);
   if(guardar()){
-    const quien = reg.responsable, proc = reg.procedencia;
     this.reset();
-    document.getElementById("responsable").value = quien;   // se conserva para la siguiente captura
-    document.getElementById("procedencia").value = proc;
-    document.getElementById("cantidad").value = 1;
+    ponerContexto();
     pintarTodo();
     verDetalle(reg.folio);
   }else{
@@ -1070,6 +1122,25 @@ document.getElementById("form").addEventListener("submit", async function(ev){
   }
   boton.disabled = false;
 });
+
+/* ---------- Lo que se repite entre un bien y el siguiente ---------- */
+// Inventariando un cubículo, la ubicación, la procedencia y quién captura son
+// los mismos veinte veces seguidas. Se guardan en la configuración para que
+// sobrevivan también a cerrar el navegador.
+const CONTEXTO = ["responsable", "ubicacion", "procedencia"];
+function recordarContexto(reg){
+  datos.config.ultimos = datos.config.ultimos || {};
+  CONTEXTO.forEach(c => { datos.config.ultimos[c] = reg[c] || ""; });
+}
+function ponerContexto(){
+  const u = (datos.config && datos.config.ultimos) || {};
+  CONTEXTO.forEach(c => {
+    const campo = document.getElementById(c);
+    if(campo && u[c]) campo.value = u[c];
+  });
+  const cant = document.getElementById("cantidad");
+  if(cant) cant.value = 1;
+}
 
 /* ---------- Ficha ---------- */
 function verDetalle(folio){
@@ -1158,16 +1229,21 @@ function filtrados(){
 function pintarTabla(){
   const lista = filtrados();
   const tb = document.getElementById("tbody");
+  // data-th alimenta la etiqueta de cada celda cuando, en pantalla angosta,
+  // cada renglón se convierte en ficha. El valor va envuelto en .v para que
+  // la segunda línea no se meta en la columna de la etiqueta.
   tb.innerHTML = lista.map(r =>
-    '<tr tabindex="0" data-f="'+esc(r.folio)+'">'+
-      '<td class="folio">'+esc(r.folio)+'</td>'+
-      '<td>'+esc(r.descripcion)+(r.marca?'<br><span style="color:var(--muted);font-size:.85em">'+esc(r.marca)+'</span>':'')+'</td>'+
-      '<td>'+esc(r.categoria)+'</td>'+
-      '<td>'+esc(r.procedencia||"—")+(r.prestador?'<br><span style="color:var(--muted);font-size:.85em">'+esc(r.prestador)+'</span>':'')+'</td>'+
-      '<td>'+esc(r.ubicacion)+'</td>'+
-      '<td style="font-variant-numeric:tabular-nums">'+esc(r.cantidad)+'</td>'+
-      '<td><span class="etq e-'+esc(r.estado)+'">'+esc(r.estado)+'</span></td>'+
-      '<td style="white-space:nowrap">'+esc(fechaCorta(r.fecha))+'</td>'+
+    '<tr tabindex="0" role="row" data-f="'+esc(r.folio)+'">'+
+      '<td role="cell" class="folio" data-th="Folio">'+esc(r.folio)+'</td>'+
+      '<td role="cell" data-th="Descripción"><span class="v">'+esc(r.descripcion)+
+        (r.marca?'<br><span class="sec2">'+esc(r.marca)+'</span>':'')+'</span></td>'+
+      '<td role="cell" data-th="Categoría">'+esc(r.categoria)+'</td>'+
+      '<td role="cell" data-th="Procedencia"><span class="v">'+esc(r.procedencia||"—")+
+        (r.prestador?'<br><span class="sec2">'+esc(r.prestador)+'</span>':'')+'</span></td>'+
+      '<td role="cell" data-th="Ubicación">'+esc(r.ubicacion)+'</td>'+
+      '<td role="cell" data-th="Cantidad" style="font-variant-numeric:tabular-nums">'+esc(r.cantidad)+'</td>'+
+      '<td role="cell" data-th="Estado"><span class="etq e-'+esc(r.estado)+'">'+esc(r.estado)+'</span></td>'+
+      '<td role="cell" data-th="Alta" style="white-space:nowrap">'+esc(fechaCorta(r.fecha))+'</td>'+
     '</tr>').join("");
   document.getElementById("vacio").hidden = lista.length > 0;
   tb.querySelectorAll("tr").forEach(tr=>{
@@ -1276,15 +1352,40 @@ function pintarTodo(){
 
 /* ---------- Pestañas ---------- */
 const pest = Array.from(document.querySelectorAll('[role="tab"]'));
+// En teléfono las pestañas no caben y la fila se desliza de lado. Nada lo
+// anunciaba, así que una sombra al borde avisa que la lista sigue, y la
+// pestaña que se abre se trae a la vista.
+const fila = document.querySelector("nav.tabs .wrap");
+const barraPest = document.querySelector("nav.tabs");
+function pistaPestanas(){
+  if(!fila || !barraPest) return;
+  const falta = fila.scrollWidth - fila.clientWidth - fila.scrollLeft;
+  barraPest.classList.toggle("mas", falta > 6);
+}
+if(fila){
+  fila.addEventListener("scroll", pistaPestanas, {passive:true});
+  window.addEventListener("resize", pistaPestanas);
+}
+
 function abrir(id){
+  // Si el identificador no corresponde a ninguna pestaña, se queda la actual:
+  // de otro modo se ocultarían todos los paneles y la página quedaría vacía.
+  if(!pest.some(b => b.id === id)) return;
   pest.forEach(b=>{
     const activa = b.id === id;
     b.setAttribute("aria-selected", activa ? "true" : "false");
     document.getElementById(b.getAttribute("aria-controls")).hidden = !activa;
+    if(activa && fila && fila.scrollWidth > fila.clientWidth + 4){
+      const destino = b.offsetLeft - (fila.clientWidth - b.offsetWidth) / 2;
+      const suave = !(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+      fila.scrollTo({left: Math.max(0, destino), behavior: suave ? "smooth" : "auto"});
+    }
   });
   try{ history.replaceState(null,"", "#" + id.replace("t-","")); }catch(e){}
+  setTimeout(pistaPestanas, 350);
 }
 pest.forEach(b => b.addEventListener("click", () => abrir(b.id)));
+pistaPestanas();
 
 /* ---------- Filtros ---------- */
 ["buscar","fcat","fest","fproc"].forEach(id => document.getElementById(id).addEventListener("input", pintarTabla));
@@ -1470,6 +1571,7 @@ document.getElementById("borrar").onclick = () => {
 /* ---------- Arranque ---------- */
 cargar();
 cargarServidor();
+ponerContexto();
 pintarTodo();
 migrarFotos().then(n => { if(n) pintarTodo(); });
 const hash = (location.hash||"").replace("#","");
