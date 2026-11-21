@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Publicar un documento · Movimiento Estudiantil UAM-I</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="../../assets/logo-sub.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* Plan: un formulario y la lista de lo ya publicado. La direccion y la clave
+   del servidor se toman de las que ya guardo la herramienta de inventariado,
+   que vive en el mismo dominio, para no pedirlas dos veces. */
+:root{
+  --paper:#f4f3ef; --ink:#141414; --muted:#5b5a56; --rule:#d6d4cc; --card:#fff;
+  --izt:#12a850; --azul:#1668b8; --ambar:#e0a05a; --malo:#c0392b;
+  --sombra:0 1px 2px rgba(11,25,45,.05),0 10px 26px -14px rgba(11,25,45,.28);
+  --f:"Montserrat",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#151514; --ink:#efeee9; --muted:#a8a69f; --rule:#34332f; --card:#1e1e1c;
+  --izt:#34d27f; --azul:#4aa3ea; --malo:#ff6b5b;
+  --sombra:0 1px 2px rgba(0,0,0,.4),0 10px 26px -14px rgba(0,0,0,.7);
+  color-scheme:dark;
+}}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--f);font-size:16px;line-height:1.6}
+.top{position:relative;color:#fff;
+  background:radial-gradient(70% 150% at 6% 0%,rgba(18,168,80,.26),transparent 62%),
+             radial-gradient(64% 140% at 94% 10%,rgba(22,104,184,.30),transparent 60%),#070e16}
+.top::after{content:"";position:absolute;left:0;right:0;bottom:0;height:4px;
+  background:linear-gradient(90deg,#12a850,#13948f 32%,#1668b8 58%,#0b2c52 80%,#e0a05a)}
+.top .in{max-width:1100px;margin:0 auto;padding:18px 22px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.top img{height:44px;width:auto;display:block}
+.top h1{font-size:1.05rem;font-weight:800}
+.top .sub{font-size:.76rem;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:rgba(255,255,255,.6)}
+.top a{margin-left:auto;color:rgba(255,255,255,.85);text-decoration:none;font-size:.85rem;font-weight:700}
+.top a:hover{color:#fff}
+
+.marco{max-width:1100px;margin:0 auto;padding:26px 22px 70px;
+  display:grid;grid-template-columns:minmax(0,420px) minmax(0,1fr);gap:26px;align-items:start}
+@media (max-width:920px){.marco{grid-template-columns:minmax(0,1fr)}}
+
+.caja{background:var(--card);border:1px solid var(--rule);border-radius:14px;
+  box-shadow:var(--sombra);padding:22px}
+.caja h2{font-size:1.02rem;font-weight:800;margin-bottom:4px}
+.caja .ayuda{color:var(--muted);font-size:.86rem;margin-bottom:16px}
+.campo{display:flex;flex-direction:column;gap:5px;margin-bottom:13px}
+.campo.dos{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:430px){.campo.dos{grid-template-columns:1fr}}
+label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+input,select,textarea{font:400 .92rem var(--f);color:var(--ink);background:var(--paper);
+  border:1px solid var(--rule);border-radius:8px;padding:9px 11px;width:100%}
+input:focus,select:focus,textarea:focus{border-color:var(--izt);outline:none}
+textarea{resize:vertical;min-height:88px;line-height:1.5}
+.b{appearance:none;font:700 .9rem var(--f);border-radius:999px;padding:11px 22px;cursor:pointer;
+  border:1px solid transparent;color:#fff;background:linear-gradient(103deg,var(--izt),var(--azul));
+  transition:transform .18s ease,opacity .18s ease}
+.b:hover:not(:disabled){transform:translateY(-2px)}
+.b:disabled{opacity:.5;cursor:default}
+.b.sec{background:transparent;color:var(--izt);border-color:var(--izt)}
+.botones{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;padding-top:16px;border-top:1px solid var(--rule)}
+.aviso{font-size:.84rem;line-height:1.5;padding:11px 14px;border-radius:10px;margin-bottom:14px}
+.aviso.ok{background:color-mix(in srgb,var(--izt) 12%,var(--card));border:1px solid color-mix(in srgb,var(--izt) 40%,var(--rule))}
+.aviso.mal{background:color-mix(in srgb,var(--malo) 12%,var(--card));border:1px solid color-mix(in srgb,var(--malo) 40%,var(--rule));color:var(--malo)}
+.aviso.nota{background:color-mix(in srgb,var(--ambar) 14%,var(--card));border:1px solid color-mix(in srgb,var(--ambar) 40%,var(--rule));color:var(--muted)}
+
+.lista{display:grid;gap:11px}
+.item{background:var(--card);border:1px solid var(--rule);border-radius:12px;
+  box-shadow:var(--sombra);padding:14px 16px;display:grid;gap:4px}
+.item .et{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--izt)}
+.item h3{font-size:.98rem;font-weight:700;line-height:1.3}
+.item .pie{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:6px;
+  font-size:.78rem;color:var(--muted)}
+.item button{appearance:none;font:700 .76rem var(--f);cursor:pointer;background:transparent;
+  border:1px solid var(--rule);color:var(--muted);border-radius:999px;padding:5px 13px}
+.item button:hover{color:var(--ink);border-color:var(--ink)}
+.oculto{opacity:.55}
+.etiqueta{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+  padding:3px 9px;border-radius:999px;background:color-mix(in srgb,var(--ambar) 25%,var(--card));color:var(--muted)}
+@media (prefers-reduced-motion: reduce){*{transition:none !important}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="in">
+    <img src="../../assets/logo.png" alt="Movimiento Estudiantil UAM-I">
+    <div>
+      <p class="sub">Subcomisión de Inventariado y Auditoría Interna</p>
+      <h1>Publicar un documento</h1>
+    </div>
+    <a href="../../panel/">← Panel</a>
+  </div>
+</header>
+
+<div class="marco">
+
+  <section class="caja">
+    <h2>El documento</h2>
+    <p class="ayuda">Lo que llenes aquí es lo que va a ver cualquiera en el archivo público.</p>
+
+    <div id="avisoSrv"></div>
+
+    <div class="campo">
+      <label for="archivo">Archivo (PDF o imagen)</label>
+      <input type="file" id="archivo" accept=".pdf,.jpg,.jpeg,.png,.webp">
+      <p class="ayuda" id="pistaArchivo" style="margin:0"></p>
+    </div>
+
+    <div class="campo">
+      <label for="ruta">Dirección del archivo</label>
+      <input type="text" id="ruta" placeholder="/assets/mi-documento.pdf">
+    </div>
+
+    <div class="campo dos">
+      <div class="campo" style="margin:0">
+        <label for="tipo">Tipo</label>
+        <input type="text" id="tipo" list="tipos" placeholder="Oficio" value="Oficio">
+        <datalist id="tipos">
+          <option value="Oficio"></option><option value="Carta compromiso"></option>
+          <option value="Minuta"></option><option value="Acuerdos"></option>
+          <option value="Pliego"></option><option value="Comunicado"></option>
+        </datalist>
+      </div>
+      <div class="campo" style="margin:0">
+        <label for="fecha">Fecha</label>
+        <input type="date" id="fecha">
+      </div>
+    </div>
+
+    <div class="campo">
+      <label for="etiqueta">Etiqueta (lo que va arriba del título)</label>
+      <input type="text" id="etiqueta" placeholder="Minuta · 23 de noviembre">
+    </div>
+
+    <div class="campo">
+      <label for="titulo">Título</label>
+      <input type="text" id="titulo" placeholder="Acuerdos de la primera mesa de diálogo">
+    </div>
+
+    <div class="campo">
+      <label for="resumen">Resumen</label>
+      <textarea id="resumen" placeholder="De qué trata el documento, en dos o tres frases."></textarea>
+    </div>
+
+    <div class="campo">
+      <label for="firmas">Firmantes (uno por renglón)</label>
+      <textarea id="firmas" style="min-height:66px" placeholder="Rectoría de Unidad&#10;Secretaría de Unidad"></textarea>
+    </div>
+
+    <div class="campo">
+      <label for="nota">Nota de advertencia (opcional)</label>
+      <input type="text" id="nota" placeholder="Algo que el lector deba saber al leerlo">
+    </div>
+
+    <div class="campo dos">
+      <div class="campo" style="margin:0">
+        <label for="peso">Peso</label>
+        <input type="text" id="peso" placeholder="PDF · 1.2 MB">
+      </div>
+      <div class="campo" style="margin:0">
+        <label for="orden">Orden (más alto, más arriba)</label>
+        <input type="number" id="orden" value="10">
+      </div>
+    </div>
+
+    <div class="botones">
+      <button class="b" id="publicar" type="button">Publicar</button>
+      <button class="b sec" id="limpiar" type="button">Limpiar</button>
+    </div>
+    <div id="aviso" style="margin-top:14px"></div>
+  </section>
+
+  <section>
+    <div class="caja" style="margin-bottom:18px">
+      <h2>Servidor</h2>
+      <p class="ayuda">Se toma de lo que ya configuraste en la herramienta de inventariado.</p>
+      <div class="campo">
+        <label for="url">Dirección</label>
+        <input type="text" id="url" placeholder="https://meuami.TU-SUBDOMINIO.workers.dev">
+      </div>
+      <div class="campo">
+        <label for="clave">Clave de escritura</label>
+        <input type="password" id="clave" autocomplete="off">
+      </div>
+      <div class="botones" style="border:0;padding:0;margin-top:6px">
+        <button class="b sec" id="probar" type="button">Probar y cargar</button>
+      </div>
+    </div>
+
+    <h2 style="font-size:1.02rem;font-weight:800;margin-bottom:12px">Ya publicados</h2>
+    <div class="lista" id="lista"></div>
+    <p class="ayuda" id="vacia">Conecta el servidor para ver lo que hay.</p>
+  </section>
+
+</div>
+
+<script>
+"use strict";
+var LLAVE_SRV = "sia-servidor-v1";
+var $ = function(id){ return document.getElementById(id); };
+
+function leerServidor(){
+  try { return JSON.parse(localStorage.getItem(LLAVE_SRV) || "null") || {}; }
+  catch (e) { return {}; }
+}
+function guardarServidor(url, clave){
+  var d = leerServidor();
+  d.url = url; d.clave = clave;
+  try { localStorage.setItem(LLAVE_SRV, JSON.stringify(d)); } catch (e) {}
+}
+function base(){ return ($("url").value || "").trim().replace(/\/+$/, ""); }
+
+function decir(donde, texto, clase){
+  var c = $(donde);
+  c.innerHTML = "";
+  if (!texto) return;
+  var p = document.createElement("p");
+  p.className = "aviso " + (clase || "ok");
+  p.textContent = texto;
+  c.appendChild(p);
+}
+
+async function pide(ruta, op){
+  op = op || {};
+  var cab = {};
+  if (op.clave !== false) cab.Authorization = "Bearer " + $("clave").value;
+  if (op.json) cab["Content-Type"] = "application/json";
+  var r = await fetch(base() + ruta, {
+    method: op.metodo || "GET", headers: cab,
+    body: op.cuerpo === undefined ? undefined : op.cuerpo
+  });
+  var cuerpo = null;
+  try { cuerpo = await r.json(); } catch (e) {}
+  return {estado: r.status, cuerpo: cuerpo};
+}
+
+function identificador(titulo){
+  return String(titulo || "").toLowerCase()
+    .normalize("NFD").replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60) || ("doc-" + Date.now());
+}
+
+/* ---------- Subida del archivo ---------- */
+var subido = false;
+$("archivo").addEventListener("change", async function(){
+  var f = $("archivo").files[0];
+  if (!f) return;
+  subido = false;
+  var mb = f.size / 1048576;
+  $("peso").value = (f.name.toLowerCase().endsWith(".pdf") ? "PDF · " : "Imagen · ") +
+    (mb >= 1 ? mb.toFixed(1) + " MB" : Math.round(f.size / 1024) + " KB");
+  if (!$("titulo").value) $("titulo").value = f.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ");
+
+  if (!base()) { $("pistaArchivo").textContent = "Conecta el servidor para subirlo."; return; }
+  $("pistaArchivo").textContent = "Subiendo…";
+  try {
+    var r = await pide("/api/archivo?nombre=" + encodeURIComponent(f.name),
+                       {metodo: "POST", cuerpo: f});
+    if (r.estado === 200 && r.cuerpo && r.cuerpo.ruta) {
+      $("ruta").value = base() + r.cuerpo.ruta;
+      if (r.cuerpo.peso) $("peso").value = r.cuerpo.peso;
+      subido = true;
+      $("pistaArchivo").textContent = "Subido. Ya tiene dirección.";
+    } else if (r.estado === 501) {
+      $("pistaArchivo").textContent = "Este servidor no guarda archivos. Sube el PDF al " +
+        "repositorio, en assets/, y escribe aquí abajo /assets/" + f.name.toLowerCase().replace(/[^a-z0-9.]+/g, "-") + ".";
+      $("ruta").value = "/assets/" + f.name.toLowerCase().replace(/[^a-z0-9.]+/g, "-");
+    } else {
+      $("pistaArchivo").textContent = "No se pudo subir: " +
+        ((r.cuerpo && r.cuerpo.error) || ("error " + r.estado));
+    }
+  } catch (e) {
+    $("pistaArchivo").textContent = "No se pudo subir: " + e.message;
+  }
+});
+
+/* ---------- Publicar ---------- */
+$("publicar").addEventListener("click", async function(){
+  var titulo = $("titulo").value.trim();
+  if (!titulo) { decir("aviso", "Falta el título.", "mal"); return; }
+  if (!base()) { decir("aviso", "Falta la dirección del servidor.", "mal"); return; }
+  if (!$("ruta").value.trim()) {
+    decir("aviso", "Falta la dirección del archivo. Sube el PDF o escribe su ruta.", "mal");
+    return;
+  }
+
+  var doc = {
+    id: identificador(titulo),
+    tipo: $("tipo").value.trim() || "Documento",
+    etiqueta: $("etiqueta").value.trim(),
+    titulo: titulo,
+    resumen: $("resumen").value.trim(),
+    firmas: $("firmas").value.split("\n").map(function(s){ return s.trim(); }).filter(Boolean),
+    nota: $("nota").value.trim(),
+    archivo: $("ruta").value.trim(),
+    peso: $("peso").value.trim(),
+    fecha: $("fecha").value,
+    orden: parseInt($("orden").value, 10) || 0,
+    publicado: true
+  };
+
+  $("publicar").disabled = true;
+  try {
+    var r = await pide("/api/documentos", {metodo: "POST", json: true,
+      cuerpo: JSON.stringify({documentos: [doc]})});
+    if (r.estado === 200) {
+      decir("aviso", "Publicado. Ya aparece en el archivo.", "ok");
+      cargar();
+    } else {
+      decir("aviso", "No se publicó: " + ((r.cuerpo && r.cuerpo.error) || ("error " + r.estado)), "mal");
+    }
+  } catch (e) {
+    decir("aviso", "No se publicó: " + e.message, "mal");
+  }
+  $("publicar").disabled = false;
+});
+
+$("limpiar").addEventListener("click", function(){
+  ["etiqueta","titulo","resumen","firmas","nota","ruta","peso"].forEach(function(c){ $(c).value = ""; });
+  $("archivo").value = "";
+  $("pistaArchivo").textContent = "";
+  decir("aviso", "");
+});
+
+/* ---------- Lista ---------- */
+async function cargar(){
+  var caja = $("lista");
+  caja.innerHTML = "";
+  if (!base()) { $("vacia").hidden = false; return; }
+  var r;
+  try { r = await pide("/api/archivero"); }
+  catch (e) { $("vacia").textContent = "No se pudo hablar con el servidor: " + e.message; return; }
+
+  if (r.estado === 401) { $("vacia").textContent = "La clave no es la correcta."; $("vacia").hidden = false; return; }
+  if (r.estado !== 200 || !r.cuerpo || !Array.isArray(r.cuerpo.documentos)) {
+    $("vacia").textContent = "El servidor no devolvió la lista."; $("vacia").hidden = false; return;
+  }
+  var docs = r.cuerpo.documentos;
+  $("vacia").hidden = docs.length > 0;
+  if (!docs.length) $("vacia").textContent = "Todavía no hay documentos publicados.";
+
+  docs.forEach(function(d){
+    var art = document.createElement("article");
+    art.className = "item" + (d.publicado ? "" : " oculto");
+
+    var et = document.createElement("p"); et.className = "et";
+    et.textContent = d.etiqueta || d.tipo; art.appendChild(et);
+
+    var h = document.createElement("h3"); h.textContent = d.titulo; art.appendChild(h);
+
+    var pie = document.createElement("div"); pie.className = "pie";
+    if (!d.publicado) {
+      var e = document.createElement("span"); e.className = "etiqueta";
+      e.textContent = "Oculto"; pie.appendChild(e);
+    }
+    if (d.peso) { var sp = document.createElement("span"); sp.textContent = d.peso; pie.appendChild(sp); }
+    if (d.fecha) { var sf = document.createElement("span"); sf.textContent = d.fecha; pie.appendChild(sf); }
+
+    var bt = document.createElement("button");
+    bt.type = "button";
+    bt.textContent = d.publicado ? "Ocultar" : "Publicar";
+    bt.addEventListener("click", async function(){
+      bt.disabled = true;
+      d.publicado = !d.publicado;
+      await pide("/api/documentos", {metodo: "POST", json: true,
+        cuerpo: JSON.stringify({documentos: [d]})});
+      cargar();
+    });
+    pie.appendChild(bt);
+
+    var bc = document.createElement("button");
+    bc.type = "button"; bc.textContent = "Cargar para corregir";
+    bc.addEventListener("click", function(){
+      $("tipo").value = d.tipo || ""; $("etiqueta").value = d.etiqueta || "";
+      $("titulo").value = d.titulo || ""; $("resumen").value = d.resumen || "";
+      $("firmas").value = (d.firmas || []).join("\n"); $("nota").value = d.nota || "";
+      $("ruta").value = d.archivo || ""; $("peso").value = d.peso || "";
+      $("fecha").value = d.fecha || ""; $("orden").value = d.orden || 0;
+      window.scrollTo({top: 0, behavior: "smooth"});
+    });
+    pie.appendChild(bc);
+
+    art.appendChild(pie);
+    caja.appendChild(art);
+  });
+}
+
+/* ---------- Arranque ---------- */
+$("probar").addEventListener("click", async function(){
+  if (!base()) { decir("avisoSrv", "Falta la dirección.", "mal"); return; }
+  try {
+    var r = await pide("/api/salud", {clave: false});
+    if (r.estado === 200) {
+      guardarServidor(base(), $("clave").value);
+      decir("avisoSrv", "El servidor responde. " + ((r.cuerpo && r.cuerpo.bienes) || 0) + " bienes registrados.", "ok");
+      cargar();
+    } else {
+      decir("avisoSrv", "Responde con error " + r.estado + ".", "mal");
+    }
+  } catch (e) {
+    decir("avisoSrv", "No se pudo hablar con el servidor: " + e.message, "mal");
+  }
+});
+
+(function(){
+  var s = leerServidor();
+  if (s.url) $("url").value = s.url;
+  if (s.clave) $("clave").value = s.clave;
+  var hoy = new Date();
+  $("fecha").value = hoy.getFullYear() + "-" +
+    String(hoy.getMonth() + 1).padStart(2, "0") + "-" + String(hoy.getDate()).padStart(2, "0");
+  if (s.url && s.clave) cargar();
+})();
+</script>
+</body>
+</html>

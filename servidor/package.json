@@ -8,7 +8,8 @@
     "esquema:local": "wrangler d1 execute inventario --local --file=esquema.sql",
     "esquema:remoto": "wrangler d1 execute inventario --remote --file=esquema.sql",
     "publicar": "wrangler deploy",
-    "prueba": "node pruebas.mjs"
+    "prueba": "npm run limpiar && wrangler d1 execute inventario --local --file=esquema.sql && node pruebas.mjs",
+    "limpiar": "node -e \"require('fs').rmSync('.wrangler/state',{recursive:true,force:true})\""
   },
   "devDependencies": {
     "wrangler": "^4.164.0"

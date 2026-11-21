@@ -25,7 +25,9 @@ const ESQUEMA = [
   "CREATE TABLE IF NOT EXISTS bitacora ( id INTEGER PRIMARY KEY AUTOINCREMENT, cuando TEXT NOT NULL, folio TEXT NOT NULL, accion TEXT NOT NULL, quien TEXT NOT NULL DEFAULT '', detalle TEXT NOT NULL DEFAULT '' )",
   "CREATE INDEX IF NOT EXISTS idx_bitacora_folio ON bitacora (folio)",
   "CREATE INDEX IF NOT EXISTS idx_bitacora_cuando ON bitacora (cuando)",
-  "CREATE TABLE IF NOT EXISTS consecutivos ( unidad TEXT PRIMARY KEY, ultimo INTEGER NOT NULL DEFAULT 0 )"
+  "CREATE TABLE IF NOT EXISTS consecutivos ( unidad TEXT PRIMARY KEY, ultimo INTEGER NOT NULL DEFAULT 0 )",
+  "CREATE TABLE IF NOT EXISTS documentos ( id TEXT PRIMARY KEY, tipo TEXT NOT NULL DEFAULT '', etiqueta TEXT NOT NULL DEFAULT '', titulo TEXT NOT NULL DEFAULT '', resumen TEXT NOT NULL DEFAULT '', firmas TEXT NOT NULL DEFAULT '', nota TEXT NOT NULL DEFAULT '', archivo TEXT NOT NULL DEFAULT '', peso TEXT NOT NULL DEFAULT '', fecha TEXT NOT NULL DEFAULT '', orden INTEGER NOT NULL DEFAULT 0, publicado INTEGER NOT NULL DEFAULT 1, creado TEXT NOT NULL, actualizado TEXT NOT NULL )",
+  "CREATE INDEX IF NOT EXISTS idx_documentos_lista ON documentos (publicado, orden, fecha)"
 ];
 let baseLista = false;
 async function prepararBase(env){
@@ -255,6 +257,146 @@ async function verBitacora(pet, env) {
   return responde(pet, {movimientos: results});
 }
 
+/* ---------- Documentos ---------- */
+
+// Columnas que salen por la ruta abierta. No hay datos de personas aqui, pero
+// se nombran una por una igual que en el catalogo: si manana se agrega una
+// columna interna, no se escapa sola.
+const DOC_PUBLICAS = "id, tipo, etiqueta, titulo, resumen, firmas, nota, archivo, peso, fecha";
+
+function documentoAfuera(fila){
+  var firmas = [];
+  if (fila.firmas) {
+    try { firmas = JSON.parse(fila.firmas); }
+    catch (e) { firmas = []; }
+    if (!Array.isArray(firmas)) firmas = [];
+  }
+  return {
+    id: fila.id, tipo: fila.tipo, etiqueta: fila.etiqueta, titulo: fila.titulo,
+    resumen: fila.resumen, nota: fila.nota, archivo: fila.archivo,
+    peso: fila.peso, fecha: fila.fecha, firmas: firmas
+  };
+}
+
+async function documentos(pet, env) {
+  const {results} = await env.DB.prepare(
+    "SELECT " + DOC_PUBLICAS + " FROM documentos WHERE publicado = 1 ORDER BY orden DESC, fecha DESC, titulo"
+  ).all();
+  return responde(pet, {documentos: results.map(documentoAfuera)});
+}
+
+async function todosLosDocumentos(pet, env) {
+  const {results} = await env.DB.prepare(
+    "SELECT * FROM documentos ORDER BY orden DESC, fecha DESC, titulo"
+  ).all();
+  return responde(pet, {documentos: results.map(function(f){
+    const d = documentoAfuera(f);
+    d.publicado = f.publicado === 1;
+    d.orden = f.orden;
+    d.actualizado = f.actualizado;
+    return d;
+  })});
+}
+
+async function guardarDocumentos(pet, env) {
+  let cuerpo;
+  try { cuerpo = await pet.json(); }
+  catch (e) { return falla(pet, 400, "El cuerpo de la peticion no es JSON valido."); }
+
+  const lista = Array.isArray(cuerpo) ? cuerpo : (cuerpo && cuerpo.documentos);
+  if (!Array.isArray(lista)) return falla(pet, 400, "Se esperaba una lista de documentos.");
+  if (lista.length > 200) return falla(pet, 413, "Demasiados documentos en una sola peticion.");
+
+  const cuando = ahora();
+  const quien = texto(pet.headers.get("X-Quien"), 60);
+  const ordenes = [];
+  let guardados = 0;
+
+  for (const d of lista) {
+    const id = texto(d && d.id, 80);
+    const titulo = texto(d && d.titulo, 240);
+    if (!id) return falla(pet, 400, "Cada documento necesita un id.");
+    if (!titulo) return falla(pet, 400, "El documento " + id + " no trae titulo.");
+
+    let firmas = "";
+    if (Array.isArray(d.firmas) && d.firmas.length) {
+      firmas = JSON.stringify(d.firmas.slice(0, 60).map(function(f){ return texto(f, 120); }));
+    }
+
+    ordenes.push(env.DB.prepare(
+      "INSERT INTO documentos (id, tipo, etiqueta, titulo, resumen, firmas, nota, archivo, peso, fecha, orden, publicado, creado, actualizado) " +
+      "VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?13) " +
+      "ON CONFLICT(id) DO UPDATE SET tipo=?2, etiqueta=?3, titulo=?4, resumen=?5, firmas=?6, " +
+      "nota=?7, archivo=?8, peso=?9, fecha=?10, orden=?11, publicado=?12, actualizado=?13"
+    ).bind(
+      id, texto(d.tipo, 60), texto(d.etiqueta, 160), titulo,
+      texto(d.resumen, 4000), firmas, texto(d.nota, 1000),
+      texto(d.archivo, 400), texto(d.peso, 40), texto(d.fecha, 30),
+      entero(d.orden, 0), d.publicado === false ? 0 : 1, cuando
+    ));
+    ordenes.push(env.DB.prepare(
+      "INSERT INTO bitacora (cuando, folio, accion, quien, detalle) VALUES (?1,?2,?3,?4,?5)"
+    ).bind(cuando, "doc:" + id, "documento", quien, titulo));
+    guardados++;
+  }
+
+  await env.DB.batch(ordenes);
+  return responde(pet, {ok: true, guardados: guardados, cuando: cuando});
+}
+
+/* ---------- Archivos ---------- */
+
+// R2 es opcional a proposito: si la cuenta no lo tiene activado el servidor
+// sigue sirviendo, y los PDF se publican desde el repositorio como hasta hoy.
+const TIPOS_ARCHIVO = {pdf: "application/pdf", jpg: "image/jpeg", jpeg: "image/jpeg",
+                       png: "image/png", webp: "image/webp"};
+const TOPE_ARCHIVO = 25 * 1024 * 1024;
+
+function nombreLimpio(n) {
+  return texto(n, 120).toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9._-]+/g, "-").replace(/^-+|-+$/g, "");
+}
+
+async function subirArchivo(pet, env) {
+  if (!env.ARCHIVOS) {
+    return falla(pet, 501, "Este servidor no tiene almacen de archivos conectado. " +
+                           "Publica el PDF en el repositorio y pon su direccion en el documento.");
+  }
+  const u = new URL(pet.url);
+  const nombre = nombreLimpio(u.searchParams.get("nombre"));
+  if (!nombre) return falla(pet, 400, "Hace falta el nombre del archivo.");
+
+  const partes = nombre.split(".");
+  const tipo = partes.length > 1 ? TIPOS_ARCHIVO[partes.pop()] : null;
+  if (!tipo) return falla(pet, 415, "Solo se aceptan PDF e imagenes.");
+  if (!partes.join(".")) return falla(pet, 400, "El archivo necesita un nombre, no solo la extension.");
+
+  const datos = await pet.arrayBuffer();
+  if (!datos.byteLength) return falla(pet, 400, "El archivo llego vacio.");
+  if (datos.byteLength > TOPE_ARCHIVO) return falla(pet, 413, "El archivo pasa de 25 MB.");
+
+  await env.ARCHIVOS.put(nombre, datos, {httpMetadata: {contentType: tipo}});
+  const kb = datos.byteLength / 1024;
+  return responde(pet, {
+    ok: true, nombre: nombre, ruta: "/archivo/" + nombre,
+    peso: kb >= 1024 ? ("PDF · " + (kb / 1024).toFixed(1) + " MB") : ("PDF · " + Math.round(kb) + " KB")
+  });
+}
+
+async function verArchivo(pet, env, nombre) {
+  if (!env.ARCHIVOS) return falla(pet, 404, "Aqui no hay archivos guardados.");
+  const obj = await env.ARCHIVOS.get(nombre);
+  if (!obj) return falla(pet, 404, "No existe ese archivo.");
+  const h = new Headers();
+  obj.writeHttpMetadata(h);
+  h.set("etag", obj.httpEtag);
+  h.set("Cache-Control", "public, max-age=3600");
+  const o = origenPermitido(pet);
+  if (o) { h.set("Access-Control-Allow-Origin", o); h.set("Vary", "Origin"); }
+  return new Response(obj.body, {headers: h});
+}
+
 /* ---------- Reparto ---------- */
 
 const RUTAS = {
@@ -264,7 +406,11 @@ const RUTAS = {
   "GET /api/bienes":   {abierta: false, atiende: todosLosBienes},
   "POST /api/bienes":  {abierta: false, atiende: guardarBienes},
   "POST /api/folio":   {abierta: false, atiende: apartarFolio},
-  "GET /api/bitacora": {abierta: false, atiende: verBitacora}
+  "GET /api/bitacora": {abierta: false, atiende: verBitacora},
+  "GET /api/documentos":  {abierta: true,  atiende: documentos},
+  "GET /api/archivero":   {abierta: false, atiende: todosLosDocumentos},
+  "POST /api/documentos": {abierta: false, atiende: guardarDocumentos},
+  "POST /api/archivo":    {abierta: false, atiende: subirArchivo}
 };
 
 export default {
@@ -277,6 +423,16 @@ export default {
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
         "Access-Control-Max-Age": "86400"
       })});
+    }
+
+    if (pet.method === "GET" && u.pathname.startsWith("/archivo/")) {
+      const nombre = decodeURIComponent(u.pathname.slice("/archivo/".length));
+      if (!nombre || nombre.includes("/")) return falla(pet, 400, "Nombre de archivo invalido.");
+      try { return await verArchivo(pet, env, nombre); }
+      catch (e) {
+        console.error("fallo al servir " + nombre + ": " + (e && e.stack || e));
+        return falla(pet, 500, "No se pudo leer el archivo.");
+      }
     }
 
     const ruta = RUTAS[pet.method + " " + u.pathname];

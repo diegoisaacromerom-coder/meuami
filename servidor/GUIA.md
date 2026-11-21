@@ -86,9 +86,36 @@ No hace falta ejecutarlo.
 | `POST /api/bienes` | con la clave | Dar de alta o modificar |
 | `POST /api/folio` | con la clave | Apartar el siguiente folio de una unidad |
 | `GET /api/bitacora` | con la clave | Quién tocó qué y cuándo |
+| `GET /api/documentos` | cualquiera | El archivo público de documentos |
+| `GET /archivo/NOMBRE` | cualquiera | Descargar un archivo guardado |
+| `GET /api/archivero` | con la clave | El archivo completo, ocultos incluidos |
+| `POST /api/documentos` | con la clave | Publicar o corregir un documento |
+| `POST /api/archivo` | con la clave | Subir un PDF o una imagen |
 
 Las rutas abiertas **nunca** devuelven quién prestó el bien, quién lo registró
 ni las observaciones. Esas columnas existen en la base pero no salen por ahí.
+
+## Guardar los PDF en el servidor (opcional)
+
+Sin esto el servidor funciona igual: los documentos se publican con la
+dirección del PDF que viva en el repositorio, como hasta hoy. Esto solo sirve
+para poder subir un PDF desde el teléfono, sin pasar por git.
+
+D1 no sirve para guardar los archivos: topa en **2 MB por valor**, y los
+escaneos de los oficios pasan de eso. Los archivos van en **R2**, que es el
+almacén de Cloudflare y trae 10 GB gratis.
+
+1. **R2 Object Storage → Create bucket**, nómbralo `archivos`.
+2. En el Worker: **Settings → Bindings → Add → R2 bucket**. Variable name:
+   `ARCHIVOS`, así, en mayúsculas. Bucket: `archivos`.
+3. Agrega esto al final de `wrangler.toml` y vuelve a publicar:
+
+        [[r2_buckets]]
+        binding = "ARCHIVOS"
+        bucket_name = "archivos"
+
+Si no haces nada de esto, la página de publicar lo detecta y te dice que
+subas el PDF al repositorio. No truena.
 
 ## Más adelante: inicio de sesión de verdad
 

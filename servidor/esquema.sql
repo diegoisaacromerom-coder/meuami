@@ -61,3 +61,24 @@ CREATE TABLE IF NOT EXISTS consecutivos (
   unidad TEXT PRIMARY KEY,
   ultimo INTEGER NOT NULL DEFAULT 0
 );
+
+-- Documentos del archivo publico. El PDF no vive aqui: D1 topa en 2 MB por
+-- valor y los escaneos pasan de eso. La columna "archivo" guarda a donde
+-- apunta, sea el repositorio o el almacen R2.
+CREATE TABLE IF NOT EXISTS documentos (
+  id          TEXT PRIMARY KEY,
+  tipo        TEXT NOT NULL DEFAULT '',
+  etiqueta    TEXT NOT NULL DEFAULT '',
+  titulo      TEXT NOT NULL DEFAULT '',
+  resumen     TEXT NOT NULL DEFAULT '',
+  firmas      TEXT NOT NULL DEFAULT '',
+  nota        TEXT NOT NULL DEFAULT '',
+  archivo     TEXT NOT NULL DEFAULT '',
+  peso        TEXT NOT NULL DEFAULT '',
+  fecha       TEXT NOT NULL DEFAULT '',
+  orden       INTEGER NOT NULL DEFAULT 0,
+  publicado   INTEGER NOT NULL DEFAULT 1,
+  creado      TEXT NOT NULL,
+  actualizado TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_documentos_lista ON documentos (publicado, orden, fecha);

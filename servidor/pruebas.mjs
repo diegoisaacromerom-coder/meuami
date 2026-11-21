@@ -177,6 +177,95 @@ try {
   r = await pide("/api/loquesea");
   ok("una ruta inexistente devuelve 404", r.estado === 404, String(r.estado));
 
+
+  /* ---------- Documentos ---------- */
+
+  r = await pide("/api/documentos");
+  ok("el archivo de documentos abre sin clave", r.estado === 200, String(r.estado));
+  ok("y empieza vacío", Array.isArray(r.cuerpo.documentos) && r.cuerpo.documentos.length === 0,
+     JSON.stringify(r.cuerpo));
+
+  r = await pide("/api/documentos", {metodo: "POST", cuerpo: {documentos: [
+    {id: "si-2344", tipo: "Oficio", etiqueta: "Oficio SI.2344.2026", titulo: "Instalación de las mesas",
+     resumen: "Lo que dice el oficio.", archivo: "/assets/si-2344-2026.pdf", peso: "PDF · 3.7 MB",
+     fecha: "2026-11-16", orden: 10}
+  ]}});
+  ok("publicar un documento sin clave se rechaza", r.estado === 401, String(r.estado));
+
+  r = await pide("/api/documentos", {metodo: "POST", clave: CLAVE, cuerpo: {documentos: [
+    {id: "si-2344", tipo: "Oficio", etiqueta: "Oficio SI.2344.2026", titulo: "Instalación de las mesas",
+     resumen: "Lo que dice el oficio.", archivo: "/assets/si-2344-2026.pdf", peso: "PDF · 3.7 MB",
+     fecha: "2026-11-16", orden: 10},
+    {id: "carta-csh", tipo: "Carta compromiso", titulo: "No represalias de CSH",
+     resumen: "Suscrita por 37 personas.", firmas: ["Dirección divisional", "Secretaría Académica"],
+     archivo: "/assets/carta-no-represalias-csh.pdf", peso: "PDF · 4.0 MB",
+     fecha: "2026-11-16", orden: 9},
+    {id: "borrador", tipo: "Oficio", titulo: "Todavía no", resumen: "", publicado: false, orden: 1}
+  ]}});
+  ok("con la clave se publican", r.estado === 200 && r.cuerpo.guardados === 3, JSON.stringify(r.cuerpo));
+
+  r = await pide("/api/documentos");
+  ok("el archivo devuelve solo los publicados", r.cuerpo.documentos.length === 2,
+     JSON.stringify(r.cuerpo.documentos.map(d => d.id)));
+  ok("y en el orden pedido", r.cuerpo.documentos[0].id === "si-2344",
+     JSON.stringify(r.cuerpo.documentos.map(d => d.id)));
+  ok("las firmas vuelven como lista",
+     Array.isArray(r.cuerpo.documentos[1].firmas) && r.cuerpo.documentos[1].firmas.length === 2,
+     JSON.stringify(r.cuerpo.documentos[1].firmas));
+  ok("un documento sin firmas trae una lista vacía",
+     Array.isArray(r.cuerpo.documentos[0].firmas) && r.cuerpo.documentos[0].firmas.length === 0,
+     JSON.stringify(r.cuerpo.documentos[0].firmas));
+
+  r = await pide("/api/archivero");
+  ok("la lista completa exige clave", r.estado === 401, String(r.estado));
+  r = await pide("/api/archivero", {clave: CLAVE});
+  ok("con la clave se ve también el borrador", r.cuerpo.documentos.length === 3,
+     String(r.cuerpo.documentos.length));
+
+  r = await pide("/api/documentos", {metodo: "POST", clave: CLAVE, cuerpo: {documentos: [
+    {id: "si-2344", tipo: "Oficio", titulo: "Instalación de las mesas de diálogo",
+     resumen: "Corregido.", archivo: "/assets/si-2344-2026.pdf", fecha: "2026-11-16", orden: 10}
+  ]}});
+  r = await pide("/api/documentos");
+  ok("volver a publicar el mismo id corrige, no duplica",
+     r.cuerpo.documentos.length === 2 &&
+     r.cuerpo.documentos[0].titulo === "Instalación de las mesas de diálogo",
+     JSON.stringify(r.cuerpo.documentos.map(d => d.titulo)));
+
+  r = await pide("/api/documentos", {metodo: "POST", clave: CLAVE,
+    cuerpo: {documentos: [{tipo: "Oficio", titulo: "Sin id"}]}});
+  ok("un documento sin id se rechaza", r.estado === 400, String(r.estado));
+
+  r = await pide("/api/documentos", {metodo: "POST", clave: CLAVE,
+    cuerpo: {documentos: [{id: "x", titulo: ""}]}});
+  ok("un documento sin título se rechaza", r.estado === 400, String(r.estado));
+
+  r = await pide("/api/bitacora", {clave: CLAVE});
+  ok("publicar un documento queda en la bitácora",
+     r.cuerpo.movimientos.some(m => m.folio === "doc:si-2344" && m.accion === "documento"),
+     JSON.stringify(r.cuerpo.movimientos.slice(0, 2)));
+
+  /* ---------- Archivos ---------- */
+  // Sin R2 conectado el servidor tiene que decirlo claro, no tronar.
+  r = await fetch(BASE + "/api/archivo?nombre=acuerdos.pdf", {
+    method: "POST", headers: {Authorization: "Bearer " + CLAVE}, body: "x"});
+  const cuerpoArchivo = await r.json().catch(() => null);
+  ok("subir un archivo sin almacén responde que no lo hay",
+     r.status === 501 || r.status === 200, String(r.status));
+  if (r.status === 501) {
+    ok("y lo explica en vez de tronar",
+       /almac/i.test(cuerpoArchivo && cuerpoArchivo.error || ""), JSON.stringify(cuerpoArchivo));
+  } else {
+    ok("y si lo hay, devuelve la ruta", !!(cuerpoArchivo && cuerpoArchivo.ruta), JSON.stringify(cuerpoArchivo));
+  }
+
+  r = await pide("/archivo/no-existe.pdf");
+  ok("pedir un archivo que no está responde 404", r.estado === 404, String(r.estado));
+
+  r = await pide("/archivo/..%2F..%2Fetc%2Fpasswd");
+  ok("no se puede salir de la carpeta de archivos", r.estado === 400 || r.estado === 404,
+     String(r.estado));
+
   r = await pide("/api/catalogo", {metodo: "OPTIONS", cabeceras: {Origin: "https://meuami.org"}});
   ok("la consulta previa de CORS responde", r.estado === 204, String(r.estado));
   ok("y autoriza al sitio", r.cabeceras.get("access-control-allow-origin") === "https://meuami.org",

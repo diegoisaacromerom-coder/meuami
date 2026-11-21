@@ -146,6 +146,11 @@ main{padding:34px 0 70px}
    tipo    aparece como filtro y como etiqueta de la ficha
    nota    es opcional; sirve para advertir algo al lector
 ============================================================ */
+/* Direccion del servidor. Mientras este vacia, la pagina usa la lista de
+   abajo tal cual. Con direccion, pide la lista al servidor y solo si eso
+   falla se queda con la de abajo: asi el archivo nunca aparece vacio. */
+var SERVIDOR = "";
+
 var DOCUMENTOS = [
   {
     tipo: "Oficio",
@@ -196,6 +201,19 @@ var DOCUMENTOS = [
 ];
 /* ==================== FIN DE LOS DOCUMENTOS ==================== */
 
+function normaliza(d){
+  return {
+    tipo: d.tipo || "Documento",
+    etiqueta: d.etiqueta || d.tipo || "Documento",
+    titulo: d.titulo || "",
+    resumen: d.resumen || "",
+    firmas: Array.isArray(d.firmas) ? d.firmas : [],
+    nota: d.nota || "",
+    archivo: d.archivo || "",
+    peso: d.peso || ""
+  };
+}
+
 (function(){
   var cajaDocs = document.getElementById("docs");
   var cajaFil  = document.getElementById("filtros");
@@ -239,23 +257,41 @@ var DOCUMENTOS = [
     vacio.hidden = lista.length > 0;
   }
 
-  var tipos = ["Todos"];
-  DOCUMENTOS.forEach(function(d){ if(tipos.indexOf(d.tipo) === -1) tipos.push(d.tipo); });
-
-  tipos.forEach(function(t){
-    var b = texto("button", null, t);
-    b.type = "button";
-    b.setAttribute("aria-pressed", t === "Todos" ? "true" : "false");
-    b.addEventListener("click", function(){
-      cajaFil.querySelectorAll("button").forEach(function(o){ o.setAttribute("aria-pressed","false"); });
-      b.setAttribute("aria-pressed","true");
-      pintar(t);
+  function montar(lista){
+    DOCUMENTOS = lista.map(normaliza).filter(function(d){ return d.titulo; });
+    cajaFil.textContent = "";
+    var tipos = ["Todos"];
+    DOCUMENTOS.forEach(function(d){ if(tipos.indexOf(d.tipo) === -1) tipos.push(d.tipo); });
+    tipos.forEach(function(t){
+      var b = texto("button", null, t);
+      b.type = "button";
+      b.setAttribute("aria-pressed", t === "Todos" ? "true" : "false");
+      b.addEventListener("click", function(){
+        cajaFil.querySelectorAll("button").forEach(function(o){ o.setAttribute("aria-pressed","false"); });
+        b.setAttribute("aria-pressed","true");
+        pintar(t);
+      });
+      cajaFil.appendChild(b);
     });
-    cajaFil.appendChild(b);
-  });
+    cuenta.textContent = DOCUMENTOS.length +
+      (DOCUMENTOS.length === 1 ? " documento publicado" : " documentos publicados");
+    pintar("Todos");
+  }
 
-  cuenta.textContent = DOCUMENTOS.length + (DOCUMENTOS.length === 1 ? " documento publicado" : " documentos publicados");
-  pintar("Todos");
+  montar(DOCUMENTOS);
+
+  if (SERVIDOR) {
+    fetch(SERVIDOR.replace(/\/+$/, "") + "/api/documentos", {cache: "no-store"})
+      .then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
+      .then(function(d){
+        if (d && Array.isArray(d.documentos) && d.documentos.length) montar(d.documentos);
+      })
+      .catch(function(e){
+        // Si el servidor no contesta se queda la lista del archivo, que es
+        // preferible a dejar la pagina en blanco.
+        console.warn("no se pudo leer el archivo del servidor:", e.message);
+      });
+  }
 })();
 </script>
 </body>
