@@ -322,6 +322,70 @@ main > section > h2::after,.fuentes-sec h2::after{content:"";display:block;
   box-shadow:0 10px 22px -10px color-mix(in srgb,var(--azul) 80%,transparent)}
 .dcard .baja span{font-weight:400;opacity:.75;font-size:.78rem}
 
+/* Comunicado destacado: lo segundo que se ve, antes que cualquier seccion. */
+.destacado{position:relative;padding:34px 0 10px;
+  background:
+    radial-gradient(60% 120% at 12% 0%, color-mix(in srgb,var(--izt) 17%,transparent), transparent 64%),
+    radial-gradient(56% 110% at 92% 10%, color-mix(in srgb,var(--azul) 18%,transparent), transparent 62%)}
+.destacado[hidden]{display:none}
+.dhoja{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:30px;align-items:center;
+  background:var(--barra) left/6px 100% no-repeat,var(--card);
+  border:1px solid var(--rule);border-radius:18px;box-shadow:var(--sombra-alta);
+  padding:30px 32px 32px 38px}
+.dtexto{min-width:0}
+.dkick{font-family:var(--mono);font-weight:700;font-size:.76rem;text-transform:uppercase;
+  letter-spacing:.13em;margin:0 0 10px;
+  background:linear-gradient(96deg,var(--izt),var(--azul));
+  -webkit-background-clip:text;background-clip:text;color:transparent;width:max-content}
+.dhoja h2{margin:0;font-size:clamp(1.5rem,3.4vw,2.1rem);line-height:1.1;
+  text-transform:none;letter-spacing:-.02em}
+.dhoja h2::before,.dhoja h2::after{content:none}
+.dbaja{margin:13px 0 0;color:var(--muted);font-size:1rem;max-width:62ch}
+.dbotones{display:flex;gap:11px;flex-wrap:wrap;margin-top:22px}
+.dprin,.dsec{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);
+  font-weight:700;font-size:.88rem;text-decoration:none;border-radius:999px;padding:11px 22px;
+  transition:transform .2s ease,box-shadow .2s ease,background .2s ease,color .2s ease}
+.dprin{color:#fff;border:1px solid transparent;
+  background:linear-gradient(103deg,var(--izt),var(--azul))}
+.dprin:hover{transform:translateY(-2px);
+  box-shadow:0 12px 26px -12px color-mix(in srgb,var(--azul) 85%,transparent)}
+.dprin span{transition:transform .2s ease}
+.dprin:hover span{transform:translateX(4px)}
+.dsec{border:1px solid var(--rule);color:var(--muted)}
+.dsec:hover{color:var(--ink);border-color:var(--ink);transform:translateY(-2px)}
+.dimg{margin:0;border-radius:12px;overflow:hidden;box-shadow:var(--sombra)}
+.dimg img{display:block;width:100%;height:auto}
+@media (max-width:860px){
+  .dhoja{grid-template-columns:minmax(0,1fr);gap:22px;padding:24px 22px 26px 28px}
+  .dimg{order:-1}
+}
+
+/* Documentos: en la portada va solo el indice; el archivo vive aparte. */
+.archivo{background:var(--barra) left/5px 100% no-repeat,var(--card);
+  border:1px solid var(--rule);border-radius:var(--radio);box-shadow:var(--sombra);
+  padding:8px 24px 22px 29px}
+.alista{list-style:none;margin:0;padding:0}
+.alista li{display:grid;grid-template-columns:200px minmax(0,1fr);gap:4px 20px;
+  align-items:baseline;padding:14px 0;border-bottom:1px solid var(--rule)}
+.alista li:last-child{border-bottom:0}
+.alista span{font-family:var(--mono);font-weight:600;font-size:.74rem;text-transform:uppercase;
+  letter-spacing:.09em;color:var(--accent)}
+.alista a{font-weight:600;font-size:.97rem;text-decoration:none;
+  background-image:linear-gradient(var(--accent),var(--accent));
+  background-size:0% 1.5px;background-repeat:no-repeat;background-position:0 100%;
+  transition:background-size .3s cubic-bezier(.2,.7,.3,1)}
+.alista a:hover{background-size:100% 1.5px}
+.airal{display:inline-flex;align-items:center;gap:10px;margin-top:20px;
+  font-family:var(--mono);font-weight:700;font-size:.88rem;text-decoration:none;
+  color:#fff;border:1px solid transparent;border-radius:999px;padding:11px 22px;
+  background:linear-gradient(103deg,var(--izt),var(--azul));
+  transition:transform .2s ease,box-shadow .2s ease}
+.airal:hover{transform:translateY(-2px);
+  box-shadow:0 12px 26px -12px color-mix(in srgb,var(--azul) 85%,transparent)}
+.airal span{transition:transform .2s ease}
+.airal:hover span{transform:translateX(4px)}
+@media (max-width:620px){.alista li{grid-template-columns:1fr;gap:3px}}
+
 /* Cronología */
 .tlgrid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:38px;align-items:start}
 .tlfoto{margin:0;position:sticky;top:78px}
@@ -478,6 +542,34 @@ html.js-reveal .rv.vista{opacity:1;transform:none;
     </div>
   </div>
 </header>
+
+<!-- ============ COMUNICADO DESTACADO ============
+     Lo segundo que se ve al abrir la pagina, despues de la portada.
+     Para anunciar uno: quita el atributo hidden de la <section> y cambia
+     el texto de aqui abajo. La imagen se genera con comunicados/imagen.html
+     y se guarda como assets/comunicado-destacado.jpg.
+     Sin comunicado se queda oculto y la pagina
+     sigue igual, sin huecos.
+=============================================== -->
+<section class="destacado" id="destacado" aria-labelledby="dest-tit" hidden>
+  <div class="wrap">
+    <article class="dhoja">
+      <div class="dtexto">
+        <p class="dkick">Comunicado · <time datetime="2026-11-23">23 de noviembre de 2026</time></p>
+        <h2 id="dest-tit">TITULO DEL COMUNICADO</h2>
+        <p class="dbaja">BAJADA: una o dos frases que digan de que se trata, para que
+        quien llegue entienda sin tener que abrirlo.</p>
+        <div class="dbotones">
+          <a class="dprin" href="comunicados/plantilla.html">Leer el comunicado <span aria-hidden="true">→</span></a>
+          <a class="dsec" href="comunicados/imagen.html">Ver la imagen</a>
+        </div>
+      </div>
+      <figure class="dimg">
+        <img src="assets/comunicado-destacado.jpg" alt="Comunicado del Movimiento Estudiantil UAM-I" loading="lazy">
+      </figure>
+    </article>
+  </div>
+</section>
 
 <div class="wrap">
   <p class="notice">Sitio elaborado por estudiantes a partir de información de carácter público: notas de prensa y comunicados oficiales. <strong>No es una publicación oficial de la Universidad Autónoma Metropolitana.</strong> Cada dato remite a su fuente. Ante cualquier discrepancia, prevalecen los acuerdos de la asamblea.</p>
@@ -787,44 +879,19 @@ html.js-reveal .rv.vista{opacity:1;transform:none;
 
   <section id="documentos">
     <h2>Documentos</h2>
-    <p class="lede">Documentos firmados que ha recibido el Movimiento Estudiantil UAM-I en respuesta al pliego. Se publican completos y sin modificar, tal como fueron entregados. Son escaneos, así que algunos pesan varios megabytes.</p>
+    <p class="lede">Documentos firmados que ha recibido el Movimiento Estudiantil UAM-I en
+    respuesta al pliego. Se publican completos y sin modificar, tal como fueron entregados.
+    El archivo vive en su propia sección, para que pueda crecer sin estorbarle a esta página.</p>
 
-    <div class="docs">
-      <article class="dcard">
-        <p class="dk">Carta compromiso</p>
-        <h3>Compromiso de no represalias de las autoridades de la Unidad</h3>
-        <p>Las autoridades se comprometen a garantizar que ningún estudiante sea objeto de represalias, intimidación, hostigamiento, discriminación o persecución por expresar inconformidades, presentar quejas o participar en actividades legítimas, dentro y fuera de la Unidad. El compromiso abarca las acciones directas y las que pudieran realizar terceros o subordinados, y fija un plazo máximo de tres días hábiles para atender cualquier denuncia de represalia.</p>
-        <ul class="firmas">
-          <li>Rectoría de Unidad</li><li>Secretaría de Unidad</li>
-          <li>Secretaría Académica CBI</li><li>Secretaría Académica CBS</li><li>Secretaría Académica CSH</li>
-        </ul>
-        <a class="baja" href="/assets/carta-no-represalias-autoridades.pdf">Ver el documento <span>PDF · 2.9 MB</span></a>
-      </article>
-
-      <article class="dcard">
-        <p class="dk">Carta compromiso · División de CSH</p>
-        <h3>Compromiso de no represalias de la División de Ciencias Sociales y Humanidades</h3>
-        <p>El mismo compromiso, suscrito en el ámbito divisional por 37 personas: la Dirección de División, la Secretaría Académica, las jefaturas de departamento y las coordinaciones de licenciatura, posgrado y línea. Precisa que ninguna persona sea sancionada ni condicionada en su trayectoria académica, evaluaciones, trámites o servicios como consecuencia de organizarse o manifestarse.</p>
-        <ul class="firmas">
-          <li>Dirección divisional</li><li>Secretaría Académica</li>
-          <li>4 jefaturas de departamento</li><li>Coordinaciones de licenciatura</li><li>Coordinaciones de posgrado</li>
-        </ul>
-        <a class="baja" href="/assets/carta-no-represalias-csh.pdf">Ver el documento <span>PDF · 4.0 MB</span></a>
-      </article>
-
-      <article class="dcard">
-        <p class="dk">Oficio SI.2344.2026 · 16 de noviembre</p>
-        <h3>Instalación de las mesas de diálogo</h3>
-        <p>La Secretaría de Unidad informa que adjunta las cartas de no represalias por división y <strong>reitera el compromiso de comenzar las mesas el lunes 23 de noviembre de 2026</strong>. El oficio detalla la preparación de la Sala Quetzalcalli y el programa del día: inicio de la mesa a las 10:30 horas, con un aforo de 50 personas fijado por la Unidad de Protección Civil. Atiende también la petición de transmitir las sesiones por los medios de difusión oficiales de la Universidad.</p>
-        <a class="baja" href="/assets/si-2344-2026.pdf">Ver el documento <span>PDF · 3.7 MB</span></a>
-      </article>
-
-      <article class="dcard">
-        <p class="dk">Oficio SI.2343.2026 · 16 de noviembre</p>
-        <h3>Retiro de la fotografía de la Sala del Consejo Divisional de CSH</h3>
-        <p>En seguimiento al punto 4.2.c del pliego, la Secretaría de Unidad requiere acceso a la Sala del Consejo Divisional de CSH el miércoles 18 de noviembre a las 12:00 horas para retirar la fotografía señalada, e informa que ya solicitó a la División su eliminación de los medios digitales, verificable a partir del viernes 20 de noviembre.</p>
-        <a class="baja" href="/assets/si-2343-2026.pdf">Ver el documento <span>PDF · 545 KB</span></a>
-      </article>
+    <div class="archivo">
+      <ul class="alista">
+        <li><span>Oficio SI.2344.2026</span><a href="/documentos/">Instalación de las mesas de diálogo</a></li>
+        <li><span>Oficio SI.2343.2026</span><a href="/documentos/">Retiro de la fotografía de la Sala del Consejo Divisional de CSH</a></li>
+        <li><span>Carta compromiso</span><a href="/documentos/">No represalias de las autoridades de la Unidad</a></li>
+        <li><span>Carta compromiso</span><a href="/documentos/">No represalias de la División de CSH</a></li>
+        <li><span>Pliego</span><a href="/documentos/">Pliego petitorio unificado</a></li>
+      </ul>
+      <a class="airal" href="/documentos/">Abrir el archivo de documentos <span aria-hidden="true">→</span></a>
     </div>
   </section>
 
