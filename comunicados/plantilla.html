@@ -32,7 +32,13 @@ body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f);font
 a{color:var(--accent)}
 :focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 
-.barra{background:#0b1410;color:#fff;border-bottom:4px solid var(--accent)}
+.barra{position:relative;color:#fff;border-bottom:0;
+  background:
+    radial-gradient(70% 150% at 6% 0%, rgba(18,168,80,.26), transparent 62%),
+    radial-gradient(64% 140% at 94% 10%, rgba(22,104,184,.30), transparent 60%),
+    #070e16}
+.barra::after{content:"";position:absolute;left:0;right:0;bottom:0;height:4px;
+  background:linear-gradient(90deg,#12a850,#13948f 32%,#1668b8 58%,#0b2c52 80%,#e0a05a)}
 .barra .w{max-width:900px;margin:0 auto;padding:13px 22px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
 .barra a{color:rgba(255,255,255,.82);text-decoration:none;font-size:.84rem;font-weight:700}
 .barra a:hover{color:#fff}
@@ -57,30 +63,12 @@ a{color:var(--accent)}
 
 /* ---- Portada: la foto sale del margen de la hoja para ir de borde a borde ---- */
 .portada{position:relative;margin:26px calc(-1 * var(--pad)) 0}
-.portada .marco{position:relative;aspect-ratio:3/2;overflow:hidden;
+.portada .marco{position:relative;aspect-ratio:1800/1005;overflow:hidden;
   background:#0b1410;isolation:isolate}
-.portada img{width:100%;height:100%;object-fit:cover;display:block;
-  filter:saturate(.88) brightness(.74) contrast(1.05)}
-/* El cielo viene quemado de blanco: el velo pesa arriba, no en el edificio. */
+.portada img{width:100%;height:100%;object-fit:cover;display:block}
+/* Solo lo justo para que la placa se despegue de la foto. */
 .portada .velo{position:absolute;inset:0;pointer-events:none;
-  background:
-    linear-gradient(to top,rgba(6,13,9,.90) 0%,rgba(6,13,9,.46) 30%,rgba(6,13,9,.22) 58%,rgba(6,13,9,.52) 100%),
-    radial-gradient(130% 95% at 70% 14%,rgba(15,143,69,.10),transparent 60%)}
-/* La malla usa el mismo viewBox que la foto (1600x1066) y la foto conserva su
-   proporción 3:2, así que los puntos caen siempre sobre las mismas aristas. */
-.portada .malla{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;
-  filter:drop-shadow(0 0 3px rgba(0,0,0,.6))}
-.portada .malla line{stroke:rgba(255,255,255,.62);stroke-width:1.15;vector-effect:non-scaling-stroke}
-.portada .malla line.t{stroke:rgba(255,255,255,.3)}
-.portada .malla circle{fill:#fff}
-@media (prefers-reduced-motion: no-preference){
-  .portada .malla line{stroke-dasharray:var(--l);stroke-dashoffset:var(--l);
-    animation:traza .9s cubic-bezier(.4,0,.2,1) forwards;animation-delay:var(--t)}
-  .portada .malla circle{opacity:0;animation:brota .5s ease forwards;animation-delay:var(--t)}
-  @keyframes traza{to{stroke-dashoffset:0}}
-  @keyframes brota{to{opacity:1}}
-}
-
+  background:linear-gradient(to top,rgba(5,10,18,.72) 0%,rgba(5,10,18,.18) 26%,transparent 50%)}
 .placa{position:absolute;left:0;bottom:0;z-index:2;max-width:min(680px,92%);
   background:var(--hoja);border-top:4px solid var(--accent);
   padding:22px clamp(20px,3.4vw,34px) 24px var(--pad);border-radius:0 18px 0 0}
@@ -183,8 +171,6 @@ a{color:var(--accent)}
     <div class="marco">
       <img src="../assets/portada-mesa.jpg" alt="Edificio de la Unidad Iztapalapa de la UAM">
       <span class="velo" aria-hidden="true"></span>
-      <svg class="malla" viewBox="0 0 1600 1066" preserveAspectRatio="xMidYMid meet"
-           aria-hidden="true" focusable="false"></svg>
     </div>
     <div class="placa">
       <p class="kick">Comunicado</p>
@@ -201,7 +187,7 @@ a{color:var(--accent)}
 
   <div class="firmas">
     <p class="org">Movimiento Estudiantil UAM-I</p>
-    <p class="sub">FIRMANTE</p>
+    <p class="sub">Unidad Iztapalapa</p>
   </div>
 
   <div class="pie">
@@ -216,87 +202,6 @@ a{color:var(--accent)}
   <a class="b" href="../">Volver al sitio</a>
 </div>
 
-<script>
-/* La malla se dibuja desde una lista de vértices en coordenadas de la foto
-   (1600x1066). Escribirla aquí y no a mano en el SVG permite moverla sin
-   pelearse con cientos de atributos, y deja el HTML legible. */
-(function(){
-  var N = {
-    /* Vertices medidos sobre la foto: se segmento el edificio por color y se
-       leyo su contorno, en vez de colocarlos a ojo. */
-    cum:[680,122],
-    /* alero derecho */
-    d1:[752,165], d2:[822,212], d3:[892,258], d4:[962,312], d5:[1032,366], d6:[1092,432],
-    /* arista vertical derecha */
-    d7:[1072,540], d8:[1064,650], d9:[1058,762], d10:[1048,818],
-    /* alero izquierdo */
-    i1:[648,150], i2:[618,192], i3:[588,242], i4:[562,294], i5:[544,348],
-    /* arista vertical izquierda */
-    i6:[528,418], i7:[496,464], i8:[466,528], i9:[438,606], i10:[472,682], i11:[500,768], i12:[514,826],
-    /* base */
-    b1:[566,854], b2:[664,878], b3:[772,888], b4:[878,874], b5:[962,844],
-    /* puntos al aire */
-    a1:[318,150], a2:[560,38], a3:[848,44], a4:[1140,138], a5:[1316,330],
-    a6:[1346,612], a7:[1222,830], a8:[240,452], a9:[286,762]
-  };
-  var E = [
-    /* silueta completa, de la cumbre y de vuelta a ella */
-    ['cum','d1'],['d1','d2'],['d2','d3'],['d3','d4'],['d4','d5'],['d5','d6'],
-    ['d6','d7'],['d7','d8'],['d8','d9'],['d9','d10'],
-    ['d10','b5'],['b5','b4'],['b4','b3'],['b3','b2'],['b2','b1'],['b1','i12'],
-    ['i12','i11'],['i11','i10'],['i10','i9'],['i9','i8'],['i8','i7'],['i7','i6'],
-    ['i6','i5'],['i5','i4'],['i4','i3'],['i3','i2'],['i2','i1'],['i1','cum'],
-    /* pocos tirantes: la fachada se ve, no se tapa */
-    ['cum','i6'],['cum','d6'],['i10','b3'],['d8','b3'],
-    /* al aire */
-    ['a2','cum'],['a3','cum'],['a3','d2'],['a4','d3'],['a4','d4'],['a5','d5'],['a5','d6'],
-    ['a6','d7'],['a6','d8'],['a7','d9'],['a7','b5'],
-    ['a1','i2'],['a1','i3'],['a8','i5'],['a8','i7'],['a9','i9'],['a9','i11'],['a9','b1'],
-    /* cadena tenue que cierra el anillo exterior */
-    ['a1','a2'],['a2','a3'],['a3','a4'],['a4','a5'],['a5','a6'],['a6','a7'],
-    ['a1','a8'],['a8','a9']
-  ];
-  /* mas tenues: las que solo acompanan */
-  var TENUES = {'a1-a2':1,'a2-a3':1,'a3-a4':1,'a4-a5':1,'a5-a6':1,'a6-a7':1,
-                'a1-a8':1,'a8-a9':1};
-
-  var svg = document.querySelector('.malla');
-  if(!svg) return;
-  var NS = 'http://www.w3.org/2000/svg';
-  var frag = document.createDocumentFragment();
-
-  E.forEach(function(par, i){
-    var a = N[par[0]], b = N[par[1]];
-    if(!a || !b) return;
-    var l = document.createElementNS(NS,'line');
-    l.setAttribute('x1',a[0]); l.setAttribute('y1',a[1]);
-    l.setAttribute('x2',b[0]); l.setAttribute('y2',b[1]);
-    if(TENUES[par[0]+'-'+par[1]]) l.setAttribute('class','t');
-    var largo = Math.hypot(b[0]-a[0], b[1]-a[1]);
-    l.style.setProperty('--l', largo.toFixed(0));
-    l.style.setProperty('--t', (0.15 + i * 0.016).toFixed(3) + 's');
-    frag.appendChild(l);
-  });
-
-  Object.keys(N).forEach(function(k, i){
-    var p = N[k], aire = k.charAt(0) === 'a';
-    var retardo = (0.5 + i * 0.012).toFixed(3) + 's';
-    var halo = document.createElementNS(NS,'circle');
-    halo.setAttribute('cx',p[0]); halo.setAttribute('cy',p[1]);
-    halo.setAttribute('r', aire ? 5 : 6);
-    halo.setAttribute('fill','rgba(255,255,255,.16)');
-    halo.style.setProperty('--t', retardo);
-    frag.appendChild(halo);
-    var c = document.createElementNS(NS,'circle');
-    c.setAttribute('cx',p[0]); c.setAttribute('cy',p[1]);
-    c.setAttribute('r', aire ? 2.1 : 2.8);
-    c.style.setProperty('--t', retardo);
-    frag.appendChild(c);
-  });
-
-  svg.appendChild(frag);
-})();
-</script>
 
 </body>
 </html>

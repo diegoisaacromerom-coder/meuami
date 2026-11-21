@@ -31,7 +31,15 @@ a{color:var(--accent)}
 :focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 h1,h2,h3{margin:0;text-wrap:balance}
 
-.top{background:#0b1410;color:#fff;border-bottom:4px solid var(--accent)}
+.top{position:relative;color:#fff;border-bottom:0;
+  background:
+    radial-gradient(70% 150% at 6% 0%, rgba(18,168,80,.26), transparent 62%),
+    radial-gradient(64% 140% at 94% 10%, rgba(22,104,184,.30), transparent 60%),
+    #070e16}
+/* La misma franja de cinco colores que abre el sitio, para que las paginas
+   internas no parezcan de otro lugar. */
+.top::after{content:"";position:absolute;left:0;right:0;bottom:0;height:4px;
+  background:linear-gradient(90deg,#12a850,#13948f 32%,#1668b8 58%,#0b2c52 80%,#e0a05a)}
 .top .in{display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding:20px 24px;max-width:1500px;margin:0 auto}
 .top img{height:54px;width:auto;display:block}
 .top .sep{width:1px;align-self:stretch;background:rgba(255,255,255,.3)}
@@ -42,7 +50,7 @@ h1,h2,h3{margin:0;text-wrap:balance}
 .top .vuelta:hover{background:#fff;color:#0b1410}
 
 .marco{display:grid;grid-template-columns:376px minmax(0,1fr);gap:28px;max-width:1500px;margin:0 auto;padding:26px 24px 70px;align-items:start}
-@media (max-width:1040px){.marco{grid-template-columns:1fr}}
+@media (max-width:1040px){.marco{grid-template-columns:minmax(0,1fr);padding:20px 16px 56px}}
 
 .panel{background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:20px;position:sticky;top:20px}
 @media (max-width:1040px){.panel{position:static}}
@@ -73,7 +81,12 @@ button.b.sec:hover{background:var(--accent-sw)}
 .hoja{background:#fff;color:#111;width:21.59cm;min-height:27.94cm;padding:1.6cm 2cm 1.4cm;
   box-shadow:0 10px 40px rgba(0,0,0,.2);display:flex;flex-direction:column;position:relative;
   font-size:11.3pt;line-height:1.55}
-@media (max-width:1040px){.hoja{width:100%;min-height:auto;padding:1.2cm}}
+@media (max-width:1040px){
+  .lienzo{padding:14px;overflow-x:auto}
+  /* Si aun asi no cabe, que se deslice la hoja dentro de su marco y no la pagina. */
+  .hoja{width:100%;min-width:0;max-width:100%;min-height:auto;padding:1.1cm .9cm}
+}
+@media (max-width:430px){.campo.dos{grid-template-columns:1fr}}
 
 .sello{display:flex;align-items:center;gap:14px;padding-bottom:9px}
 .sello img{height:58px;width:auto;display:block}
