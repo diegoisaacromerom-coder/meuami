@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TITULO · Movimiento Estudiantil UAM-I</title>
+<link rel="icon" type="image/png" href="../assets/logo.png">
+<meta name="description" content="RESUMEN">
+<meta name="theme-color" content="#0f8f45">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* Plan: documento formal con portada. La hoja es la unidad de diseño porque
+   esto se lee en pantalla y se imprime como constancia; el estilo de impresión
+   no es un agregado, es la mitad del propósito. */
+:root{
+  --paper:#f4f3ef; --hoja:#ffffff; --ink:#15181f; --muted:#5a5f6b; --rule:#d7d9de;
+  --accent:#0f8f45; --accent-sw:#e7f4ec;
+  --pad:clamp(22px,5vw,72px);
+  --f:"Montserrat",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#14161b; --hoja:#1c1f26; --ink:#eceef2; --muted:#9ba2b0; --rule:#2e323b;
+    --accent:#34d27f; --accent-sw:#16241c; color-scheme:dark;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f);font-size:16px;line-height:1.72}
+a{color:var(--accent)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.barra{background:#0b1410;color:#fff;border-bottom:4px solid var(--accent)}
+.barra .w{max-width:900px;margin:0 auto;padding:13px 22px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.barra a{color:rgba(255,255,255,.82);text-decoration:none;font-size:.84rem;font-weight:700}
+.barra a:hover{color:#fff}
+.barra .der{margin-left:auto;display:flex;gap:16px}
+
+.hoja{max-width:900px;margin:30px auto 60px;background:var(--hoja);border:1px solid var(--rule);
+  padding:clamp(28px,5vw,64px) var(--pad) clamp(36px,5vw,64px)}
+
+.membrete{display:flex;align-items:center;gap:20px;flex-wrap:wrap;
+  padding-bottom:20px;border-bottom:2px solid var(--ink)}
+.membrete img.mov{width:150px;height:auto}
+.membrete .div{width:1px;align-self:stretch;min-height:46px;background:var(--rule)}
+.membrete img.org{width:190px;height:auto}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .membrete img.org{filter:invert(1) hue-rotate(180deg)}
+}
+
+.folio{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;
+  margin:16px 0 0;font-size:.8rem;color:var(--muted);
+  font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.folio b{color:var(--ink);font-weight:700}
+
+/* ---- Portada: la foto sale del margen de la hoja para ir de borde a borde ---- */
+.portada{position:relative;margin:26px calc(-1 * var(--pad)) 0}
+.portada .marco{position:relative;aspect-ratio:3/2;overflow:hidden;
+  background:#0b1410;isolation:isolate}
+.portada img{width:100%;height:100%;object-fit:cover;display:block;
+  filter:saturate(.88) brightness(.74) contrast(1.05)}
+/* El cielo viene quemado de blanco: el velo pesa arriba, no en el edificio. */
+.portada .velo{position:absolute;inset:0;pointer-events:none;
+  background:
+    linear-gradient(to top,rgba(6,13,9,.90) 0%,rgba(6,13,9,.46) 30%,rgba(6,13,9,.22) 58%,rgba(6,13,9,.52) 100%),
+    radial-gradient(130% 95% at 70% 14%,rgba(15,143,69,.10),transparent 60%)}
+/* La malla usa el mismo viewBox que la foto (1600x1066) y la foto conserva su
+   proporción 3:2, así que los puntos caen siempre sobre las mismas aristas. */
+.portada .malla{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;
+  filter:drop-shadow(0 0 3px rgba(0,0,0,.6))}
+.portada .malla line{stroke:rgba(255,255,255,.62);stroke-width:1.15;vector-effect:non-scaling-stroke}
+.portada .malla line.t{stroke:rgba(255,255,255,.3)}
+.portada .malla circle{fill:#fff}
+@media (prefers-reduced-motion: no-preference){
+  .portada .malla line{stroke-dasharray:var(--l);stroke-dashoffset:var(--l);
+    animation:traza .9s cubic-bezier(.4,0,.2,1) forwards;animation-delay:var(--t)}
+  .portada .malla circle{opacity:0;animation:brota .5s ease forwards;animation-delay:var(--t)}
+  @keyframes traza{to{stroke-dashoffset:0}}
+  @keyframes brota{to{opacity:1}}
+}
+
+.placa{position:absolute;left:0;bottom:0;z-index:2;max-width:min(680px,92%);
+  background:var(--hoja);border-top:4px solid var(--accent);
+  padding:22px clamp(20px,3.4vw,34px) 24px var(--pad);border-radius:0 18px 0 0}
+.placa .kick{margin:0 0 7px;font-size:.73rem;font-weight:800;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--accent)}
+.placa h1{margin:0;font-size:clamp(1.32rem,3.1vw,1.92rem);font-weight:900;
+  letter-spacing:-.02em;line-height:1.19;text-wrap:balance}
+
+.bajada{margin:26px 0 0;color:var(--muted);font-size:1.03rem;max-width:68ch}
+
+.cuerpo{margin-top:30px}
+.cuerpo > p{margin:0 0 16px;max-width:72ch}
+.cuerpo h2{margin:34px 0 12px;font-size:1.12rem;font-weight:800;letter-spacing:-.01em}
+.cuerpo h3{margin:24px 0 8px;font-size:1rem;font-weight:800}
+.cuerpo ol,.cuerpo ul{margin:0 0 16px;padding-left:24px;max-width:72ch}
+.cuerpo li{margin:7px 0}
+.cuerpo ol.acuerdos{list-style:none;padding:0;counter-reset:ac}
+.cuerpo ol.acuerdos > li{counter-increment:ac;display:grid;grid-template-columns:2.6em minmax(0,1fr);
+  gap:14px;margin:0 0 15px;padding:0 0 15px;border-bottom:1px solid var(--rule)}
+.cuerpo ol.acuerdos > li:last-child{border-bottom:0}
+.cuerpo ol.acuerdos > li::before{content:counter(ac,decimal-leading-zero);
+  font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums;line-height:1.72}
+.cuerpo ol.acuerdos b{display:block;margin-bottom:3px}
+
+.nota{background:var(--accent-sw);border-left:4px solid var(--accent);
+  padding:15px 18px;margin:24px 0;font-size:.95rem;max-width:76ch}
+.nota p{margin:0}
+.nota p + p{margin-top:9px}
+
+.firmas{margin-top:46px;padding-top:26px;border-top:1px solid var(--rule)}
+.firmas p{margin:0 0 4px}
+.firmas .org{font-weight:800}
+.firmas .sub{color:var(--muted);font-size:.93rem}
+
+.pie{margin-top:40px;padding-top:20px;border-top:1px solid var(--rule);
+  color:var(--muted);font-size:.82rem;line-height:1.65}
+.pie p{margin:0 0 7px;max-width:80ch}
+
+.acciones{max-width:900px;margin:0 auto 50px;padding:0 22px;display:flex;gap:12px;flex-wrap:wrap}
+.b{appearance:none;font:700 .88rem var(--f);border-radius:999px;padding:11px 22px;cursor:pointer;
+  text-decoration:none;border:1px solid var(--accent);background:transparent;color:var(--accent);
+  transition:background-color .2s ease,color .2s ease,transform .2s ease}
+.b:hover{background:var(--accent);color:#fff;transform:translateY(-2px)}
+
+@media (max-width:640px){
+  .portada .marco{aspect-ratio:4/3}
+  .placa{position:static;max-width:none;border-radius:0;border-top:0;
+    padding:20px var(--pad) 0}
+  .placa::before{content:"";display:block;width:54px;height:4px;background:var(--accent);margin-bottom:14px}
+  .bajada{margin-top:16px}
+}
+
+/* En papel la portada se calla y deja el texto: membrete, folio, título, cuerpo. */
+@media print{
+  @page{size:letter;margin:16mm 14mm}
+  body{background:#fff;color:#000;font-size:11.2pt;line-height:1.55}
+  .barra,.acciones{display:none !important}
+  .hoja{max-width:none;margin:0;border:0;padding:0;background:#fff}
+  .membrete img.org{filter:none !important}
+  .portada{margin:22px 0 0}
+  .portada .marco{display:none}
+  .placa{position:static;max-width:none;background:none;border:0;border-radius:0;padding:0}
+  .placa .kick{color:#000;font-size:8.5pt}
+  .placa h1{font-size:17pt}
+  .bajada{margin-top:10px;color:#000}
+  .cuerpo h2{font-size:12.5pt}
+  .nota{background:#fff;border-left:3px solid #000}
+  .firmas,.pie{break-inside:avoid}
+  .cuerpo ol.acuerdos > li{break-inside:avoid}
+  a{color:#000;text-decoration:none}
+}
+@media (prefers-reduced-motion: reduce){*{transition:none !important;animation:none !important}}
+</style>
+</head>
+<body>
+
+<nav class="barra">
+  <div class="w">
+    <a href="../">← meuami.org</a>
+    <span class="der">
+      <a href="../#pliego">Pliego petitorio</a>
+      <a href="../#documentos">Documentos</a>
+    </span>
+  </div>
+</nav>
+
+<article class="hoja">
+  <header class="membrete">
+    <img class="mov" src="../assets/logo.png" alt="Movimiento Estudiantil UAM-I">
+    <span class="div" aria-hidden="true"></span>
+    <img class="org" src="../assets/logo-cgo-oscuro.png" alt="Comisión de Gestión y Operación">
+  </header>
+
+  <div class="folio">
+    <span>Folio <b>COM-ME-IZT-2026-0000</b></span>
+    <span>Unidad Iztapalapa, Ciudad de México, a <b>FECHA</b></span>
+  </div>
+
+  <div class="portada">
+    <div class="marco">
+      <img src="../assets/portada-mesa.jpg" alt="Edificio de la Unidad Iztapalapa de la UAM">
+      <span class="velo" aria-hidden="true"></span>
+      <svg class="malla" viewBox="0 0 1600 1066" preserveAspectRatio="xMidYMid meet"
+           aria-hidden="true" focusable="false"></svg>
+    </div>
+    <div class="placa">
+      <p class="kick">Comunicado</p>
+      <h1>TITULO</h1>
+    </div>
+  </div>
+
+  <p class="bajada">BAJADA</p>
+
+  <div class="cuerpo">
+    <p>A la comunidad universitaria de la Unidad Iztapalapa:</p>
+    <!-- CUERPO -->
+  </div>
+
+  <div class="firmas">
+    <p class="org">Movimiento Estudiantil UAM-I</p>
+    <p class="sub">FIRMANTE</p>
+  </div>
+
+  <div class="pie">
+    <p>Documento de carácter informativo del Movimiento Estudiantil UAM-I. No constituye
+    documentación oficial de la Universidad Autónoma Metropolitana ni de sus órganos.</p>
+    <p>Publicado en <a href="https://meuami.org/">meuami.org</a></p>
+  </div>
+</article>
+
+<div class="acciones">
+  <a class="b" href="#" onclick="window.print();return false;">Imprimir o guardar en PDF</a>
+  <a class="b" href="../">Volver al sitio</a>
+</div>
+
+<script>
+/* La malla se dibuja desde una lista de vértices en coordenadas de la foto
+   (1600x1066). Escribirla aquí y no a mano en el SVG permite moverla sin
+   pelearse con cientos de atributos, y deja el HTML legible. */
+(function(){
+  var N = {
+    /* Vertices medidos sobre la foto: se segmento el edificio por color y se
+       leyo su contorno, en vez de colocarlos a ojo. */
+    cum:[680,122],
+    /* alero derecho */
+    d1:[752,165], d2:[822,212], d3:[892,258], d4:[962,312], d5:[1032,366], d6:[1092,432],
+    /* arista vertical derecha */
+    d7:[1072,540], d8:[1064,650], d9:[1058,762], d10:[1048,818],
+    /* alero izquierdo */
+    i1:[648,150], i2:[618,192], i3:[588,242], i4:[562,294], i5:[544,348],
+    /* arista vertical izquierda */
+    i6:[528,418], i7:[496,464], i8:[466,528], i9:[438,606], i10:[472,682], i11:[500,768], i12:[514,826],
+    /* base */
+    b1:[566,854], b2:[664,878], b3:[772,888], b4:[878,874], b5:[962,844],
+    /* puntos al aire */
+    a1:[318,150], a2:[560,38], a3:[848,44], a4:[1140,138], a5:[1316,330],
+    a6:[1346,612], a7:[1222,830], a8:[240,452], a9:[286,762]
+  };
+  var E = [
+    /* silueta completa, de la cumbre y de vuelta a ella */
+    ['cum','d1'],['d1','d2'],['d2','d3'],['d3','d4'],['d4','d5'],['d5','d6'],
+    ['d6','d7'],['d7','d8'],['d8','d9'],['d9','d10'],
+    ['d10','b5'],['b5','b4'],['b4','b3'],['b3','b2'],['b2','b1'],['b1','i12'],
+    ['i12','i11'],['i11','i10'],['i10','i9'],['i9','i8'],['i8','i7'],['i7','i6'],
+    ['i6','i5'],['i5','i4'],['i4','i3'],['i3','i2'],['i2','i1'],['i1','cum'],
+    /* pocos tirantes: la fachada se ve, no se tapa */
+    ['cum','i6'],['cum','d6'],['i10','b3'],['d8','b3'],
+    /* al aire */
+    ['a2','cum'],['a3','cum'],['a3','d2'],['a4','d3'],['a4','d4'],['a5','d5'],['a5','d6'],
+    ['a6','d7'],['a6','d8'],['a7','d9'],['a7','b5'],
+    ['a1','i2'],['a1','i3'],['a8','i5'],['a8','i7'],['a9','i9'],['a9','i11'],['a9','b1'],
+    /* cadena tenue que cierra el anillo exterior */
+    ['a1','a2'],['a2','a3'],['a3','a4'],['a4','a5'],['a5','a6'],['a6','a7'],
+    ['a1','a8'],['a8','a9']
+  ];
+  /* mas tenues: las que solo acompanan */
+  var TENUES = {'a1-a2':1,'a2-a3':1,'a3-a4':1,'a4-a5':1,'a5-a6':1,'a6-a7':1,
+                'a1-a8':1,'a8-a9':1};
+
+  var svg = document.querySelector('.malla');
+  if(!svg) return;
+  var NS = 'http://www.w3.org/2000/svg';
+  var frag = document.createDocumentFragment();
+
+  E.forEach(function(par, i){
+    var a = N[par[0]], b = N[par[1]];
+    if(!a || !b) return;
+    var l = document.createElementNS(NS,'line');
+    l.setAttribute('x1',a[0]); l.setAttribute('y1',a[1]);
+    l.setAttribute('x2',b[0]); l.setAttribute('y2',b[1]);
+    if(TENUES[par[0]+'-'+par[1]]) l.setAttribute('class','t');
+    var largo = Math.hypot(b[0]-a[0], b[1]-a[1]);
+    l.style.setProperty('--l', largo.toFixed(0));
+    l.style.setProperty('--t', (0.15 + i * 0.016).toFixed(3) + 's');
+    frag.appendChild(l);
+  });
+
+  Object.keys(N).forEach(function(k, i){
+    var p = N[k], aire = k.charAt(0) === 'a';
+    var retardo = (0.5 + i * 0.012).toFixed(3) + 's';
+    var halo = document.createElementNS(NS,'circle');
+    halo.setAttribute('cx',p[0]); halo.setAttribute('cy',p[1]);
+    halo.setAttribute('r', aire ? 5 : 6);
+    halo.setAttribute('fill','rgba(255,255,255,.16)');
+    halo.style.setProperty('--t', retardo);
+    frag.appendChild(halo);
+    var c = document.createElementNS(NS,'circle');
+    c.setAttribute('cx',p[0]); c.setAttribute('cy',p[1]);
+    c.setAttribute('r', aire ? 2.1 : 2.8);
+    c.style.setProperty('--t', retardo);
+    frag.appendChild(c);
+  });
+
+  svg.appendChild(frag);
+})();
+</script>
+
+</body>
+</html>
