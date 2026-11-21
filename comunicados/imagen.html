@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Comunicado en imagen · Movimiento Estudiantil UAM-I</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* Generador del comunicado en imagen. Se abre en el navegador y se captura
+   el recuadro, o se exporta con las pruebas. Todo el texto esta junto al
+   final del archivo, en un solo bloque, para cambiarlo sin tocar el diseno. */
+:root{
+  --verde:#12a850; --verde-claro:#34d27f;
+  --azul:#1668b8; --azul-hondo:#0b2c52; --ambar:#e0a05a;
+  --tinta:#15181f; --gris:#5a6270;
+  --f:"Montserrat",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#1a1d22;display:flex;flex-direction:column;align-items:center;
+  gap:22px;padding:30px;font-family:var(--f)}
+
+/* El lienzo mide exactamente lo que va a medir el archivo final. */
+.lienzo{position:relative;width:1920px;height:1080px;overflow:hidden;
+  background:#060d16;flex:none;transform-origin:top center}
+
+.lienzo .foto{position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;object-position:34% 48%}
+.lienzo .velo{position:absolute;inset:0;
+  background:
+    linear-gradient(100deg,rgba(4,10,20,.74) 0%,rgba(4,10,20,.30) 38%,rgba(4,10,20,0) 62%),
+    linear-gradient(0deg,rgba(4,10,20,.58) 0%,rgba(4,10,20,0) 42%)}
+
+/* Franja de cinco colores, la misma del sitio. */
+.cinta{position:absolute;top:0;left:0;right:0;height:10px;display:flex}
+.cinta i{flex:1}
+.cinta i:nth-child(1){background:var(--verde)}
+.cinta i:nth-child(2){background:#13948f}
+.cinta i:nth-child(3){background:var(--azul)}
+.cinta i:nth-child(4){background:var(--azul-hondo)}
+.cinta i:nth-child(5){background:var(--ambar)}
+
+.marca{position:absolute;top:56px;left:88px;display:flex;align-items:center;gap:26px}
+.marca img.mov{width:232px;height:auto;
+  filter:drop-shadow(0 0 3px rgba(255,255,255,.4)) drop-shadow(0 10px 26px rgba(0,0,0,.6))}
+.marca .sep{width:2px;height:60px;background:rgba(255,255,255,.3)}
+.marca img.cgo{width:206px;height:auto;filter:drop-shadow(0 8px 22px rgba(0,0,0,.6))}
+
+.sitio{position:absolute;right:76px;bottom:62px;color:rgba(255,255,255,.88);
+  font-size:25px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  text-shadow:0 2px 14px rgba(0,0,0,.8)}
+
+/* La tarjeta: el recurso que usa la Universidad en sus comunicados. */
+.tarjeta{position:absolute;left:88px;bottom:78px;width:1030px;
+  background:linear-gradient(158deg,#ffffff 0%,#f4f6f8 100%);
+  border-radius:30px;padding:52px 60px 56px;
+  box-shadow:0 40px 90px -30px rgba(0,0,0,.75)}
+.tarjeta::before{content:"";position:absolute;top:0;left:60px;right:60px;height:6px;
+  border-radius:0 0 999px 999px;
+  background:linear-gradient(90deg,var(--verde),#13948f 42%,var(--azul) 78%,var(--ambar))}
+
+.kick{font-size:23px;font-weight:800;letter-spacing:.17em;text-transform:uppercase;
+  color:var(--verde);margin-bottom:22px}
+.titular{font-size:52px;line-height:1.18;letter-spacing:-.018em;color:var(--tinta);font-weight:300}
+.titular b{font-weight:800}
+.titular .v{color:var(--verde);font-weight:900}
+.titular .a{color:var(--azul);font-weight:800}
+.nb{white-space:nowrap}
+
+.datos{display:grid;grid-template-columns:1fr 1fr;gap:24px 46px;margin-top:36px;
+  padding-top:30px;border-top:2px solid #e2e6ea}
+.datos > div{display:flex;flex-direction:column;gap:4px}
+.datos dt{font-size:18px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--azul)}
+.datos dd{font-size:26px;font-weight:600;color:var(--tinta)}
+
+.pie-nota{margin-top:30px;font-size:20px;line-height:1.5;color:var(--gris);font-weight:500}
+
+.aviso{color:#9aa3b2;font-size:14px;max-width:1000px;text-align:center;line-height:1.6}
+.aviso b{color:#e6e9ee}
+/* ---- Formato vertical (1080x1350) ---- */
+body.vertical .lienzo{width:1080px;height:1350px}
+body.vertical .foto{object-position:46% 36%}
+body.vertical .velo{background:
+  linear-gradient(0deg,rgba(4,10,20,.80) 0%,rgba(4,10,20,.26) 38%,rgba(4,10,20,0) 62%),
+  linear-gradient(180deg,rgba(4,10,20,.52) 0%,rgba(4,10,20,0) 26%)}
+body.vertical .marca{top:52px;left:58px;gap:20px}
+body.vertical .marca img.mov{width:206px}
+body.vertical .marca .sep{height:52px}
+body.vertical .marca img.cgo{width:184px}
+body.vertical .tarjeta{left:48px;right:48px;bottom:48px;width:auto;
+  padding:44px 46px 48px;border-radius:26px}
+body.vertical .tarjeta::before{left:46px;right:46px}
+body.vertical .kick{font-size:21px;margin-bottom:18px}
+body.vertical .titular{font-size:50px}
+body.vertical .datos{grid-template-columns:1fr 1fr;gap:20px 30px;margin-top:30px;padding-top:26px}
+body.vertical .datos dd{font-size:24px}
+body.vertical .pie-nota{margin-top:24px;font-size:19px}
+body.vertical .sitio{right:58px;bottom:auto;top:62px;font-size:22px}
+
+@media (max-width:2000px){.lienzo{transform:scale(.62)}
+  body{height:auto}.envoltura{height:670px}}
+</style>
+</head>
+<body>
+
+<div class="envoltura">
+<div class="lienzo" id="lienzo">
+
+  <img class="foto" src="../assets/portada-mesa.jpg" alt="">
+  <div class="velo"></div>
+  <div class="cinta"><i></i><i></i><i></i><i></i><i></i></div>
+
+  <div class="marca">
+    <img class="mov" src="../assets/logo.png" alt="Movimiento Estudiantil UAM-I">
+    <span class="sep"></span>
+    <img class="cgo" src="../assets/logo-cgo-texto-blanco.png" alt="Comisión de Gestión y Operación">
+  </div>
+
+  <div class="sitio">meuami.org</div>
+
+  <!-- ====================== TEXTO DEL COMUNICADO ======================
+       Esto es lo unico que hay que cambiar para hacer otro.
+       .v = verde   .a = azul   <b> = negritas
+  ==================================================================== -->
+  <div class="tarjeta">
+    <p class="kick">Comunicado · Movimiento Estudiantil UAM-I</p>
+
+    <p class="titular">
+      El <span class="v">Movimiento Estudiantil <span class="nb">UAM-I</span></span> informa
+      a la comunidad universitaria sobre la <b>primera mesa de diálogo</b> con
+      las autoridades
+    </p>
+
+    <div class="datos">
+      <div><dt>Fecha</dt><dd>Lunes 23 de noviembre</dd></div>
+      <div><dt>Sede</dt><dd>Sala Quetzalcalli, puerta 3</dd></div>
+      <div><dt>Hora</dt><dd>10:00 h, con cita a las 9:30</dd></div>
+      <div><dt>Acceso</dt><dd>Con credencial <span class="nb">UAM-I</span></dd></div>
+    </div>
+
+    <p class="pie-nota">
+      Cupo limitado. Transmisión en vivo por Facebook y YouTube
+      en @UAMIztapalapaOficial.
+    </p>
+  </div>
+  <!-- ==================== FIN DEL TEXTO ==================== -->
+
+</div>
+</div>
+
+<p class="aviso">Captura el recuadro de arriba para obtener el archivo, o ábrelo a
+tamaño real. Mide <b>1920 × 1080</b>.</p>
+
+</body>
+</html>
