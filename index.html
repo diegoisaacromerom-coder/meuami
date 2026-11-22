@@ -322,42 +322,75 @@ main > section > h2::after,.fuentes-sec h2::after{content:"";display:block;
   box-shadow:0 10px 22px -10px color-mix(in srgb,var(--azul) 80%,transparent)}
 .dcard .baja span{font-weight:400;opacity:.75;font-size:.78rem}
 
-/* Comunicado destacado: lo segundo que se ve, antes que cualquier seccion. */
-.destacado{position:relative;padding:34px 0 10px;
+/* Comunicado destacado: lo segundo que se ve, antes que cualquier seccion.
+   La imagen manda; el texto de abajo esta para quien no puede verla y para
+   quien llega con prisa. */
+.destacado{position:relative;padding:36px 0 14px;
   background:
     radial-gradient(60% 120% at 12% 0%, color-mix(in srgb,var(--izt) 17%,transparent), transparent 64%),
     radial-gradient(56% 110% at 92% 10%, color-mix(in srgb,var(--azul) 18%,transparent), transparent 62%)}
 .destacado[hidden]{display:none}
-.dhoja{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:30px;align-items:center;
-  background:var(--barra) left/6px 100% no-repeat,var(--card);
-  border:1px solid var(--rule);border-radius:18px;box-shadow:var(--sombra-alta);
-  padding:30px 32px 32px 38px}
-.dtexto{min-width:0}
+.danuncio{background:var(--card);border:1px solid var(--rule);border-radius:18px;
+  box-shadow:var(--sombra-alta);overflow:hidden}
+.dimg{display:block;position:relative;line-height:0;background:#060d16}
+.dimg img{display:block;width:100%;height:auto}
+.dimg::after{content:"";position:absolute;inset:0;background:var(--izt);opacity:0;
+  transition:opacity .25s ease}
+.dimg:hover::after{opacity:.07}
+.dpie{padding:22px 26px 26px;border-top:1px solid var(--rule);
+  background:var(--barra) left/5px 100% no-repeat,var(--card)}
 .dkick{font-family:var(--mono);font-weight:700;font-size:.76rem;text-transform:uppercase;
-  letter-spacing:.13em;margin:0 0 10px;
+  letter-spacing:.14em;margin:0 0 9px;width:max-content;
   background:linear-gradient(96deg,var(--izt),var(--azul));
-  -webkit-background-clip:text;background-clip:text;color:transparent;width:max-content}
-.dhoja h2{margin:0;font-size:clamp(1.5rem,3.4vw,2.1rem);line-height:1.1;
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.danuncio h2{margin:0;font-size:clamp(1.3rem,2.9vw,1.8rem);line-height:1.17;
   text-transform:none;letter-spacing:-.02em}
-.dhoja h2::before,.dhoja h2::after{content:none}
-.dbaja{margin:13px 0 0;color:var(--muted);font-size:1rem;max-width:62ch}
-.dbotones{display:flex;gap:11px;flex-wrap:wrap;margin-top:22px}
-.dprin,.dsec{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);
-  font-weight:700;font-size:.88rem;text-decoration:none;border-radius:999px;padding:11px 22px;
-  transition:transform .2s ease,box-shadow .2s ease,background .2s ease,color .2s ease}
-.dprin{color:#fff;border:1px solid transparent;
-  background:linear-gradient(103deg,var(--izt),var(--azul))}
+.danuncio h2::before,.danuncio h2::after{content:none}
+.dbaja{margin:11px 0 0;color:var(--muted);font-size:.98rem;max-width:72ch}
+.dprin{display:inline-flex;align-items:center;gap:9px;margin-top:19px;
+  font-family:var(--mono);font-weight:700;font-size:.88rem;text-decoration:none;
+  color:#fff;border:1px solid transparent;border-radius:999px;padding:11px 22px;
+  background:linear-gradient(103deg,var(--izt),var(--azul));
+  transition:transform .2s ease,box-shadow .2s ease}
 .dprin:hover{transform:translateY(-2px);
   box-shadow:0 12px 26px -12px color-mix(in srgb,var(--azul) 85%,transparent)}
 .dprin span{transition:transform .2s ease}
 .dprin:hover span{transform:translateX(4px)}
-.dsec{border:1px solid var(--rule);color:var(--muted)}
-.dsec:hover{color:var(--ink);border-color:var(--ink);transform:translateY(-2px)}
-.dimg{margin:0;border-radius:12px;overflow:hidden;box-shadow:var(--sombra)}
-.dimg img{display:block;width:100%;height:auto}
-@media (max-width:860px){
-  .dhoja{grid-template-columns:minmax(0,1fr);gap:22px;padding:24px 22px 26px 28px}
-  .dimg{order:-1}
+@media (max-width:620px){.dpie{padding:19px 20px 22px}}
+
+/* La entrada cuelga del mismo sistema de aparicion que el resto del sitio
+   (js-reveal / rv / vista), que ya trae la red de seguridad: sin JS, sin
+   IntersectionObserver, al imprimir o a los seis segundos, el bloque se ve
+   igual. Una animacion no puede ser la razon de que un anuncio no aparezca. */
+html.js-reveal .danuncio.rv{transform:translateY(26px) scale(.985)}
+html.js-reveal .danuncio.rv.vista{opacity:1;transform:none;
+  transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}
+html.js-reveal .danuncio.rv .dimg img{transform:scale(1.04)}
+html.js-reveal .danuncio.rv.vista .dimg img{transform:none;
+  transition:transform 1.15s cubic-bezier(.16,1,.3,1)}
+html.js-reveal .danuncio.rv .dpie > *{opacity:0;transform:translateY(10px)}
+html.js-reveal .danuncio.rv.vista .dpie > *{opacity:1;transform:none;
+  transition:opacity .55s ease,transform .55s cubic-bezier(.16,1,.3,1)}
+html.js-reveal .danuncio.rv.vista .dpie > *:nth-child(1){transition-delay:.22s}
+html.js-reveal .danuncio.rv.vista .dpie > *:nth-child(2){transition-delay:.30s}
+html.js-reveal .danuncio.rv.vista .dpie > *:nth-child(3){transition-delay:.38s}
+html.js-reveal .danuncio.rv.vista .dpie > *:nth-child(4){transition-delay:.46s}
+
+/* Al imprimir no puede haber ninguna animacion en vuelo: el papel se tira
+   una sola vez y un elemento a medio aparecer sale desvanecido. El aviso de
+   beforeprint ya existia, pero depende de JS y de llegar a tiempo; esto no. */
+@media print{
+  html.js-reveal .rv,
+  html.js-reveal .danuncio.rv,
+  html.js-reveal .danuncio.rv .dimg img,
+  html.js-reveal .danuncio.rv .dpie > *{
+    opacity:1 !important;transform:none !important;transition:none !important}
+}
+
+@media (prefers-reduced-motion: reduce){
+  html.js-reveal .danuncio.rv,
+  html.js-reveal .danuncio.rv .dimg img,
+  html.js-reveal .danuncio.rv .dpie > *{opacity:1;transform:none}
 }
 
 /* Documentos: en la portada va solo el indice; el archivo vive aparte. */
@@ -545,28 +578,29 @@ html.js-reveal .rv.vista{opacity:1;transform:none;
 
 <!-- ============ COMUNICADO DESTACADO ============
      Lo segundo que se ve al abrir la pagina, despues de la portada.
-     Para anunciar uno: quita el atributo hidden de la <section> y cambia
-     el texto de aqui abajo. La imagen se genera con comunicados/imagen.html
-     y se guarda como assets/comunicado-destacado.jpg.
-     Sin comunicado se queda oculto y la pagina
-     sigue igual, sin huecos.
+     Para anunciar otro: cambia la imagen, el titulo y la bajada. La
+     imagen se genera con comunicados/imagen.html y se guarda como
+     assets/comunicado-destacado.jpg.
+     Para quitarlo, agrega el atributo hidden a la <section>.
 =============================================== -->
-<section class="destacado" id="destacado" aria-labelledby="dest-tit" hidden>
+<section class="destacado" id="destacado" aria-labelledby="dest-tit">
   <div class="wrap">
-    <article class="dhoja">
-      <div class="dtexto">
-        <p class="dkick">Comunicado · <time datetime="2026-11-23">23 de noviembre de 2026</time></p>
-        <h2 id="dest-tit">TITULO DEL COMUNICADO</h2>
-        <p class="dbaja">BAJADA: una o dos frases que digan de que se trata, para que
-        quien llegue entienda sin tener que abrirlo.</p>
-        <div class="dbotones">
-          <a class="dprin" href="comunicados/plantilla.html">Leer el comunicado <span aria-hidden="true">→</span></a>
-          <a class="dsec" href="comunicados/imagen.html">Ver la imagen</a>
-        </div>
+    <article class="danuncio">
+      <a class="dimg" href="/assets/comunicado-destacado.jpg">
+        <img src="/assets/comunicado-destacado.jpg" width="1600" height="900"
+             alt="Comunicado del Movimiento Estudiantil UAM-I: informa a la comunidad
+                  universitaria sobre la primera mesa de dialogo con las autoridades.
+                  Lunes 23 de noviembre, Sala Quetzalcalli puerta 3, 10:00 horas con
+                  cita a las 9:30, acceso con credencial UAM-I.">
+      </a>
+      <div class="dpie">
+        <p class="dkick">Comunicado</p>
+        <h2 id="dest-tit">Primera mesa de diálogo con las autoridades de la Unidad</h2>
+        <p class="dbaja">Lunes <time datetime="2026-11-23">23 de noviembre</time> a las 10:00
+        horas en la Sala Quetzalcalli, con cita a las 9:30. Acceso por la puerta 3 con
+        credencial UAM-I y cupo limitado; habrá transmisión en vivo.</p>
+        <a class="dprin" href="/assets/comunicado-destacado.jpg">Ver el comunicado <span aria-hidden="true">→</span></a>
       </div>
-      <figure class="dimg">
-        <img src="assets/comunicado-destacado.jpg" alt="Comunicado del Movimiento Estudiantil UAM-I" loading="lazy">
-      </figure>
     </article>
   </div>
 </section>
@@ -995,7 +1029,7 @@ const src = ids => ' <span class="src">[' + ids.map(i => '<a href="#s'+i+'">'+i+
 // Fecha de revisión del sitio. Se cambia aquí y en ningún otro lado: antes
 // estaba escrita a mano en el encabezado y en el pie, y las dos dejaron de
 // coincidir sin que nadie lo notara.
-const REVISADO = "2026-11-21";
+const REVISADO = "2026-11-22";
 (function(){
   const p = REVISADO.split("-");
   const texto = new Date(+p[0], +p[1] - 1, +p[2])
@@ -1112,7 +1146,7 @@ render();
   const menos = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (menos || !("IntersectionObserver" in window)) return;
   document.documentElement.classList.add("js-reveal");
-  const grupos = [".estado", ".next > div", ".doc", ".eje",
+  const grupos = [".danuncio", ".estado", ".next > div", ".doc", ".eje",
                   ".callout", ".tlfoto", ".tl li", ".coms .com", ".flist li"];
   const io = new IntersectionObserver(ents => {
     ents.forEach(e => {
