@@ -36,7 +36,7 @@
   --rule:#d6d4cc;
   --card:#ffffff;
   --accent:#12a850;
-  --izt:#12a850; --gen:#141414;
+  --izt:#12a850; --gen:#1668b8;
   /* mismos colores en RGB, para las difuminaciones sobre foto (iguales en ambos temas) */
   --izt-rgb:18,168,80;
   /* Azul y ambar leidos de la foto nocturna del edificio: el cielo y la
@@ -54,7 +54,7 @@
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --paper:#151514; --ink:#efeee9; --muted:#a8a69f; --rule:#34332f; --card:#1e1e1c;
-    --accent:#34d27f; --izt:#34d27f; --gen:#efeee9;
+    --accent:#34d27f; --izt:#34d27f; --gen:#4aa3ea;
     --azul:#4aa3ea; --azul-hondo:#081d33; --ambar:#efc083;
     --sombra:0 1px 2px rgba(0,0,0,.4),0 10px 26px -14px rgba(0,0,0,.7);
     --sombra-alta:0 2px 4px rgba(0,0,0,.45),0 22px 46px -18px rgba(0,0,0,.8);
@@ -63,7 +63,7 @@
 }
 :root[data-theme="dark"]{
   --paper:#151514; --ink:#efeee9; --muted:#a8a69f; --rule:#34332f; --card:#1e1e1c;
-  --accent:#34d27f; --izt:#34d27f; --gen:#efeee9;
+  --accent:#34d27f; --izt:#34d27f; --gen:#4aa3ea;
   --azul:#4aa3ea; --azul-hondo:#081d33; --ambar:#efc083;
   --sombra:0 1px 2px rgba(0,0,0,.4),0 10px 26px -14px rgba(0,0,0,.7);
   --sombra-alta:0 2px 4px rgba(0,0,0,.45),0 22px 46px -18px rgba(0,0,0,.8);
@@ -323,6 +323,22 @@ main > section > h2::after,.fuentes-sec h2::after{content:"";display:block;
   border-color:transparent;color:#fff;transform:translateY(-2px);
   box-shadow:0 10px 22px -10px color-mix(in srgb,var(--azul) 80%,transparent)}
 .dcard .baja span{font-weight:400;opacity:.75;font-size:.78rem}
+
+/* Filtros por unidad. Hacen doble trabajo: filtran y sirven de leyenda,
+   porque cada uno lleva el color con el que se marcan sus renglones. */
+.ufil{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 20px}
+.ufil button{appearance:none;display:inline-flex;align-items:center;gap:8px;cursor:pointer;
+  font:700 .8rem var(--mono);letter-spacing:.03em;
+  border:1px solid var(--rule);background:var(--card);color:var(--muted);
+  border-radius:999px;padding:7px 15px;
+  transition:color .2s ease,border-color .2s ease,transform .2s ease}
+.ufil button:hover{transform:translateY(-2px);color:var(--ink)}
+.ufil button[aria-pressed="true"]{color:var(--ink);border-color:var(--punto,var(--accent));
+  background:color-mix(in srgb,var(--punto,var(--accent)) 10%,var(--card))}
+.ufil .bolita{width:9px;height:9px;border-radius:50%;background:var(--punto,var(--accent));flex:none}
+.ufil button[data-u="todo"] .bolita{background:linear-gradient(135deg,var(--izt),var(--gen))}
+.ufil-vacio{color:var(--muted);font-size:.93rem;margin:8px 0 0}
+@media (max-width:620px){.ufil button{font-size:.74rem;padding:6px 12px}}
 
 /* Comunicado destacado: lo segundo que se ve, antes que cualquier seccion.
    La imagen manda; el texto de abajo esta para quien no puede verla y para
@@ -935,7 +951,9 @@ html.js-reveal .rv.vista{opacity:1;transform:none;
     <p class="lede">De los primeros reclamos en la Unidad Iztapalapa a la fecha. Los antecedentes de octubre provienen de la Sección I del pliego petitorio; el resto, de notas de prensa y comunicados. Los puntos sin relleno corresponden a fechas próximas.</p>
     <div class="tlgrid">
       <div>
+        <div class="ufil" data-fil="cronologia" aria-label="Filtrar la cronología por unidad" role="group"></div>
         <ol class="tl" id="tl"></ol>
+        <p class="ufil-vacio" hidden>No hay renglones de esa unidad.</p>
       </div>
       <figure class="tlfoto">
         <img src="assets/izt-plaza.jpg" alt="Plaza central de la UAM Iztapalapa" loading="lazy" width="800" height="533">
@@ -946,7 +964,9 @@ html.js-reveal .rv.vista{opacity:1;transform:none;
   <section id="comunicados">
     <h2>Comunicados</h2>
     <p class="lede">Resúmenes de los comunicados institucionales y de los acuerdos de asamblea que se han hecho públicos. El texto íntegro puede consultarse en la fuente correspondiente.</p>
+    <div class="ufil" data-fil="comunicados" aria-label="Filtrar los comunicados por unidad" role="group"></div>
     <div class="coms" id="coms"></div>
+    <p class="ufil-vacio" hidden>No hay comunicados de esa unidad.</p>
   </section>
 
 </main>
@@ -1058,7 +1078,7 @@ const tl = [
   {i:"2026-11-02", d:"2 nov", u:"gen", t:"La Rectoría General anuncia el retiro de los seis vehículos eléctricos y suspende el Acuerdo 03/2026.", s:[3,4]},
   {i:"2026-11-05", d:"5 nov", u:"gen", t:"El rector general reconoce deficiencias en sanitarios, abasto, comedores e instalaciones deportivas.", s:[3,4]},
   {i:"2026-11-11", d:"11 nov", u:"gen", t:"La Universidad informa que el paro no implica la cancelación del trimestre ni la suspensión de las becas.", s:[7]},
-  {i:"2026-11-16", d:"16 nov", u:"izt", t:"Las autoridades de la Unidad y la División de CSH firman las cartas compromiso de no represalias. La Secretaría de Unidad convoca las mesas de diálogo para el 23 de noviembre.", s:[10,11,12]},
+  {i:"2026-11-16", d:"16 nov", u:"izt", t:"Las autoridades de la Unidad y las tres divisiones académicas firman las cartas compromiso de no represalias. La Secretaría de Unidad convoca las mesas de diálogo para el 23 de noviembre.", s:[10,11,15,16,12]},
   {i:"2026-11-18", d:"18 nov", u:"izt", t:"La Secretaría de Unidad requiere acceso a la Sala del Consejo Divisional de CSH para retirar la fotografía señalada en el punto 4.2.c del pliego.", s:[13]},
   {i:"2026-11-23", d:"23 nov", u:"izt", t:"Primera mesa de diálogo en la Sala Quetzalcalli, con ingreso por la puerta 3. Inicio a las 10:00 horas, cita a las 9:30. Entrada con credencial UAM-I y cupo limitado; se transmite por Facebook y YouTube.", s:[14,12], n:"Primera mesa de diálogo en la Sala Quetzalcalli, con ingreso por la puerta 3. Inicio a las 10:00 horas, con cita a las 9:30. Entrada con credencial UAM-I y cupo limitado. Se transmite por Facebook y YouTube en <strong>@UAMIztapalapaOficial</strong>."},
   {i:"2026-12-04", d:"4 dic", u:"gen", t:"Fin de clases programado para el trimestre. El Colegio Académico determinará la situación del periodo.", s:[2], n:"Último día de clases programado para el trimestre. La Universidad ha señalado que el paro no cancela el periodo de manera automática: la determinación corresponde al Colegio Académico."}
@@ -1180,6 +1200,51 @@ function render(){
 })();
 
 render();
+
+/* Los filtros por unidad. El comentario de arriba del archivo los prometia
+   desde hace tiempo y los data-u ya estaban escritos, pero no habia con que
+   usarlos. Las dos copias comparten estado: tocar una mueve la otra, para que
+   nadie se quede mirando una lista filtrada sin saber por que. */
+(function(){
+  let activo = "todo";
+  const cajas = [...document.querySelectorAll(".ufil")];
+  if (!cajas.length) return;
+
+  function aplicar(){
+    cajas.forEach(c => c.querySelectorAll("button").forEach(b =>
+      b.setAttribute("aria-pressed", b.dataset.u === activo ? "true" : "false")));
+    [["#tl li", 0], ["#coms .com", 1]].forEach(([sel, i]) => {
+      let visibles = 0;
+      document.querySelectorAll(sel).forEach(el => {
+        const va = activo === "todo" || el.dataset.u === activo;
+        el.hidden = !va;
+        // Un elemento oculto no cruza el observador, asi que al volver a
+        // mostrarlo podria quedarse invisible esperando una animacion que
+        // nunca llega. Se da por aparecido y listo.
+        if (va) { el.classList.add("vista"); visibles++; }
+      });
+      const aviso = document.querySelectorAll(".ufil-vacio")[i];
+      if (aviso) aviso.hidden = visibles > 0;
+    });
+  }
+
+  cajas.forEach(caja => {
+    [["todo", "Todo"], ["izt", U.izt.n], ["gen", U.gen.n]].forEach(([u, texto]) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.dataset.u = u;
+      if (u !== "todo") b.style.setProperty("--punto", `var(--${u})`);
+      const d = document.createElement("span");
+      d.className = "bolita";
+      d.setAttribute("aria-hidden", "true");
+      b.appendChild(d);
+      b.appendChild(document.createTextNode(texto));
+      b.addEventListener("click", () => { activo = u; aplicar(); });
+      caja.appendChild(b);
+    });
+  });
+  aplicar();
+})();
 
 // Aparición al desplazar. Si no hay JS o se pide menos movimiento, todo se ve desde el inicio.
 (function(){
