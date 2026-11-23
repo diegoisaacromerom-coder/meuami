@@ -239,9 +239,9 @@ footer a{color:var(--accent)}
 
 <header class="top">
   <div class="wrap">
-    <img class="lg-com" src="../assets/logo-cgo.png" alt="Comisión de Gestión y Operación, Movimiento Estudiantil UAM-I">
+    <img class="lg-com" src="../assets/logo-cgo.png" alt="Comisión de Gestión y Operación, Movimiento Estudiantil UAM-I" width="540" height="277">
     <span class="sep" aria-hidden="true"></span>
-    <img class="lg-sub" src="../assets/logo-sub-texto-blanco.png" alt="Subcomisión de Inventariado y Auditoría Interna">
+    <img class="lg-sub" src="../assets/logo-sub-texto-blanco.png" alt="Subcomisión de Inventariado y Auditoría Interna" width="480" height="222">
     <span class="enlaces">
       <a class="vuelta" href="../catalogo/">Catálogo público</a>
       <a class="vuelta" href="https://meuami.org/">← meuami.org</a>
@@ -1278,11 +1278,11 @@ function pintarResumen(){
 function pintarEtiquetas(){
   const cont = document.getElementById("hojas");
   const sello = '<div class="esello">'+
-      '<img class="mov" src="../assets/logo.png" alt="">'+
+      '<img class="mov" src="../assets/logo.png" alt="" width="600" height="252">'+
       '<span class="d"></span>'+
-      '<img src="../assets/logo-cgo-oscuro.png" alt="">'+
+      '<img src="../assets/logo-cgo-oscuro.png" alt="" width="420" height="210">'+
       '<span class="d"></span>'+
-      '<img src="../assets/logo-sub-texto.png" alt="">'+
+      '<img src="../assets/logo-sub-texto.png" alt="" width="480" height="222">'+
     '</div><div class="ecint"><i></i></div>';
   cont.innerHTML = datos.registros.map(r =>
     '<div class="etiqueta'+(sel.has(r.folio)?'':' fuera')+'" data-f="'+esc(r.folio)+'">'+

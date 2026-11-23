@@ -97,7 +97,9 @@ h3{font-size:1.05rem;margin:0}
 .stripes span:nth-child(3){background:var(--azul)}
 .stripes span:nth-child(4){background:var(--azul-hondo)}
 .stripes span:nth-child(5){background:var(--ambar)}
-.hero{position:relative;isolation:isolate;color:#fff;background:#060d16;border-bottom:0}
+.hero{position:relative;isolation:isolate;color:#fff;background:#060d16;border-bottom:0;
+  --foto:url("assets/hero.jpg")}
+@media (max-width:760px){.hero{--foto:url("assets/hero-chico.jpg")}}
 .hero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:4px;
   background:linear-gradient(90deg,var(--izt),#13948f 42%,var(--azul) 76%,var(--ambar))}
 /* La foto ya es nocturna y azul: el velo pesa menos y deja ver el edificio. */
@@ -107,7 +109,7 @@ h3{font-size:1.05rem;margin:0}
     radial-gradient(86% 72% at 100% 2%, rgba(22,104,184,.46) 0%, rgba(22,104,184,0) 62%),
     linear-gradient(90deg, rgba(4,10,20,.86) 0%, rgba(4,10,20,.44) 58%, rgba(4,10,20,.10) 100%),
     linear-gradient(0deg, rgba(4,10,20,.84) 0%, rgba(4,10,20,.06) 58%),
-    url("assets/hero.jpg") center 46%/cover no-repeat;}
+    var(--foto) center 46%/cover no-repeat;}
 .hero-inner{padding:40px 20px 52px}
 /* panel de vidrio esmerilado sobre la foto */
 .hero-card{max-width:720px;padding:28px 32px 30px;border-radius:22px;
@@ -560,8 +562,8 @@ html.js-reveal .rv.vista{opacity:1;transform:none;
 <header class="hero" id="top">
   <div class="hero-inner wrap">
     <div class="brand">
-      <img class="lg-mov" src="assets/logo.png" alt="Movimiento Estudiantil UAM-I">
-      <img class="lg-cgo" src="assets/logo-cgo.png" alt="Comisión de Gestión y Operación, Movimiento Estudiantil UAM-I">
+      <img class="lg-mov" src="assets/logo.png" alt="Movimiento Estudiantil UAM-I" width="600" height="252">
+      <img class="lg-cgo" src="assets/logo-cgo.png" alt="Comisión de Gestión y Operación, Movimiento Estudiantil UAM-I" width="540" height="277">
     </div>
     <div class="hero-card">
       <p class="kicker">Unidad Iztapalapa<span id="revHero"></span></p>
@@ -587,7 +589,13 @@ html.js-reveal .rv.vista{opacity:1;transform:none;
   <div class="wrap">
     <article class="danuncio">
       <a class="dimg" href="/assets/comunicado-destacado.jpg">
-        <img src="/assets/comunicado-destacado.jpg" width="1600" height="900"
+        <!-- En teléfono la de 1600 px es cuatro veces más grande de lo que se
+             ve. El navegador escoge según la pantalla. -->
+        <img src="/assets/comunicado-destacado.jpg"
+             srcset="/assets/comunicado-destacado-chico.jpg 900w,
+                     /assets/comunicado-destacado.jpg 1600w"
+             sizes="(max-width: 760px) 100vw, min(1100px, 92vw)"
+             width="1600" height="900" loading="lazy" decoding="async"
              alt="Comunicado del Movimiento Estudiantil UAM-I: informa a la comunidad
                   universitaria sobre la primera mesa de dialogo con las autoridades.
                   Lunes 23 de noviembre, Sala Quetzalcalli puerta 3, 10:00 horas con
@@ -930,7 +938,7 @@ html.js-reveal .rv.vista{opacity:1;transform:none;
         <ol class="tl" id="tl"></ol>
       </div>
       <figure class="tlfoto">
-        <img src="assets/izt-plaza.jpg" alt="Plaza central de la UAM Iztapalapa" loading="lazy">
+        <img src="assets/izt-plaza.jpg" alt="Plaza central de la UAM Iztapalapa" loading="lazy" width="800" height="533">
       </figure>
     </div>
   </section>
@@ -981,8 +989,8 @@ html.js-reveal .rv.vista{opacity:1;transform:none;
 
     <div class="fmid">
       <div class="flogos">
-        <img class="lg-mov" src="assets/logo.png" alt="Movimiento Estudiantil UAM-I">
-        <img class="lg-cgo" src="assets/logo-cgo.png" alt="Comisión de Gestión y Operación, Movimiento Estudiantil UAM-I">
+        <img class="lg-mov" src="assets/logo.png" alt="Movimiento Estudiantil UAM-I" width="600" height="252">
+        <img class="lg-cgo" src="assets/logo-cgo.png" alt="Comisión de Gestión y Operación, Movimiento Estudiantil UAM-I" width="540" height="277">
       </div>
       <p class="fdesc">Seguimiento del paro en la Universidad Autónoma Metropolitana, elaborado desde la Unidad Iztapalapa por y para la comunidad estudiantil. Reúne información de carácter público y la remite a su fuente.</p>
       <div class="fsocial">
