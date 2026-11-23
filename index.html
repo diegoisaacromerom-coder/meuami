@@ -594,11 +594,11 @@ html.js-reveal .rv.vista{opacity:1;transform:none;
                   cita a las 9:30, acceso con credencial UAM-I.">
       </a>
       <div class="dpie">
-        <p class="dkick">Comunicado</p>
+        <p class="dkick">Comunicado · <time datetime="2026-11-23">23 de noviembre de 2026</time></p>
         <h2 id="dest-tit">Primera mesa de diálogo con las autoridades de la Unidad</h2>
-        <p class="dbaja">Lunes <time datetime="2026-11-23">23 de noviembre</time> a las 10:00
-        horas en la Sala Quetzalcalli, con cita a las 9:30. Acceso por la puerta 3 con
-        credencial UAM-I y cupo limitado; habrá transmisión en vivo.</p>
+        <p class="dbaja">Convocada para el lunes 23 de noviembre a las 10:00 horas en la
+        Sala Quetzalcalli, con acceso por la puerta 3 mediante credencial UAM-I y
+        transmisión por Facebook y YouTube.</p>
         <a class="dprin" href="/assets/comunicado-destacado.jpg">Ver el comunicado <span aria-hidden="true">→</span></a>
       </div>
     </article>
@@ -628,16 +628,7 @@ html.js-reveal .rv.vista{opacity:1;transform:none;
     <p class="lede">La asamblea de la Unidad Iztapalapa sostiene el paro desde el 20 de octubre. Se indica el último reporte disponible, con su fuente.</p>
     <div class="estado" id="estado-panel"></div>
 
-    <div class="next">
-      <div>
-        <div class="d">Lun 23 nov</div>
-        <p>Primera mesa de diálogo en la Sala Quetzalcalli, con ingreso por la puerta 3. Inicio a las 10:00 horas, con cita a las 9:30. Entrada con credencial UAM-I y cupo limitado. Se transmite por Facebook y YouTube en <strong>@UAMIztapalapaOficial</strong>. <span class="src">[<a href="#s14">14</a>]</span></p>
-      </div>
-      <div>
-        <div class="d">Vie 4 dic</div>
-        <p>Último día de clases programado para el trimestre. La Universidad ha señalado que el paro no cancela el periodo de manera automática: la determinación corresponde al Colegio Académico. <span class="src">[<a href="#s2">2</a>]</span></p>
-      </div>
-    </div>
+    <div class="next" id="agenda"></div>
 
     <div class="callout">
       <h3>Trimestre, becas y clases durante el paro</h3>
@@ -1047,22 +1038,22 @@ const unidad = {
 };
 
 const tl = [
-  {d:"1 oct", u:"izt", t:"La comunidad estudiantil de CSH entrega un pliego a la Secretaría de Unidad en el que pide una fecha concreta de reapertura de la biblioteca y la cafetería.", s:[9]},
-  {d:"9 oct", u:"izt", t:"Estudiantes de CBI y CBS entregan un pliego ante el Consejo Divisional de CBI, respaldado por más de 150 firmas, con un plazo de cinco días hábiles para recibir respuesta escrita.", s:[9]},
-  {d:"13 oct", u:"izt", t:"Asamblea estudiantil de las tres divisiones académicas.", s:[9]},
-  {d:"16 oct", u:"izt", t:"Reabre la cafetería. El pliego del 1 de octubre sigue sin respuesta formal.", s:[9]},
-  {d:"19 oct", u:"izt", t:"Mesa de diálogo con la Secretaría de Unidad, de unas cinco horas. Se acuerdan la difusión del dictamen de seguridad de la biblioteca, la apertura de todos los sanitarios con insumos, un reporte de reparaciones con cronograma y la revisión estructural del edificio T.", s:[9]},
-  {d:"20 oct", u:"izt", t:"Con la participación de 880 integrantes de la comunidad estudiantil, la asamblea determina el paro total indefinido y de efecto inmediato.", s:[9,4]},
-  {d:"23 oct", u:"gen", t:"La comunidad estudiantil presenta sus demandas ante la Rectoría General.", s:[1]},
-  {d:"29 oct", u:"gen", t:"Comunicado conjunto de las autoridades: manifiestan disposición al diálogo y reconocen el derecho de la comunidad estudiantil a organizarse.", s:[1]},
-  {d:"31 oct", u:"izt", t:"La Unidad Iztapalapa publica su respuesta institucional al pliego.", s:[1]},
-  {d:"2 nov", u:"gen", t:"La Rectoría General anuncia el retiro de los seis vehículos eléctricos y suspende el Acuerdo 03/2026.", s:[3,4]},
-  {d:"5 nov", u:"gen", t:"El rector general reconoce deficiencias en sanitarios, abasto, comedores e instalaciones deportivas.", s:[3,4]},
-  {d:"11 nov", u:"gen", t:"La Universidad informa que el paro no implica la cancelación del trimestre ni la suspensión de las becas.", s:[7]},
-  {d:"16 nov", u:"izt", t:"Las autoridades de la Unidad y la División de CSH firman las cartas compromiso de no represalias. La Secretaría de Unidad convoca las mesas de diálogo para el 23 de noviembre.", s:[10,11,12]},
-  {d:"18 nov", u:"izt", t:"La Secretaría de Unidad requiere acceso a la Sala del Consejo Divisional de CSH para retirar la fotografía señalada en el punto 4.2.c del pliego.", s:[13]},
-  {d:"23 nov", u:"izt", t:"Primera mesa de diálogo en la Sala Quetzalcalli, con ingreso por la puerta 3. Inicio a las 10:00 horas, cita a las 9:30. Entrada con credencial UAM-I y cupo limitado; se transmite por Facebook y YouTube.", s:[14,12], f:true},
-  {d:"4 dic", u:"gen", t:"Fin de clases programado para el trimestre. El Colegio Académico determinará la situación del periodo.", s:[2], f:true}
+  {i:"2026-10-01", d:"1 oct", u:"izt", t:"La comunidad estudiantil de CSH entrega un pliego a la Secretaría de Unidad en el que pide una fecha concreta de reapertura de la biblioteca y la cafetería.", s:[9]},
+  {i:"2026-10-09", d:"9 oct", u:"izt", t:"Estudiantes de CBI y CBS entregan un pliego ante el Consejo Divisional de CBI, respaldado por más de 150 firmas, con un plazo de cinco días hábiles para recibir respuesta escrita.", s:[9]},
+  {i:"2026-10-13", d:"13 oct", u:"izt", t:"Asamblea estudiantil de las tres divisiones académicas.", s:[9]},
+  {i:"2026-10-16", d:"16 oct", u:"izt", t:"Reabre la cafetería. El pliego del 1 de octubre sigue sin respuesta formal.", s:[9]},
+  {i:"2026-10-19", d:"19 oct", u:"izt", t:"Mesa de diálogo con la Secretaría de Unidad, de unas cinco horas. Se acuerdan la difusión del dictamen de seguridad de la biblioteca, la apertura de todos los sanitarios con insumos, un reporte de reparaciones con cronograma y la revisión estructural del edificio T.", s:[9]},
+  {i:"2026-10-20", d:"20 oct", u:"izt", t:"Con la participación de 880 integrantes de la comunidad estudiantil, la asamblea determina el paro total indefinido y de efecto inmediato.", s:[9,4]},
+  {i:"2026-10-23", d:"23 oct", u:"gen", t:"La comunidad estudiantil presenta sus demandas ante la Rectoría General.", s:[1]},
+  {i:"2026-10-29", d:"29 oct", u:"gen", t:"Comunicado conjunto de las autoridades: manifiestan disposición al diálogo y reconocen el derecho de la comunidad estudiantil a organizarse.", s:[1]},
+  {i:"2026-10-31", d:"31 oct", u:"izt", t:"La Unidad Iztapalapa publica su respuesta institucional al pliego.", s:[1]},
+  {i:"2026-11-02", d:"2 nov", u:"gen", t:"La Rectoría General anuncia el retiro de los seis vehículos eléctricos y suspende el Acuerdo 03/2026.", s:[3,4]},
+  {i:"2026-11-05", d:"5 nov", u:"gen", t:"El rector general reconoce deficiencias en sanitarios, abasto, comedores e instalaciones deportivas.", s:[3,4]},
+  {i:"2026-11-11", d:"11 nov", u:"gen", t:"La Universidad informa que el paro no implica la cancelación del trimestre ni la suspensión de las becas.", s:[7]},
+  {i:"2026-11-16", d:"16 nov", u:"izt", t:"Las autoridades de la Unidad y la División de CSH firman las cartas compromiso de no represalias. La Secretaría de Unidad convoca las mesas de diálogo para el 23 de noviembre.", s:[10,11,12]},
+  {i:"2026-11-18", d:"18 nov", u:"izt", t:"La Secretaría de Unidad requiere acceso a la Sala del Consejo Divisional de CSH para retirar la fotografía señalada en el punto 4.2.c del pliego.", s:[13]},
+  {i:"2026-11-23", d:"23 nov", u:"izt", t:"Primera mesa de diálogo en la Sala Quetzalcalli, con ingreso por la puerta 3. Inicio a las 10:00 horas, cita a las 9:30. Entrada con credencial UAM-I y cupo limitado; se transmite por Facebook y YouTube.", s:[14,12], n:"Primera mesa de diálogo en la Sala Quetzalcalli, con ingreso por la puerta 3. Inicio a las 10:00 horas, con cita a las 9:30. Entrada con credencial UAM-I y cupo limitado. Se transmite por Facebook y YouTube en <strong>@UAMIztapalapaOficial</strong>."},
+  {i:"2026-12-04", d:"4 dic", u:"gen", t:"Fin de clases programado para el trimestre. El Colegio Académico determinará la situación del periodo.", s:[2], n:"Último día de clases programado para el trimestre. La Universidad ha señalado que el paro no cancela el periodo de manera automática: la determinación corresponde al Colegio Académico."}
 ];
 
 const coms = [
@@ -1074,17 +1065,58 @@ const coms = [
   {d:"Vigente", u:"gen", who:"Universidad Autónoma Metropolitana", type:"Aviso en sitio oficial", t:"El paro no cancela automáticamente el trimestre; la determinación corresponde al Colegio Académico.", s:[2]}
 ];
 
+/* El sitio tiene que saber que dia es. Antes las fechas futuras se marcaban
+   a mano con f:true y quedaban viejas solas en cuanto pasaba el dia: el 23 de
+   noviembre siguio anunciandose como proximo despues de ocurrido. Ahora se
+   calcula contra la fecha real, de modo que la pagina se corrige sola aunque
+   nadie la toque. */
+const DIAS = ["dom","lun","mar","mié","jue","vie","sáb"];
+
+function soloFecha(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+
+function comoFecha(iso){
+  const p = String(iso || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  // Construida por partes: new Date("2026-11-23") se interpreta en UTC y en
+  // México se veria como el 22.
+  return p ? new Date(+p[1], +p[2] - 1, +p[3]) : null;
+}
+
+function cuando(x){
+  const f = comoFecha(x.i);
+  if (!f) return "pasado";
+  const hoy = soloFecha(new Date());
+  if (f.getTime() === hoy.getTime()) return "hoy";
+  return f > hoy ? "proximo" : "pasado";
+}
+
+function conDia(x){
+  const f = comoFecha(x.i);
+  return f ? DIAS[f.getDay()] + " " + x.d : x.d;
+}
+
 function render(){
   document.getElementById("estado-panel").innerHTML =
     `<span class="pill">${unidad.st}</span>
      <dl><div><dt>En paro desde</dt><dd>${unidad.start}</dd></div>
      <div><dt>Último reporte</dt><dd>${unidad.now}${src(unidad.s)}</dd></div></dl>`;
 
-  document.getElementById("tl").innerHTML = tl.map(x =>
-    `<li data-u="${x.u}" class="${x.f ? "future" : ""}" style="--c:var(--${x.u})">
-      <div class="when">${x.d}${x.f ? " · próximo" : ""} <span class="tag">${U[x.u].n}</span></div>
+  document.getElementById("tl").innerHTML = tl.map(x => {
+    const c = cuando(x);
+    const nota = c === "proximo" ? " · próximo" : (c === "hoy" ? " · hoy" : "");
+    return `<li data-u="${x.u}" class="${c !== "pasado" ? "future" : ""}" style="--c:var(--${x.u})">
+      <div class="when">${x.d}${nota} <span class="tag">${U[x.u].n}</span></div>
       <p>${x.t}${src(x.s)}</p>
-    </li>`).join("");
+    </li>`;
+  }).join("");
+
+  // La agenda sale de la misma lista: lo que no ha pasado, hasta tres.
+  const porVenir = tl.filter(x => cuando(x) !== "pasado").slice(0, 3);
+  document.getElementById("agenda").innerHTML = porVenir.length
+    ? porVenir.map(x =>
+        `<div><div class="d">${conDia(x)}${cuando(x) === "hoy" ? " · hoy" : ""}</div>
+         <p>${x.n || x.t}${src(x.s)}</p></div>`).join("")
+    : `<div><div class="d">Sin fechas confirmadas</div>
+       <p>No hay ninguna fecha pública pendiente en este momento. Las que se confirmen aparecerán aquí y en la cronología.</p></div>`;
 
   document.getElementById("coms").innerHTML = coms.map(x =>
     `<article class="com" data-u="${x.u}" style="--c:var(--${x.u})">
