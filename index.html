@@ -613,16 +613,16 @@ html.js-reveal .rv.vista{opacity:1;transform:none;
              sizes="(max-width: 760px) 100vw, min(1100px, 92vw)"
              width="1600" height="900" loading="lazy" decoding="async"
              alt="Comunicado del Movimiento Estudiantil UAM-I: informa a la comunidad
-                  universitaria sobre la primera mesa de dialogo con las autoridades.
-                  Lunes 23 de noviembre, Sala Quetzalcalli puerta 3, 10:00 horas con
+                  universitaria sobre la segunda mesa de dialogo con las autoridades.
+                  Jueves 26 de noviembre, Sala Quetzalcalli puerta 3, 10:00 horas con
                   cita a las 9:30, acceso con credencial UAM-I.">
       </a>
       <div class="dpie">
-        <p class="dkick">Comunicado · <time datetime="2026-11-23">23 de noviembre de 2026</time></p>
-        <h2 id="dest-tit">Primera mesa de diálogo con las autoridades de la Unidad</h2>
-        <p class="dbaja">Convocada para el lunes 23 de noviembre a las 10:00 horas en la
-        Sala Quetzalcalli, con acceso por la puerta 3 mediante credencial UAM-I y
-        transmisión por Facebook y YouTube.</p>
+        <p class="dkick">Comunicado · <time datetime="2026-11-24">24 de noviembre de 2026</time></p>
+        <h2 id="dest-tit">Segunda mesa de diálogo con las autoridades de la Unidad</h2>
+        <p class="dbaja">Jueves <time datetime="2026-11-26">26 de noviembre</time> a las 10:00
+        horas en la Sala Quetzalcalli, con cita a las 9:30 y acceso por la puerta 3 mediante
+        credencial UAM-I. La primera mesa se realizó el 23 de noviembre.</p>
         <a class="dprin" href="/assets/comunicado-destacado.jpg">Ver el comunicado <span aria-hidden="true">→</span></a>
       </div>
     </article>
@@ -992,6 +992,8 @@ html.js-reveal .rv.vista{opacity:1;transform:none;
       <li id="s14"><a href="https://izt.uam.mx/">Convocatoria oficial de la Unidad Iztapalapa a la 1ª Mesa de Diálogo, 23 de noviembre de 2026</a></li>
       <li id="s15"><a href="/assets/carta-no-represalias-cbi.pdf">Carta compromiso de no represalias de la División de Ciencias Básicas e Ingeniería</a></li>
       <li id="s16"><a href="/assets/carta-no-represalias-cbs.pdf">Carta compromiso de no represalias de la División de Ciencias Biológicas y de la Salud</a></li>
+      <li id="s17"><a href="https://www.instagram.com/uamiztapalapaoficial/" target="_blank" rel="noopener">Comunicado de la Unidad Iztapalapa sobre la Primera Mesa de Diálogo, 23 de noviembre de 2026</a></li>
+      <li id="s18"><a href="https://izt.uam.mx/" target="_blank" rel="noopener">Convocatoria oficial de la Unidad Iztapalapa a la 2ª Mesa de Diálogo, 26 de noviembre de 2026</a></li>
     </ol>
   </div>
 </section>
@@ -1048,7 +1050,7 @@ const src = ids => ' <span class="src">[' + ids.map(i => '<a href="#s'+i+'">'+i+
 // Fecha de revisión del sitio. Se cambia aquí y en ningún otro lado: antes
 // estaba escrita a mano en el encabezado y en el pie, y las dos dejaron de
 // coincidir sin que nadie lo notara.
-const REVISADO = "2026-11-22";
+const REVISADO = "2026-11-24";
 (function(){
   const p = REVISADO.split("-");
   const texto = new Date(+p[0], +p[1] - 1, +p[2])
@@ -1061,8 +1063,8 @@ const REVISADO = "2026-11-22";
 
 const unidad = {
   start:"20 de octubre", st:"Paro indefinido",
-  now:"Unidad donde inició el movimiento. Las autoridades firmaron el compromiso de no represalias y la Secretaría de Unidad convocó las mesas de diálogo para el 23 de noviembre.",
-  s:[10,12]
+  now:"Unidad donde inició el movimiento. Las autoridades y las tres divisiones firmaron el compromiso de no represalias. El 23 de noviembre se realizó la primera mesa de diálogo y la segunda quedó convocada para el 26.",
+  s:[10,17]
 };
 
 const tl = [
@@ -1080,7 +1082,8 @@ const tl = [
   {i:"2026-11-11", d:"11 nov", u:"gen", t:"La Universidad informa que el paro no implica la cancelación del trimestre ni la suspensión de las becas.", s:[7]},
   {i:"2026-11-16", d:"16 nov", u:"izt", t:"Las autoridades de la Unidad y las tres divisiones académicas firman las cartas compromiso de no represalias. La Secretaría de Unidad convoca las mesas de diálogo para el 23 de noviembre.", s:[10,11,15,16,12]},
   {i:"2026-11-18", d:"18 nov", u:"izt", t:"La Secretaría de Unidad requiere acceso a la Sala del Consejo Divisional de CSH para retirar la fotografía señalada en el punto 4.2.c del pliego.", s:[13]},
-  {i:"2026-11-23", d:"23 nov", u:"izt", t:"Primera mesa de diálogo en la Sala Quetzalcalli, con ingreso por la puerta 3. Inicio a las 10:00 horas, cita a las 9:30. Entrada con credencial UAM-I y cupo limitado; se transmite por Facebook y YouTube.", s:[14,12], n:"Primera mesa de diálogo en la Sala Quetzalcalli, con ingreso por la puerta 3. Inicio a las 10:00 horas, con cita a las 9:30. Entrada con credencial UAM-I y cupo limitado. Se transmite por Facebook y YouTube en <strong>@UAMIztapalapaOficial</strong>."},
+  {i:"2026-11-23", d:"23 nov", u:"izt", t:"Se realiza la primera mesa de diálogo, con la presencia del Rector General y de la Secretaria General de la UAM. Según el comunicado de la Unidad, se analizaron y definieron seis propuestas sobre el punto 2.1 del Eje 2 del pliego, el de agua, jabón y papel en los baños, y se acordó una segunda mesa.", s:[17]},
+  {i:"2026-11-26", d:"26 nov", u:"izt", t:"Segunda mesa de diálogo en la Sala Quetzalcalli, con ingreso por la puerta 3. Inicio a las 10:00 horas, cita a las 9:30. Entrada con credencial UAM-I y cupo limitado; se transmite por Facebook y YouTube.", s:[18,17], n:"Segunda mesa de diálogo en la Sala Quetzalcalli, con ingreso por la puerta 3. Inicio a las 10:00 horas, con cita a las 9:30. Entrada con credencial UAM-I y cupo limitado. Se transmite por Facebook y YouTube en <strong>@UAMIztapalapaOficial</strong>."},
   {i:"2026-12-04", d:"4 dic", u:"gen", t:"Fin de clases programado para el trimestre. El Colegio Académico determinará la situación del periodo.", s:[2], n:"Último día de clases programado para el trimestre. La Universidad ha señalado que el paro no cancela el periodo de manera automática: la determinación corresponde al Colegio Académico."}
 ];
 
@@ -1090,6 +1093,7 @@ const coms = [
   {d:"2 nov", u:"gen", who:"Rector General Gustavo Pacheco López", type:"Comunicado institucional", t:"Sobre los vehículos eléctricos: se venderá la flotilla, los recursos se destinarán a becas y se suspende el Acuerdo 03/2026 hasta su revisión.", s:[3,4]},
   {d:"5 nov", u:"gen", who:"Rector General Gustavo Pacheco López", type:"Boletín", t:"Reconoce deficiencias y llama al diálogo mediante asambleas, mesas de trabajo y órganos colegiados: “no se va a poder resolver todo en un solo momento”.", s:[2,4]},
   {d:"11 nov", u:"gen", who:"Universidad Autónoma Metropolitana", type:"Comunicado institucional", t:"El paro no implica la cancelación del trimestre ni la suspensión de las becas. No existe una fecha general de regreso a clases.", s:[7]},
+  {d:"23 nov", u:"izt", who:"Rectoría y Secretaría de la Unidad Iztapalapa", type:"Comunicado institucional", t:"Informan que se realizó la primera mesa de diálogo con el Movimiento Estudiantil UAM-I, con la presencia del Rector General y de la Secretaria General. Señalan que se analizaron y definieron seis propuestas sobre el punto 2.1 del Eje 2 del pliego y que se acordó una segunda mesa para el 26 de noviembre.", s:[17]},
   {d:"Vigente", u:"gen", who:"Universidad Autónoma Metropolitana", type:"Aviso en sitio oficial", t:"El paro no cancela automáticamente el trimestre; la determinación corresponde al Colegio Académico.", s:[2]}
 ];
 
