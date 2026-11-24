@@ -15,7 +15,7 @@
    que vive en el mismo dominio, para no pedirlas dos veces. */
 :root{
   --paper:#f4f3ef; --ink:#141414; --muted:#5b5a56; --rule:#d6d4cc; --card:#fff;
-  --izt:#12a850; --azul:#1668b8; --ambar:#e0a05a; --malo:#c0392b;
+  --izt:#12a850; --azul:#1668b8; --ladrillo:#c0674a; --malo:#c0392b;
   --sombra:0 1px 2px rgba(11,25,45,.05),0 10px 26px -14px rgba(11,25,45,.28);
   --f:"Montserrat",system-ui,-apple-system,"Segoe UI",sans-serif;
   color-scheme:light;
@@ -66,7 +66,7 @@ textarea{resize:vertical;min-height:88px;line-height:1.5}
 .aviso{font-size:.84rem;line-height:1.5;padding:11px 14px;border-radius:10px;margin-bottom:14px}
 .aviso.ok{background:color-mix(in srgb,var(--izt) 12%,var(--card));border:1px solid color-mix(in srgb,var(--izt) 40%,var(--rule))}
 .aviso.mal{background:color-mix(in srgb,var(--malo) 12%,var(--card));border:1px solid color-mix(in srgb,var(--malo) 40%,var(--rule));color:var(--malo)}
-.aviso.nota{background:color-mix(in srgb,var(--ambar) 14%,var(--card));border:1px solid color-mix(in srgb,var(--ambar) 40%,var(--rule));color:var(--muted)}
+.aviso.nota{background:color-mix(in srgb,var(--ladrillo) 14%,var(--card));border:1px solid color-mix(in srgb,var(--ladrillo) 40%,var(--rule));color:var(--muted)}
 
 .lista{display:grid;gap:11px}
 .item{background:var(--card);border:1px solid var(--rule);border-radius:12px;
@@ -80,7 +80,7 @@ textarea{resize:vertical;min-height:88px;line-height:1.5}
 .item button:hover{color:var(--ink);border-color:var(--ink)}
 .oculto{opacity:.55}
 .etiqueta{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
-  padding:3px 9px;border-radius:999px;background:color-mix(in srgb,var(--ambar) 25%,var(--card));color:var(--muted)}
+  padding:3px 9px;border-radius:999px;background:color-mix(in srgb,var(--ladrillo) 25%,var(--card));color:var(--muted)}
 @media (prefers-reduced-motion: reduce){*{transition:none !important}}
 </style>
 </head>

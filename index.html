@@ -39,9 +39,11 @@
   --izt:#12a850; --gen:#1668b8;
   /* mismos colores en RGB, para las difuminaciones sobre foto (iguales en ambos temas) */
   --izt-rgb:18,168,80;
-  /* Azul y ambar leidos de la foto nocturna del edificio: el cielo y la
-     fachada iluminada. Asi el color del sitio sale del propio material. */
-  --azul:#1668b8; --azul-hondo:#0b2c52; --ambar:#e0a05a;
+  /* Los colores salen de las fotos del propio sitio y no de un catalogo:
+     el azul del cielo nocturno de Iztapalapa, el ladrillo de la fachada de
+     Rectoria General y la noche que las dos comparten. El verde es el del
+     movimiento y no se toca. */
+  --azul:#1668b8; --azul-hondo:#0b2c52; --ladrillo:#c0674a; --noche:#16203a;
   --barra:linear-gradient(180deg,var(--izt) 0%,#13948f 54%,var(--azul) 100%);
   --sombra:0 1px 2px rgba(11,25,45,.05),0 10px 26px -14px rgba(11,25,45,.28);
   --sombra-alta:0 2px 4px rgba(11,25,45,.06),0 22px 46px -18px rgba(11,25,45,.34);
@@ -55,7 +57,7 @@
   :root:not([data-theme="light"]){
     --paper:#151514; --ink:#efeee9; --muted:#a8a69f; --rule:#34332f; --card:#1e1e1c;
     --accent:#34d27f; --izt:#34d27f; --gen:#4aa3ea;
-    --azul:#4aa3ea; --azul-hondo:#081d33; --ambar:#efc083;
+    --azul:#4aa3ea; --azul-hondo:#081d33; --ladrillo:#e2977c; --noche:#2c3f68; --noche:#2c3f68;
     --sombra:0 1px 2px rgba(0,0,0,.4),0 10px 26px -14px rgba(0,0,0,.7);
     --sombra-alta:0 2px 4px rgba(0,0,0,.45),0 22px 46px -18px rgba(0,0,0,.8);
     color-scheme:dark;
@@ -64,7 +66,7 @@
 :root[data-theme="dark"]{
   --paper:#151514; --ink:#efeee9; --muted:#a8a69f; --rule:#34332f; --card:#1e1e1c;
   --accent:#34d27f; --izt:#34d27f; --gen:#4aa3ea;
-  --azul:#4aa3ea; --azul-hondo:#081d33; --ambar:#efc083;
+  --azul:#4aa3ea; --azul-hondo:#081d33; --ladrillo:#e2977c; --noche:#2c3f68;
   --sombra:0 1px 2px rgba(0,0,0,.4),0 10px 26px -14px rgba(0,0,0,.7);
   --sombra-alta:0 2px 4px rgba(0,0,0,.45),0 22px 46px -18px rgba(0,0,0,.8);
   color-scheme:dark;
@@ -77,9 +79,9 @@ html{scroll-behavior:smooth}
 body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;counter-reset:sec}
 body::before{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
   background:
-    radial-gradient(70% 48% at 6% 12%, color-mix(in srgb,var(--izt) 16%,transparent), transparent 68%),
-    radial-gradient(62% 46% at 98% 36%, color-mix(in srgb,var(--azul) 17%,transparent), transparent 66%),
-    radial-gradient(78% 42% at 46% 104%, color-mix(in srgb,var(--ambar) 13%,transparent), transparent 70%)}
+    radial-gradient(70% 48% at 6% 12%, color-mix(in srgb,var(--izt) 15%,transparent), transparent 68%),
+    radial-gradient(64% 48% at 99% 34%, color-mix(in srgb,var(--ladrillo) 20%,transparent), transparent 66%),
+    radial-gradient(80% 44% at 42% 104%, color-mix(in srgb,var(--noche) 16%,transparent), transparent 72%)}
 a{color:inherit;text-underline-offset:2px}
 a:focus-visible,button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .wrap{max-width:1040px;margin:0 auto;padding:0 20px}
@@ -90,18 +92,18 @@ h3{font-size:1.05rem;margin:0}
 
 /* Cabecera */
 .stripes{height:10px;display:flex;background:linear-gradient(90deg,
-  var(--izt) 0%,#13948f 32%,var(--azul) 58%,var(--azul-hondo) 80%,var(--ambar) 100%)}
+  var(--izt) 0%,#13948f 32%,var(--azul) 58%,var(--azul-hondo) 80%,var(--ladrillo) 100%)}
 .stripes span{flex:1 1 0}
 .stripes span:nth-child(1){background:var(--izt)}
 .stripes span:nth-child(2){background:#13948f}
 .stripes span:nth-child(3){background:var(--azul)}
 .stripes span:nth-child(4){background:var(--azul-hondo)}
-.stripes span:nth-child(5){background:var(--ambar)}
+.stripes span:nth-child(5){background:var(--ladrillo)}
 .hero{position:relative;isolation:isolate;color:#fff;background:#060d16;border-bottom:0;
   --foto:url("assets/hero.jpg")}
 @media (max-width:760px){.hero{--foto:url("assets/hero-chico.jpg")}}
 .hero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:4px;
-  background:linear-gradient(90deg,var(--izt),#13948f 42%,var(--azul) 76%,var(--ambar))}
+  background:linear-gradient(90deg,var(--izt),#13948f 42%,var(--azul) 76%,var(--ladrillo))}
 /* La foto ya es nocturna y azul: el velo pesa menos y deja ver el edificio. */
 .hero::before{content:"";position:absolute;inset:0;z-index:-1;
   background:
@@ -188,7 +190,7 @@ nav.sec a.activa{color:var(--ink);border-bottom-color:var(--accent)}
 .progreso{position:absolute;left:0;bottom:-1px;height:2px;width:0;background:var(--accent);transition:width .1s linear}
 
 .notice{margin:26px 0 0;padding:14px 18px 14px 22px;font-size:.92rem;max-width:80ch;
-  background:linear-gradient(180deg,var(--ambar),color-mix(in srgb,var(--ambar) 55%,var(--muted))) left/4px 100% no-repeat,var(--card);
+  background:linear-gradient(180deg,var(--ladrillo),color-mix(in srgb,var(--ladrillo) 55%,var(--muted))) left/4px 100% no-repeat,var(--card);
   border:1px solid var(--rule);border-radius:var(--radio);box-shadow:var(--sombra);color:var(--muted)}
 .notice strong{color:var(--ink)}
 
@@ -448,7 +450,7 @@ html.js-reveal .danuncio.rv.vista .dpie > *:nth-child(4){transition-delay:.46s}
   .tlfoto{position:static;order:-1}
 }
 .tl{list-style:none;margin:0 0 0 8px;padding:0;border-left:0;
-  background:linear-gradient(180deg,var(--izt),#13948f 38%,var(--azul) 72%,var(--ambar)) left/2px 100% no-repeat}
+  background:linear-gradient(180deg,var(--izt),#13948f 38%,var(--azul) 72%,var(--ladrillo)) left/2px 100% no-repeat}
 .tl li{position:relative;padding:0 0 22px 24px}
 .tl li::before{content:"";position:absolute;left:-8px;top:5px;width:14px;height:14px;border-radius:50%;background:var(--c);border:2px solid var(--paper)}
 .tl .when{font-family:var(--mono);font-size:.82rem;font-weight:600;display:flex;gap:10px;align-items:center;flex-wrap:wrap}

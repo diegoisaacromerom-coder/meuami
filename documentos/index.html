@@ -16,7 +16,7 @@
    nuevo sean seis renglones y no tocar el diseno. */
 :root{
   --paper:#f4f3ef; --ink:#141414; --muted:#5b5a56; --rule:#d6d4cc; --card:#fff;
-  --izt:#12a850; --azul:#1668b8; --azul-hondo:#0b2c52; --ambar:#e0a05a;
+  --izt:#12a850; --azul:#1668b8; --azul-hondo:#0b2c52; --ladrillo:#c0674a;
   --barra:linear-gradient(180deg,var(--izt) 0%,#13948f 54%,var(--azul) 100%);
   --sombra:0 1px 2px rgba(11,25,45,.05),0 10px 26px -14px rgba(11,25,45,.28);
   --sombra-alta:0 2px 4px rgba(11,25,45,.06),0 22px 46px -18px rgba(11,25,45,.34);
@@ -26,7 +26,7 @@
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --paper:#151514; --ink:#efeee9; --muted:#a8a69f; --rule:#34332f; --card:#1e1e1c;
-  --izt:#34d27f; --azul:#4aa3ea; --ambar:#efc083;
+  --izt:#34d27f; --azul:#4aa3ea; --ladrillo:#e2977c;
   --sombra:0 1px 2px rgba(0,0,0,.4),0 10px 26px -14px rgba(0,0,0,.7);
   --sombra-alta:0 2px 4px rgba(0,0,0,.45),0 22px 46px -18px rgba(0,0,0,.8);
   color-scheme:dark;
@@ -38,7 +38,7 @@ body::before{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
   background:
     radial-gradient(70% 48% at 6% 10%, color-mix(in srgb,var(--izt) 15%,transparent), transparent 68%),
     radial-gradient(62% 46% at 98% 34%, color-mix(in srgb,var(--azul) 16%,transparent), transparent 66%),
-    radial-gradient(78% 42% at 46% 104%, color-mix(in srgb,var(--ambar) 12%,transparent), transparent 70%)}
+    radial-gradient(78% 42% at 46% 104%, color-mix(in srgb,var(--ladrillo) 12%,transparent), transparent 70%)}
 a{color:inherit}
 :focus-visible{outline:3px solid var(--izt);outline-offset:2px}
 .wrap{max-width:1040px;margin:0 auto;padding:0 20px}
@@ -49,7 +49,7 @@ a{color:inherit}
 .cinta i:nth-child(2){background:#13948f}
 .cinta i:nth-child(3){background:var(--azul)}
 .cinta i:nth-child(4){background:var(--azul-hondo)}
-.cinta i:nth-child(5){background:var(--ambar)}
+.cinta i:nth-child(5){background:var(--ladrillo)}
 
 .cab{position:relative;color:#fff;
   background:
@@ -94,8 +94,8 @@ main{padding:34px 0 70px}
   border-radius:999px;padding:4px 11px}
 .nota{margin:0 0 14px;padding:10px 13px;font-size:.84rem;line-height:1.55;color:var(--muted);
   border-radius:10px;
-  background:linear-gradient(135deg,color-mix(in srgb,var(--ambar) 16%,var(--card)),color-mix(in srgb,var(--ambar) 7%,var(--card)));
-  border:1px solid color-mix(in srgb,var(--ambar) 34%,var(--rule))}
+  background:linear-gradient(135deg,color-mix(in srgb,var(--ladrillo) 16%,var(--card)),color-mix(in srgb,var(--ladrillo) 7%,var(--card)));
+  border:1px solid color-mix(in srgb,var(--ladrillo) 34%,var(--rule))}
 .baja{display:inline-flex;align-items:baseline;gap:9px;font-weight:700;font-size:.85rem;
   text-decoration:none;border:1px solid var(--izt);color:var(--izt);
   padding:9px 18px;border-radius:999px;
