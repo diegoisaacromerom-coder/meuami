@@ -27,7 +27,13 @@ const ESQUEMA = [
   "CREATE INDEX IF NOT EXISTS idx_bitacora_cuando ON bitacora (cuando)",
   "CREATE TABLE IF NOT EXISTS consecutivos ( unidad TEXT PRIMARY KEY, ultimo INTEGER NOT NULL DEFAULT 0 )",
   "CREATE TABLE IF NOT EXISTS documentos ( id TEXT PRIMARY KEY, tipo TEXT NOT NULL DEFAULT '', etiqueta TEXT NOT NULL DEFAULT '', titulo TEXT NOT NULL DEFAULT '', resumen TEXT NOT NULL DEFAULT '', firmas TEXT NOT NULL DEFAULT '', nota TEXT NOT NULL DEFAULT '', archivo TEXT NOT NULL DEFAULT '', peso TEXT NOT NULL DEFAULT '', fecha TEXT NOT NULL DEFAULT '', orden INTEGER NOT NULL DEFAULT 0, publicado INTEGER NOT NULL DEFAULT 1, creado TEXT NOT NULL, actualizado TEXT NOT NULL )",
-  "CREATE INDEX IF NOT EXISTS idx_documentos_lista ON documentos (publicado, orden, fecha)"
+  "CREATE INDEX IF NOT EXISTS idx_documentos_lista ON documentos (publicado, orden, fecha)",
+  "CREATE TABLE IF NOT EXISTS personas ( usuario TEXT PRIMARY KEY, sal TEXT NOT NULL, verificador TEXT NOT NULL, totp TEXT NOT NULL, eje TEXT NOT NULL DEFAULT '2', activa INTEGER NOT NULL DEFAULT 1, estrenada INTEGER NOT NULL DEFAULT 0, creada TEXT NOT NULL )",
+  "CREATE TABLE IF NOT EXISTS sesiones ( ficha TEXT PRIMARY KEY, usuario TEXT NOT NULL, creada TEXT NOT NULL, expira TEXT NOT NULL )",
+  "CREATE INDEX IF NOT EXISTS idx_sesiones_expira ON sesiones (expira)",
+  "CREATE TABLE IF NOT EXISTS notas ( id TEXT PRIMARY KEY, eje TEXT NOT NULL DEFAULT '2', punto TEXT NOT NULL, campo TEXT NOT NULL, alias TEXT NOT NULL DEFAULT '', vector TEXT NOT NULL, datos TEXT NOT NULL, actualizado TEXT NOT NULL )",
+  "CREATE INDEX IF NOT EXISTS idx_notas_eje ON notas (eje, punto, campo)",
+  "CREATE TABLE IF NOT EXISTS intentos ( quien TEXT PRIMARY KEY, cuantos INTEGER NOT NULL DEFAULT 0, hasta TEXT NOT NULL )"
 ];
 let baseLista = false;
 async function prepararBase(env){
@@ -397,6 +403,285 @@ async function verArchivo(pet, env, nombre) {
   return new Response(obj.body, {headers: h});
 }
 
+/* ---------- Sesión con segundo factor ----------
+
+   El estirado de la contraseña (PBKDF2, 310 000 vueltas) ocurre en el
+   navegador, no aquí. Un Worker del plan gratuito tiene del orden de 10 ms de
+   CPU por petición y 310 000 vueltas no caben ni de lejos. El navegador deriva
+   y manda el resultado; el servidor guarda SHA-256 de eso con una pimienta
+   suya. Quien robe la base se lleva el hash de un valor ya estirado: para
+   probar contraseñas sigue teniendo que pasar por las 310 000 vueltas de cada
+   intento.
+
+   La sal de cada persona es pública a propósito: el navegador la necesita
+   antes de poder derivar. A quien no existe se le devuelve una sal falsa pero
+   estable, deducida del nombre, para no delatar quién tiene cuenta. */
+
+const VIDA_SESION = 12 * 60 * 60 * 1000;   // 12 horas
+const TOPE_INTENTOS = 8;
+const CASTIGO = 15 * 60 * 1000;
+
+const cod = new TextEncoder();
+
+function aHex(buf) {
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
+async function sha256Hex(texto) {
+  return aHex(await crypto.subtle.digest("SHA-256", cod.encode(texto)));
+}
+
+function alAzarHex(n) {
+  return aHex(crypto.getRandomValues(new Uint8Array(n)));
+}
+
+// Sal falsa pero siempre la misma para un nombre dado, para que pedir la sal
+// de una cuenta inexistente se vea igual que pedir la de una real.
+async function salFingida(usuario, env) {
+  return (await sha256Hex("sal-fingida:" + usuario + ":" + (env.CLAVE_ESCRITURA || ""))).slice(0, 32);
+}
+
+async function verificadorDe(derivada, sal, env) {
+  return sha256Hex(derivada + ":" + sal + ":" + (env.PIMIENTA || env.CLAVE_ESCRITURA || ""));
+}
+
+/* ----- TOTP (RFC 6238): HMAC-SHA1, pasos de 30 s, 6 dígitos ----- */
+
+const B32 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+
+function base32aBytes(s) {
+  const limpio = String(s).toUpperCase().replace(/[^A-Z2-7]/g, "");
+  let bits = 0, valor = 0;
+  const salida = [];
+  for (const c of limpio) {
+    valor = (valor << 5) | B32.indexOf(c);
+    bits += 5;
+    if (bits >= 8) { salida.push((valor >>> (bits - 8)) & 0xff); bits -= 8; }
+  }
+  return new Uint8Array(salida);
+}
+
+function bytesABase32(u) {
+  let bits = 0, valor = 0, salida = "";
+  for (const b of u) {
+    valor = (valor << 8) | b; bits += 8;
+    while (bits >= 5) { salida += B32[(valor >>> (bits - 5)) & 31]; bits -= 5; }
+  }
+  if (bits > 0) salida += B32[(valor << (5 - bits)) & 31];
+  return salida;
+}
+
+async function codigoTOTP(secreto, paso) {
+  const llave = await crypto.subtle.importKey("raw", base32aBytes(secreto),
+    {name: "HMAC", hash: "SHA-1"}, false, ["sign"]);
+  const buf = new ArrayBuffer(8);
+  const vista = new DataView(buf);
+  vista.setUint32(0, Math.floor(paso / 0x100000000));
+  vista.setUint32(4, paso >>> 0);
+  const firma = new Uint8Array(await crypto.subtle.sign("HMAC", llave, buf));
+  const desp = firma[firma.length - 1] & 0x0f;
+  const n = ((firma[desp] & 0x7f) << 24) | (firma[desp+1] << 16) |
+            (firma[desp+2] << 8) | firma[desp+3];
+  return String(n % 1000000).padStart(6, "0");
+}
+
+// Se aceptan el paso actual y uno a cada lado: los relojes de los teléfonos
+// no siempre coinciden con el del servidor.
+async function totpValido(secreto, codigo, cuando) {
+  const limpio = String(codigo || "").replace(/\D/g, "");
+  if (limpio.length !== 6) return false;
+  const paso = Math.floor((cuando || Date.now()) / 1000 / 30);
+  for (const d of [-1, 0, 1]) {
+    if (mismaClave(limpio, await codigoTOTP(secreto, paso + d))) return true;
+  }
+  return false;
+}
+
+/* ----- Freno a la fuerza bruta ----- */
+
+async function frenado(env, quien) {
+  const f = await env.DB.prepare("SELECT cuantos, hasta FROM intentos WHERE quien = ?1")
+    .bind(quien).first();
+  if (!f) return false;
+  if (new Date(f.hasta) > new Date()) return f.cuantos >= TOPE_INTENTOS;
+  await env.DB.prepare("DELETE FROM intentos WHERE quien = ?1").bind(quien).run();
+  return false;
+}
+
+async function apuntarFallo(env, quien) {
+  const hasta = new Date(Date.now() + CASTIGO).toISOString();
+  await env.DB.prepare(
+    "INSERT INTO intentos (quien, cuantos, hasta) VALUES (?1, 1, ?2) " +
+    "ON CONFLICT(quien) DO UPDATE SET cuantos = cuantos + 1, hasta = ?2"
+  ).bind(quien, hasta).run();
+}
+
+/* ----- Rutas de sesión ----- */
+
+async function pedirSal(pet, env) {
+  let cuerpo;
+  try { cuerpo = await pet.json(); } catch (e) { return falla(pet, 400, "Cuerpo inválido."); }
+  const usuario = texto(cuerpo && cuerpo.usuario, 60).toLowerCase();
+  if (!usuario) return falla(pet, 400, "Falta el usuario.");
+  const f = await env.DB.prepare("SELECT sal FROM personas WHERE usuario = ?1 AND activa = 1")
+    .bind(usuario).first();
+  return responde(pet, {sal: f ? f.sal : await salFingida(usuario, env), vueltas: 310000});
+}
+
+async function ingresar(pet, env) {
+  let cuerpo;
+  try { cuerpo = await pet.json(); } catch (e) { return falla(pet, 400, "Cuerpo inválido."); }
+  const usuario = texto(cuerpo && cuerpo.usuario, 60).toLowerCase();
+  const derivada = texto(cuerpo && cuerpo.derivada, 200);
+  const codigo = texto(cuerpo && cuerpo.codigo, 10);
+  if (!usuario || !derivada) return falla(pet, 400, "Faltan datos.");
+
+  if (await frenado(env, usuario)) {
+    return falla(pet, 429, "Demasiados intentos fallidos. Espera 15 minutos.");
+  }
+
+  const f = await env.DB.prepare(
+    "SELECT usuario, sal, verificador, totp, estrenada FROM personas WHERE usuario = ?1 AND activa = 1"
+  ).bind(usuario).first();
+
+  // Mismo mensaje y mismo trabajo tanto si la persona no existe como si la
+  // contraseña está mal: desde fuera no se distingue.
+  const esperado = f ? f.verificador : await sha256Hex("nadie:" + usuario);
+  const dado = await verificadorDe(derivada, f ? f.sal : await salFingida(usuario, env), env);
+  if (!f || !mismaClave(dado, esperado)) {
+    await apuntarFallo(env, usuario);
+    return falla(pet, 401, "Usuario, contraseña o código incorrectos.");
+  }
+
+  if (!(await totpValido(f.totp, codigo))) {
+    await apuntarFallo(env, usuario);
+    return falla(pet, 401, "Usuario, contraseña o código incorrectos.");
+  }
+
+  await env.DB.prepare("DELETE FROM intentos WHERE quien = ?1").bind(usuario).run();
+  const ficha = alAzarHex(32);
+  const expira = new Date(Date.now() + VIDA_SESION).toISOString();
+  await env.DB.batch([
+    env.DB.prepare("INSERT INTO sesiones (ficha, usuario, creada, expira) VALUES (?1,?2,?3,?4)")
+      .bind(ficha, usuario, ahora(), expira),
+    env.DB.prepare("DELETE FROM sesiones WHERE expira < ?1").bind(ahora()),
+    env.DB.prepare("UPDATE personas SET estrenada = 1 WHERE usuario = ?1").bind(usuario)
+  ]);
+  return responde(pet, {ficha, usuario, expira});
+}
+
+async function conSesion(pet, env) {
+  const trae = pet.headers.get("X-Sesion") || "";
+  if (!/^[0-9a-f]{64}$/.test(trae)) return null;
+  const f = await env.DB.prepare(
+    "SELECT usuario, expira FROM sesiones WHERE ficha = ?1"
+  ).bind(trae).first();
+  if (!f) return null;
+  if (new Date(f.expira) <= new Date()) {
+    await env.DB.prepare("DELETE FROM sesiones WHERE ficha = ?1").bind(trae).run();
+    return null;
+  }
+  return f.usuario;
+}
+
+async function salir(pet, env) {
+  const trae = pet.headers.get("X-Sesion") || "";
+  if (/^[0-9a-f]{64}$/.test(trae)) {
+    await env.DB.prepare("DELETE FROM sesiones WHERE ficha = ?1").bind(trae).run();
+  }
+  return responde(pet, {ok: true});
+}
+
+/* ----- Alta de personas (solo con la clave de escritura) ----- */
+
+async function altaPersona(pet, env) {
+  let cuerpo;
+  try { cuerpo = await pet.json(); } catch (e) { return falla(pet, 400, "Cuerpo inválido."); }
+  const usuario = texto(cuerpo && cuerpo.usuario, 60).toLowerCase();
+  const derivada = texto(cuerpo && cuerpo.derivada, 200);
+  const sal = texto(cuerpo && cuerpo.sal, 64);
+  if (!/^[a-z0-9._-]{3,60}$/.test(usuario)) {
+    return falla(pet, 400, "El usuario solo admite letras, números, punto, guion y guion bajo.");
+  }
+  if (!derivada || !/^[0-9a-f]{16,64}$/.test(sal)) return falla(pet, 400, "Faltan datos.");
+
+  const secreto = bytesABase32(crypto.getRandomValues(new Uint8Array(20)));
+  const verificador = await verificadorDe(derivada, sal, env);
+  try {
+    await env.DB.prepare(
+      "INSERT INTO personas (usuario, sal, verificador, totp, eje, activa, estrenada, creada) " +
+      "VALUES (?1,?2,?3,?4,?5,1,0,?6)"
+    ).bind(usuario, sal, verificador, secreto, texto(cuerpo.eje, 8) || "2", ahora()).run();
+  } catch (e) {
+    return falla(pet, 409, "Ese usuario ya existe.");
+  }
+  const etiqueta = encodeURIComponent("Eje 2 UAM-I:" + usuario);
+  return responde(pet, {
+    ok: true, usuario,
+    secreto,
+    uri: "otpauth://totp/" + etiqueta + "?secret=" + secreto + "&issuer=" +
+         encodeURIComponent("Movimiento Estudiantil UAM-I") + "&digits=6&period=30",
+    aviso: "Este secreto se muestra una sola vez. Cárgalo ahora en la app de códigos."
+  });
+}
+
+/* ---------- Notas del eje ----------
+
+   El servidor guarda bytes que no puede leer. Las notas llegan ya cifradas
+   desde el navegador con una llave del eje que nunca sale de ahí, y así se
+   guardan. Quien tenga acceso a la base —o quien opere la nube— ve quién
+   escribió, en qué punto y cuándo, pero no qué dice.
+
+   El precio es real y hay que tenerlo claro: aquí no se puede buscar dentro
+   de las notas, y si el eje pierde la llave, las notas no se recuperan. */
+
+async function verNotas(pet, env) {
+  const quien = await conSesion(pet, env);
+  if (!quien) return falla(pet, 401, "Hace falta iniciar sesión.");
+  const u = new URL(pet.url);
+  const eje = texto(u.searchParams.get("eje"), 8) || "2";
+  const {results} = await env.DB.prepare(
+    "SELECT id, punto, campo, alias, vector, datos, actualizado FROM notas " +
+    "WHERE eje = ?1 ORDER BY punto, campo, actualizado"
+  ).bind(eje).all();
+  return responde(pet, {notas: results, quien});
+}
+
+async function guardarNotas(pet, env) {
+  const quien = await conSesion(pet, env);
+  if (!quien) return falla(pet, 401, "Hace falta iniciar sesión.");
+  let cuerpo;
+  try { cuerpo = await pet.json(); } catch (e) { return falla(pet, 400, "Cuerpo inválido."); }
+  const lista = Array.isArray(cuerpo) ? cuerpo : (cuerpo && cuerpo.notas);
+  if (!Array.isArray(lista)) return falla(pet, 400, "Se esperaba una lista de notas.");
+  if (lista.length > 200) return falla(pet, 413, "Demasiadas notas en una sola petición.");
+
+  const cuando = ahora();
+  const ordenes = [];
+  for (const n of lista) {
+    const id = texto(n && n.id, 80);
+    const punto = texto(n && n.punto, 20);
+    const campo = texto(n && n.campo, 40);
+    const vector = texto(n && n.vector, 64);
+    const datos = texto(n && n.datos, 20000);
+    if (!id || !punto || !campo || !vector || !datos) {
+      return falla(pet, 400, "Una nota llegó incompleta.");
+    }
+    // El alias es como la persona quiere aparecer ante el eje. No se guarda
+    // ningún nombre real: el pliego de seguridad lo pide así.
+    const alias = texto(n && n.alias, 40);
+    ordenes.push(env.DB.prepare(
+      "INSERT INTO notas (id, eje, punto, campo, alias, vector, datos, actualizado) " +
+      "VALUES (?1,?2,?3,?4,?5,?6,?7,?8) " +
+      "ON CONFLICT(id) DO UPDATE SET alias=?5, vector=?6, datos=?7, actualizado=?8 " +
+      "WHERE excluded.actualizado > notas.actualizado"
+    ).bind(id, texto(n.eje, 8) || "2", punto, campo, alias, vector, datos,
+           texto(n.actualizado, 40) || cuando));
+  }
+  if (ordenes.length) await env.DB.batch(ordenes);
+  return responde(pet, {ok: true, guardadas: ordenes.length, cuando});
+}
+
 /* ---------- Reparto ---------- */
 
 const RUTAS = {
@@ -410,7 +695,13 @@ const RUTAS = {
   "GET /api/documentos":  {abierta: true,  atiende: documentos},
   "GET /api/archivero":   {abierta: false, atiende: todosLosDocumentos},
   "POST /api/documentos": {abierta: false, atiende: guardarDocumentos},
-  "POST /api/archivo":    {abierta: false, atiende: subirArchivo}
+  "POST /api/archivo":    {abierta: false, atiende: subirArchivo},
+  "POST /api/sal":        {abierta: true,  atiende: pedirSal},
+  "POST /api/ingreso":    {abierta: true,  atiende: ingresar},
+  "POST /api/salir":      {abierta: true,  atiende: salir},
+  "POST /api/persona":    {abierta: false, atiende: altaPersona},
+  "GET /api/notas":       {abierta: true,  atiende: verNotas},
+  "POST /api/notas":      {abierta: true,  atiende: guardarNotas}
 };
 
 export default {
