@@ -159,10 +159,23 @@ main{padding:28px 0 70px}
 .campo{display:flex;flex-direction:column;gap:5px}
 .campo label{font-family:var(--m);font-size:.69rem;font-weight:700;letter-spacing:.09em;
   text-transform:uppercase;color:var(--muted)}
-.campo textarea,.campo select{font:400 .91rem var(--f);color:var(--ink);background:var(--paper);
+.campo input,.campo textarea,.campo select{font:400 .91rem var(--f);color:var(--ink);background:var(--paper);
   border:1px solid var(--rule);border-radius:9px;padding:9px 11px;width:100%}
 .campo textarea{resize:vertical;min-height:62px;line-height:1.55}
-.campo textarea:focus,.campo select:focus{border-color:var(--izt);outline:none}
+.campo input:focus,.campo textarea:focus,.campo select:focus{border-color:var(--izt);outline:none}
+.campo .pista{font-size:.73rem;color:var(--muted);line-height:1.5}
+.panel-eje{width:100%;border:1px solid var(--linea);border-radius:var(--radio);
+  background:var(--paper);padding:18px;display:grid;gap:14px;max-width:460px}
+.panel-eje h3{margin:0;font-size:.95rem;letter-spacing:-.01em}
+.panel-eje .fila{display:flex;gap:10px;flex-wrap:wrap}
+.panel-eje .malo{color:var(--ladrillo);font-size:.78rem;line-height:1.5;margin:0}
+.sync{display:inline-flex;align-items:center;gap:7px}
+.sync::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--muted);flex:none}
+.sync.bien::before{background:var(--izt)}
+.sync.yendo::before{background:var(--azul);animation:late 1s ease-in-out infinite}
+.sync.mal::before{background:var(--ladrillo)}
+@keyframes late{50%{opacity:.25}}
+@media (prefers-reduced-motion:reduce){.sync.yendo::before{animation:none}}
 .tipos-sel{display:flex;gap:7px;flex-wrap:wrap}
 .tipos-sel label{display:inline-flex;align-items:center;gap:6px;cursor:pointer;
   border:1px solid var(--rule);border-radius:999px;padding:5px 12px;
@@ -740,8 +753,10 @@ main{padding:28px 0 70px}
 
   <p class="nota-pie">El texto del pliego y el de la respuesta son transcripción del
   documento oficial y no se editan desde aquí: su valor está en que nadie los haya tocado.
-  Lo que el eje escribe se guarda <b>solo en este dispositivo</b> y no sale a ningún
-  servidor. Respáldalo seguido; el respaldo sale cifrado con una contraseña que tú eliges.</p>
+  Mientras no entres al eje, lo que escribes se queda <b>solo en este dispositivo</b>.
+  Al entrar, tus notas se cifran aquí antes de salir y el servidor guarda bytes que no
+  puede leer: ve quién escribió, en qué punto y a qué hora, pero no qué dice.
+  Respalda seguido; el respaldo sale cifrado con una contraseña que tú eliges.</p>
 </main>
 
 <script src="candado.js"></script>
@@ -774,7 +789,7 @@ var CAMPOS = [
 var $ = function(id){ return document.getElementById(id); };
 var trabajo = {};
 
-function guardar(){ return Candado.guardar(trabajo); }
+function guardar(){ var r = Candado.guardar(trabajo); programarEnvio(); return r; }
 function deEste(clave){
   if (!trabajo[clave]) trabajo[clave] = {};
   return trabajo[clave];
@@ -953,62 +968,228 @@ function pintarAjenas(ajenas){
   });
 }
 
-function botonesEje(){
+/* ----- Trabajo compartido: una sola pantalla y envío automático -----
+
+   La versión anterior encadenaba seis ventanitas del navegador y no sobrevivía
+   a una recarga. En una mesa eso no se sostiene: lo que pasa de verdad cuando
+   la herramienta estorba es que alguien abre un chat cualquiera y por ahí se va
+   la estrategia. Ahora se pide todo junto, una vez, y la sesión se recuerda. */
+
+var ESPERA_ENVIO = 2500;        // pausa al teclear antes de subir
+var CADA_BAJADA  = 45000;       // cada cuánto se baja lo de los compañeros
+var relojEnvio = null, relojBajada = null, sincronizando = false, pendiente = false;
+
+function avisoSync(clase, texto){
+  var a = $("avisoEje");
+  a.className = "guardado sync " + (clase || "");
+  a.textContent = texto;
+}
+
+function haceCuanto(d){
+  var seg = Math.round((Date.now() - d) / 1000);
+  if (seg < 10) return "hace un momento";
+  if (seg < 60) return "hace " + seg + " s";
+  var min = Math.round(seg / 60);
+  if (min < 60) return "hace " + min + " min";
+  return "hace " + Math.round(min / 60) + " h";
+}
+
+function programarEnvio(){
+  if (!Compartir.conectado()) return;
+  clearTimeout(relojEnvio);
+  avisoSync("", "Cambios sin enviar…");
+  relojEnvio = setTimeout(function(){ sincronizar({callado:true}); }, ESPERA_ENVIO);
+}
+
+function arrancarBajadas(){
+  clearInterval(relojBajada);
+  if (!Compartir.conectado()) return;
+  relojBajada = setInterval(function(){
+    if (document.hidden) return;              // no gastar batería en segundo plano
+    sincronizar({callado:true, soloBajar:true});
+  }, CADA_BAJADA);
+}
+
+document.addEventListener("visibilitychange", function(){
+  if (!document.hidden && Compartir.conectado()) sincronizar({callado:true, soloBajar:true});
+});
+
+function panelEje(){
   var caja = $("eje");
   caja.textContent = "";
 
-  if (!Compartir.conectado()) {
-    var b = el("button", "b lleno", "Conectar con el eje");
-    b.type = "button";
-    b.addEventListener("click", async function(){
-      b.disabled = true;
-      try { if (await Compartir.conectar()) { botonesEje(); await sincronizar(); } }
-      finally { b.disabled = false; }
+  if (Compartir.conectado()) {
+    var bs = el("button", "b", "Sincronizar ahora");
+    bs.type = "button";
+    bs.addEventListener("click", function(){ sincronizar(); });
+    caja.appendChild(bs);
+
+    var bd = el("button", "b", "Salir del eje");
+    bd.type = "button";
+    bd.addEventListener("click", function(){
+      var olvidar = confirm(
+        "¿Olvidar también la llave del eje en este dispositivo?\n\n" +
+        "Aceptar: la próxima vez te la vuelve a pedir.\n" +
+        "Cancelar: solo cierra la sesión y la llave se queda guardada aquí.");
+      clearTimeout(relojEnvio); clearInterval(relojBajada);
+      Compartir.desconectar({olvidarLlave: olvidar});
+      document.querySelectorAll(".campo .ajenas").forEach(function(x){ x.remove(); });
+      panelEje();
+      avisoSync("", "Fuera del eje. Tu análisis sigue en este dispositivo.");
     });
-    caja.appendChild(b);
-    var n = el("p", "guardado", "Sin conectar: tu análisis es solo tuyo. " +
-      "Al conectar, las notas se cifran aquí antes de salir y el servidor no puede leerlas.");
+    caja.appendChild(bd);
+
+    var n = el("p", "guardado", "En el eje como " + Compartir.comoQuien() +
+      ", firmando como «" + Compartir.miAlias() + "». Lo que escribes se envía solo.");
     n.style.width = "100%";
     caja.appendChild(n);
     return;
   }
 
-  var bs = el("button", "b lleno", "Sincronizar con el eje");
-  bs.type = "button";
-  bs.addEventListener("click", function(){ sincronizar(); });
-  caja.appendChild(bs);
+  var b = el("button", "b lleno", Compartir.hayLlave() ? "Volver a entrar" : "Entrar al eje");
+  b.type = "button";
+  b.addEventListener("click", function(){ formularioEje(); });
+  caja.appendChild(b);
 
-  var bd = el("button", "b", "Desconectar");
-  bd.type = "button";
-  bd.addEventListener("click", function(){
-    Compartir.desconectar();
-    document.querySelectorAll(".campo .ajenas").forEach(function(x){ x.remove(); });
-    botonesEje();
-  });
-  caja.appendChild(bd);
-
-  var n2 = el("p", "guardado", "Conectado como " + Compartir.comoQuien() +
-    ", firmando como «" + Compartir.miAlias() + "».");
+  var n2 = el("p", "guardado", Compartir.hayLlave()
+    ? "La sesión venció. La llave del eje sigue guardada aquí: solo hacen falta tu contraseña y el código."
+    : "Sin entrar: tu análisis es solo tuyo. Al entrar, las notas se cifran aquí antes de salir y el servidor no puede leerlas.");
   n2.style.width = "100%";
   caja.appendChild(n2);
 }
 
-async function sincronizar(){
-  var aviso = $("avisoEje");
-  aviso.textContent = "Sincronizando…";
+function campoDe(id, etiqueta, tipo, valor, pista){
+  var c = el("div", "campo");
+  var l = el("label", null, etiqueta);
+  l.setAttribute("for", id);
+  c.appendChild(l);
+  var i = document.createElement("input");
+  i.id = id; i.type = tipo; i.value = valor || "";
+  if (tipo === "password") i.autocomplete = "off";
+  if (id === "f_codigo") { i.inputMode = "numeric"; i.maxLength = 7; i.autocomplete = "one-time-code"; }
+  c.appendChild(i);
+  if (pista) c.appendChild(el("p", "pista", pista));
+  return c;
+}
+
+function formularioEje(){
+  var caja = $("eje");
+  caja.textContent = "";
+  var a = Compartir.ajustes();
+  var yaHayLlave = Compartir.hayLlave();
+
+  var panel = el("div", "panel-eje");
+  panel.appendChild(el("h3", null, yaHayLlave ? "Volver a entrar al eje" : "Entrar al eje"));
+
+  var campos = el("div", "campos");
+  campos.appendChild(campoDe("f_usuario", "Usuario", "text", a.usuario || "",
+    "El que te entregaron. No es tu nombre."));
+  campos.appendChild(campoDe("f_clave", "Contraseña", "password", ""));
+  campos.appendChild(campoDe("f_codigo", "Código de la app", "text", "",
+    "Los seis dígitos de ese momento."));
+
+  if (!yaHayLlave) {
+    campos.appendChild(campoDe("f_alias", "Alias con el que firmas", "text",
+      (a.alias && a.alias[a.usuario]) || "",
+      "Como te ven tus compañeros en las notas. Tampoco tu nombre."));
+    campos.appendChild(campoDe("f_llave", "Llave del eje", "password", "",
+      "La que comparten entre ustedes, mínimo 16 caracteres. Es distinta de tu contraseña y el servidor nunca la ve: sin ella las notas no se leen."));
+  }
+
+  var det = document.createElement("details");
+  var sum = document.createElement("summary");
+  sum.className = "guardado";
+  sum.textContent = "Dirección del servidor";
+  det.appendChild(sum);
+  det.appendChild(campoDe("f_url", "Servidor del eje", "text", a.url || "",
+    "Solo se cambia si les dieron otra dirección."));
+  campos.appendChild(det);
+
+  panel.appendChild(campos);
+
+  var error = el("p", "malo", "");
+  error.hidden = true;
+  panel.appendChild(error);
+
+  var fila = el("div", "fila");
+  var entrar = el("button", "b lleno", "Entrar");
+  entrar.type = "button";
+  var cancelar = el("button", "b", "Cancelar");
+  cancelar.type = "button";
+  cancelar.addEventListener("click", function(){ panelEje(); avisoSync("", ""); });
+  fila.appendChild(entrar);
+  fila.appendChild(cancelar);
+  panel.appendChild(fila);
+  caja.appendChild(panel);
+
+  function intentar(){
+    error.hidden = true;
+    entrar.disabled = true;
+    entrar.textContent = "Entrando…";
+    avisoSync("yendo", "Comprobando… tarda unos segundos a propósito.");
+    var datos = {
+      url: ($("f_url") || {}).value,
+      usuario: ($("f_usuario") || {}).value,
+      clave: ($("f_clave") || {}).value,
+      codigo: ($("f_codigo") || {}).value,
+      alias: ($("f_alias") || {}).value,
+      llave: ($("f_llave") || {}).value
+    };
+    Compartir.entrar(datos).then(function(r){
+      entrar.disabled = false;
+      entrar.textContent = "Entrar";
+      if (!r.ok) {
+        error.textContent = r.error;
+        error.hidden = false;
+        avisoSync("mal", "No se pudo entrar.");
+        var foco = $("f_" + r.campo);
+        if (foco) foco.focus();
+        return;
+      }
+      panelEje();
+      arrancarBajadas();
+      sincronizar();
+    });
+  }
+
+  entrar.addEventListener("click", intentar);
+  panel.addEventListener("keydown", function(ev){
+    if (ev.key === "Enter" && ev.target.tagName === "INPUT") { ev.preventDefault(); intentar(); }
+  });
+
+  var primero = $("f_usuario");
+  if (primero && primero.value) { var c2 = $("f_clave"); if (c2) c2.focus(); }
+  else if (primero) primero.focus();
+}
+
+// Compatibilidad con el resto del archivo.
+function botonesEje(){ panelEje(); }
+
+async function sincronizar(opc){
+  opc = opc || {};
+  if (!Compartir.conectado()) return;
+  if (sincronizando) { pendiente = true; return; }
+  sincronizando = true;
+  clearTimeout(relojEnvio);
+  if (!opc.callado) avisoSync("yendo", "Sincronizando…");
   try {
-    var r = await Compartir.sincronizar(trabajo, CAMPOS.map(function(f){ return f[0]; }));
+    var r = await Compartir.sincronizar(trabajo, CAMPOS.map(function(f){ return f[0]; }),
+      {soloBajar: opc.soloBajar === true});
     pintarAjenas(r.ajenas);
     var cuantas = 0;
     Object.keys(r.ajenas).forEach(function(pt){
       Object.keys(r.ajenas[pt]).forEach(function(cm){ cuantas += r.ajenas[pt][cm].length; });
     });
-    aviso.textContent = "Subiste " + r.subidas + " nota(s) y bajaste " + cuantas +
-      " de tus compañeros." +
-      (r.ilegibles ? " Hay " + r.ilegibles + " que no se pudieron leer: están cifradas con otra llave del eje." : "");
+    var cuando = Date.now();
+    avisoSync("bien", "Al día " + haceCuanto(cuando) + " · " + cuantas +
+      " nota(s) de tus compañeros" +
+      (r.ilegibles ? " · " + r.ilegibles + " con otra llave del eje" : ""));
   } catch (e) {
-    aviso.textContent = e.message;
-    botonesEje();
+    avisoSync("mal", e.message);
+    if (!Compartir.conectado()) { clearInterval(relojBajada); panelEje(); }
+  } finally {
+    sincronizando = false;
+    if (pendiente) { pendiente = false; setTimeout(function(){ sincronizar({callado:true}); }, 200); }
   }
 }
 
@@ -1066,7 +1247,17 @@ function botonesCandado(){
   }
   datos.forEach(function(p){ pintarEstado(p); });
   botonesCandado();
+
+  // La sesion y la llave del eje viven dentro del candado, asi que esto va
+  // despues de abrirlo. Si siguen vigentes, no se pregunta nada: se entra y se
+  // baja lo que escribieron los demas.
+  var quedaba = "nada";
+  try { quedaba = await Compartir.recuperar(); } catch (e) { quedaba = "nada"; }
   botonesEje();
+  if (quedaba === "todo") {
+    arrancarBajadas();
+    sincronizar({callado:true});
+  }
 
   [["todos", "Todos"], ["insuficiente", "Insuficientes"], ["parcial", "Parciales"],
    ["suficiente", "Suficientes"], ["sin", "Sin valorar"], ["mias", "Con análisis mío"]]

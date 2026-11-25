@@ -21,6 +21,7 @@
 window.Candado = (function(){
   var EN_CLARO = "eje2-analisis-v1";
   var CIFRADO  = "eje2-analisis-cifrado-v1";
+  var SECRETO  = "eje2-secreto-";          // + nombre
   var VUELTAS  = 310000;
   var INACTIVIDAD = 15 * 60 * 1000;
 
@@ -101,6 +102,93 @@ window.Candado = (function(){
     return true;
   }
 
+
+  /* ----- Secretos del dispositivo -----
+
+     La ficha de sesion y la llave del eje tienen que sobrevivir a una recarga,
+     o trabajar en la mesa se vuelve imposible: seis ventanitas cada vez que el
+     telefono se duerme no las aguanta nadie, y lo que de verdad pasa entonces
+     es que alguien abre un chat cualquiera y ahi se va la estrategia.
+
+     Se guardan con exactamente la misma proteccion que el analisis, ni mas ni
+     menos: cifrados si el dispositivo tiene candado, en claro si no lo tiene.
+     Asi la promesa al eje es una sola y es facil de explicar: con candado, lo
+     de este aparato esta cifrado; sin candado, no. */
+
+  function llaveDe(nombre){ return SECRETO + nombre + "-v1"; }
+
+  async function guardaSecreto(nombre, obj){
+    var texto = JSON.stringify(obj);
+    if (!protegido()) {
+      try { localStorage.setItem(llaveDe(nombre), JSON.stringify({claro: texto})); return true; }
+      catch (e) { return false; }
+    }
+    if (!llaveViva) return false;
+    var vec = crypto.getRandomValues(new Uint8Array(12));
+    var cifrado = await crypto.subtle.encrypt({name:"AES-GCM", iv:vec}, llaveViva, bytes(texto));
+    try {
+      localStorage.setItem(llaveDe(nombre), JSON.stringify({
+        sal: aB64(salViva), vector: aB64(vec), datos: aB64(cifrado)
+      }));
+      return true;
+    } catch (e) { return false; }
+  }
+
+  async function leeSecreto(nombre){
+    var crudo = localStorage.getItem(llaveDe(nombre));
+    if (!crudo) return null;
+    var sobre;
+    try { sobre = JSON.parse(crudo); } catch (e) { return null; }
+    if (sobre && typeof sobre.claro === "string") {
+      // Guardado sin candado. Si entretanto se puso candado, ya no vale.
+      if (protegido()) return null;
+      try { return JSON.parse(sobre.claro); } catch (e) { return null; }
+    }
+    if (!llaveViva) return null;               // con candado puesto y sin abrir
+    try {
+      var claro = await crypto.subtle.decrypt(
+        {name:"AES-GCM", iv:deB64(sobre.vector)}, llaveViva, deB64(sobre.datos));
+      return JSON.parse(new TextDecoder().decode(claro));
+    } catch (e) { return null; }
+  }
+
+  function olvidaSecreto(nombre){
+    try { localStorage.removeItem(llaveDe(nombre)); } catch (e) {}
+  }
+
+  function nombresDeSecretos(){
+    var fuera = [];
+    for (var i = 0; i < localStorage.length; i++) {
+      var k = localStorage.key(i);
+      if (k && k.indexOf(SECRETO) === 0 && k.slice(-3) === "-v1") {
+        fuera.push(k.slice(SECRETO.length, -3));
+      }
+    }
+    return fuera;
+  }
+
+  // Al poner o quitar el candado hay que volver a envolver lo guardado, o se
+  // quedaria ilegible (o peor: en claro cuando ya deberia estar cifrado).
+  async function reenvolver(antes){
+    var nombres = nombresDeSecretos();
+    for (var i = 0; i < nombres.length; i++) {
+      if (Object.prototype.hasOwnProperty.call(antes, nombres[i])) {
+        await guardaSecreto(nombres[i], antes[nombres[i]]);
+      } else {
+        olvidaSecreto(nombres[i]);
+      }
+    }
+  }
+
+  async function secretosEnMemoria(){
+    var nombres = nombresDeSecretos(), fuera = {};
+    for (var i = 0; i < nombres.length; i++) {
+      var v = await leeSecreto(nombres[i]);
+      if (v !== null) fuera[nombres[i]] = v;
+    }
+    return fuera;
+  }
+
   async function poner(obj){
     var c = prompt("Contraseña del candado para este dispositivo.\n\n" +
       "Cuatro o cinco palabras sin relación. Si la pierdes, lo escrito aquí se pierde: " +
@@ -108,11 +196,13 @@ window.Candado = (function(){
     if (c === null) return false;
     if (c.length < 12) { alert("Muy corta. Usa al menos 12 caracteres."); return false; }
     if (prompt("Escríbela otra vez.") !== c) { alert("No coinciden. No se puso el candado."); return false; }
+    var rescatados = await secretosEnMemoria();   // leerlos mientras siguen en claro
     salViva = crypto.getRandomValues(new Uint8Array(16));
     llaveViva = await derivar(c, salViva);
     localStorage.removeItem(EN_CLARO);
     localStorage.setItem(CIFRADO, "{}");          // marca para que guardar() cifre
     await guardar(obj);
+    await reenvolver(rescatados);                 // ahora quedan cifrados
     tocar();
     return true;
   }
@@ -120,9 +210,11 @@ window.Candado = (function(){
   async function quitar(obj){
     if (!confirm("Quitar el candado deja el análisis en claro en este navegador. " +
                  "Cualquiera que abra este dispositivo podrá leerlo.\n\n¿Quitarlo?")) return false;
+    var rescatados = await secretosEnMemoria();   // leerlos mientras la llave vive
     llaveViva = null; salViva = null;
     localStorage.removeItem(CIFRADO);
     localStorage.setItem(EN_CLARO, JSON.stringify(obj));
+    await reenvolver(rescatados);                 // quedan en claro, como el resto
     return true;
   }
 
@@ -139,6 +231,7 @@ window.Candado = (function(){
     if (!confirm("Última confirmación. ¿Borrar todo?")) return false;
     localStorage.removeItem(EN_CLARO);
     localStorage.removeItem(CIFRADO);
+    nombresDeSecretos().forEach(olvidaSecreto);   // sesion y llave del eje tambien
     llaveViva = null; salViva = null;
     location.reload();
     return true;
@@ -150,5 +243,7 @@ window.Candado = (function(){
 
   return {cargar:cargar, guardar:guardar, poner:poner, quitar:quitar,
           cerrar:cerrar, borrarTodo:borrarTodo,
+          guardaSecreto:guardaSecreto, leeSecreto:leeSecreto,
+          olvidaSecreto:olvidaSecreto, tocar:tocar,
           protegido:protegido, abierto:abierto, inactividad:INACTIVIDAD};
 })();
