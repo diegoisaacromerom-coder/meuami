@@ -3,11 +3,16 @@
 #   npx wrangler secret put CLAVE_ESCRITURA
 # o desde el tablero, en Settings · Variables and Secrets.
 
-name = "inventario-meuami"
+# El Worker que Cloudflare ya creo desde el repositorio se llama "meuami".
+# El nombre de aqui tiene que coincidir con ese, o el despliegue creara un
+# segundo Worker y el primero quedara colgando sin que nadie lo note.
+name = "meuami"
 main = "src/index.js"
 compatibility_date = "2026-01-01"
 
 [[d1_databases]]
 binding = "DB"
 database_name = "inventario"
+# Lo escribe Cloudflare al crear la base: Storage & Databases > D1 > la base
+# "inventario" > Database ID. No es un secreto, es solo el identificador.
 database_id = "pendiente-de-crear"
