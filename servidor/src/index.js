@@ -711,7 +711,7 @@ export default {
     if (pet.method === "OPTIONS") {
       return new Response(null, {status: 204, headers: cabeceras(pet, {
         "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Sesion, X-Quien",
         "Access-Control-Max-Age": "86400"
       })});
     }

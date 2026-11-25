@@ -414,6 +414,9 @@ try {
 
   r = await pide("/api/catalogo", {metodo: "OPTIONS", cabeceras: {Origin: "https://meuami.org"}});
   ok("la consulta previa de CORS responde", r.estado === 204, String(r.estado));
+  ok("la consulta previa autoriza la cabecera de sesión",
+     /X-Sesion/i.test(r.cabeceras.get("access-control-allow-headers") || ""),
+     r.cabeceras.get("access-control-allow-headers"));
   ok("y autoriza al sitio", r.cabeceras.get("access-control-allow-origin") === "https://meuami.org",
      String(r.cabeceras.get("access-control-allow-origin")));
 

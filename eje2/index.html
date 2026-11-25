@@ -174,6 +174,14 @@ main{padding:28px 0 70px}
 .origen{font-size:.84rem;color:var(--muted);line-height:1.5;margin:0 0 12px;
   padding-left:11px;border-left:2px solid var(--ladrillo)}
 .guardado{font-family:var(--m);font-size:.71rem;color:var(--muted)}
+/* Lo que escribieron los demas del eje. Se distingue de lo propio: va aparte,
+   no se mezcla con el campo de uno y no se puede editar desde aqui. */
+.ajenas{display:grid;gap:7px;margin:7px 0 0}
+.ajena{border-left:2px solid var(--azul);padding:7px 0 7px 11px;font-size:.89rem;line-height:1.5}
+.ajena .de{font-family:var(--m);font-size:.68rem;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--azul);display:block;margin-bottom:3px}
+.ajena p{margin:0;white-space:pre-wrap}
+.ilegibles{font-size:.82rem;color:var(--ladrillo);margin:8px 0 0}
 
 .herramientas{display:flex;gap:10px;flex-wrap:wrap;margin:26px 0 0;
   padding-top:20px;border-top:1px solid var(--rule)}
@@ -725,6 +733,9 @@ main{padding:28px 0 70px}
     <a class="b" href="../assets/respuesta-institucional.pdf">Respuesta institucional</a>
   </div>
 
+  <div class="herramientas" id="eje" aria-label="Trabajo compartido del eje"></div>
+  <p class="guardado" id="avisoEje" style="margin:10px 0 0"></p>
+
   <div class="herramientas" id="seguridad" aria-label="Seguridad de este dispositivo"></div>
 
   <p class="nota-pie">El texto del pliego y el de la respuesta son transcripción del
@@ -734,6 +745,7 @@ main{padding:28px 0 70px}
 </main>
 
 <script src="candado.js"></script>
+<script src="compartir.js"></script>
 <script src="datos.js"></script>
 <script>
 "use strict";
@@ -859,6 +871,8 @@ function montarAnalisis(p){
 
   CAMPOS.forEach(function(f){
     var cc = el("div", "campo");
+    cc.dataset.campo = f[0];
+    cc.dataset.punto = p.clave;
     cc.appendChild(el("label", null, f[1]));
     var ta = document.createElement("textarea");
     ta.value = deEste(p.clave)[f[0]] || "";
@@ -919,6 +933,85 @@ function aplicar(){
   $("nada").hidden = vistos > 0;
 }
 
+/* ---------- Trabajo compartido ---------- */
+
+function pintarAjenas(ajenas){
+  document.querySelectorAll(".campo .ajenas").forEach(function(x){ x.remove(); });
+  Object.keys(ajenas || {}).forEach(function(punto){
+    Object.keys(ajenas[punto]).forEach(function(campo){
+      var cc = document.querySelector('.campo[data-punto="' + punto + '"][data-campo="' + campo + '"]');
+      if (!cc) return;
+      var caja = el("div", "ajenas");
+      ajenas[punto][campo].forEach(function(n){
+        var a = el("div", "ajena");
+        a.appendChild(el("span", "de", n.alias));
+        a.appendChild(el("p", null, n.texto));
+        caja.appendChild(a);
+      });
+      cc.appendChild(caja);
+    });
+  });
+}
+
+function botonesEje(){
+  var caja = $("eje");
+  caja.textContent = "";
+
+  if (!Compartir.conectado()) {
+    var b = el("button", "b lleno", "Conectar con el eje");
+    b.type = "button";
+    b.addEventListener("click", async function(){
+      b.disabled = true;
+      try { if (await Compartir.conectar()) { botonesEje(); await sincronizar(); } }
+      finally { b.disabled = false; }
+    });
+    caja.appendChild(b);
+    var n = el("p", "guardado", "Sin conectar: tu análisis es solo tuyo. " +
+      "Al conectar, las notas se cifran aquí antes de salir y el servidor no puede leerlas.");
+    n.style.width = "100%";
+    caja.appendChild(n);
+    return;
+  }
+
+  var bs = el("button", "b lleno", "Sincronizar con el eje");
+  bs.type = "button";
+  bs.addEventListener("click", function(){ sincronizar(); });
+  caja.appendChild(bs);
+
+  var bd = el("button", "b", "Desconectar");
+  bd.type = "button";
+  bd.addEventListener("click", function(){
+    Compartir.desconectar();
+    document.querySelectorAll(".campo .ajenas").forEach(function(x){ x.remove(); });
+    botonesEje();
+  });
+  caja.appendChild(bd);
+
+  var n2 = el("p", "guardado", "Conectado como " + Compartir.comoQuien() +
+    ", firmando como «" + Compartir.miAlias() + "».");
+  n2.style.width = "100%";
+  caja.appendChild(n2);
+}
+
+async function sincronizar(){
+  var aviso = $("avisoEje");
+  aviso.textContent = "Sincronizando…";
+  try {
+    var r = await Compartir.sincronizar(trabajo, CAMPOS.map(function(f){ return f[0]; }));
+    pintarAjenas(r.ajenas);
+    var cuantas = 0;
+    Object.keys(r.ajenas).forEach(function(pt){
+      Object.keys(r.ajenas[pt]).forEach(function(cm){ cuantas += r.ajenas[pt][cm].length; });
+    });
+    aviso.textContent = "Subiste " + r.subidas + " nota(s) y bajaste " + cuantas +
+      " de tus compañeros." +
+      (r.ilegibles ? " Hay " + r.ilegibles + " que no se pudieron leer: están cifradas con otra llave del eje." : "");
+  } catch (e) {
+    aviso.textContent = e.message;
+    botonesEje();
+  }
+}
+
 function botonesCandado(){
   var caja = $("seguridad");
   caja.textContent = "";
@@ -973,6 +1066,7 @@ function botonesCandado(){
   }
   datos.forEach(function(p){ pintarEstado(p); });
   botonesCandado();
+  botonesEje();
 
   [["todos", "Todos"], ["insuficiente", "Insuficientes"], ["parcial", "Parciales"],
    ["suficiente", "Suficientes"], ["sin", "Sin valorar"], ["mias", "Con análisis mío"]]
