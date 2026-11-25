@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Eje 2 · Infraestructura básica · Movimiento Estudiantil UAM-I</title>
+<meta name="description" content="Mesa de trabajo del Eje 2 del pliego petitorio: lo que exigió el pliego, lo que respondió la autoridad y el análisis del eje, punto por punto.">
+<link rel="icon" type="image/png" href="../assets/logo.png">
+<meta name="theme-color" content="#0f8f45">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* Plan: una mesa de trabajo, no un folleto. Cada punto trae tres capas que no
+   se deben confundir nunca: lo que exigio el pliego, lo que respondio la
+   autoridad (las dos transcritas, intocables) y lo que piensa el eje. La
+   tercera se distingue a simple vista de las otras dos, porque confundirlas
+   en una mesa de negociacion seria caro. */
+:root{
+  --paper:#f4f3ef; --ink:#141414; --muted:#5b5a56; --rule:#d6d4cc; --card:#fff;
+  --izt:#12a850; --azul:#1668b8; --azul-hondo:#0b2c52; --ladrillo:#c0674a; --noche:#16203a;
+  --malo:#c0392b; --ok:#12a850; --medio:#d98324;
+  --barra:linear-gradient(180deg,var(--izt) 0%,#13948f 54%,var(--azul) 100%);
+  --sombra:0 1px 2px rgba(11,25,45,.05),0 10px 26px -14px rgba(11,25,45,.28);
+  --sombra-alta:0 2px 4px rgba(11,25,45,.06),0 22px 46px -18px rgba(11,25,45,.34);
+  --radio:14px;
+  --f:"Montserrat",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --m:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#151514; --ink:#efeee9; --muted:#a8a69f; --rule:#34332f; --card:#1e1e1c;
+  --izt:#34d27f; --azul:#4aa3ea; --ladrillo:#e2977c; --noche:#2c3f68;
+  --malo:#ff6b5b; --ok:#34d27f; --medio:#f0a94b;
+  --sombra:0 1px 2px rgba(0,0,0,.4),0 10px 26px -14px rgba(0,0,0,.7);
+  --sombra-alta:0 2px 4px rgba(0,0,0,.45),0 22px 46px -18px rgba(0,0,0,.8);
+  color-scheme:dark;
+}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f);
+  font-size:16px;line-height:1.6}
+body::before{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background:
+    radial-gradient(70% 48% at 6% 10%, color-mix(in srgb,var(--izt) 14%,transparent), transparent 68%),
+    radial-gradient(64% 48% at 99% 32%, color-mix(in srgb,var(--ladrillo) 18%,transparent), transparent 66%),
+    radial-gradient(80% 44% at 42% 104%, color-mix(in srgb,var(--noche) 15%,transparent), transparent 72%)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--izt);outline-offset:2px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+
+.cinta{height:9px;display:flex}
+.cinta i{flex:1}
+.cinta i:nth-child(1){background:var(--izt)}
+.cinta i:nth-child(2){background:#13948f}
+.cinta i:nth-child(3){background:var(--azul)}
+.cinta i:nth-child(4){background:var(--azul-hondo)}
+.cinta i:nth-child(5){background:var(--ladrillo)}
+
+.cab{position:relative;color:#fff;
+  background:
+    radial-gradient(72% 130% at 8% 0%, rgba(18,168,80,.30), transparent 62%),
+    radial-gradient(66% 120% at 94% 10%, rgba(192,103,74,.30), transparent 60%),
+    #070e16}
+.cab::after{content:"";position:absolute;left:0;right:0;bottom:0;height:4px;
+  background:linear-gradient(90deg,#12a850,#13948f 32%,#1668b8 58%,#0b2c52 80%,#c0674a)}
+.cab .wrap{padding:24px 20px 36px}
+.volver{display:inline-flex;align-items:center;gap:8px;color:rgba(255,255,255,.8);
+  text-decoration:none;font-size:.85rem;font-weight:700;margin-bottom:20px}
+.volver:hover{color:#fff}
+.cab .et{font-family:var(--m);font-size:.78rem;font-weight:700;letter-spacing:.16em;
+  text-transform:uppercase;color:rgba(255,255,255,.6);margin:0 0 8px}
+.cab h1{margin:0;font-size:clamp(1.9rem,5.4vw,2.9rem);font-weight:900;
+  letter-spacing:-.025em;line-height:1.03;text-transform:uppercase}
+.cab .lede{margin:14px 0 0;max-width:66ch;color:rgba(255,255,255,.84);font-size:1rem}
+
+/* Resumen: cuantos puntos de cada cosa. */
+.resumen{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:10px;margin:22px 0 0}
+.res{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);
+  border-radius:12px;padding:12px 14px}
+.res b{display:block;font-size:1.7rem;font-weight:900;line-height:1;
+  font-variant-numeric:tabular-nums}
+.res span{display:block;margin-top:5px;font-size:.73rem;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.62)}
+
+main{padding:28px 0 70px}
+.barra-sup{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:0 0 20px}
+.filtros{display:flex;gap:8px;flex-wrap:wrap}
+.filtros button{appearance:none;font:700 .8rem var(--m);cursor:pointer;
+  border:1px solid var(--rule);background:var(--card);color:var(--muted);
+  border-radius:999px;padding:7px 14px;
+  transition:color .2s ease,border-color .2s ease,transform .2s ease,background .2s ease}
+.filtros button:hover{transform:translateY(-2px);color:var(--ink)}
+.filtros button[aria-pressed="true"]{color:#fff;border-color:transparent;
+  background:linear-gradient(103deg,var(--izt),var(--azul))}
+.busca{flex:1;min-width:190px}
+.busca input{width:100%;font:400 .92rem var(--f);color:var(--ink);background:var(--card);
+  border:1px solid var(--rule);border-radius:999px;padding:9px 16px}
+.busca input:focus{border-color:var(--izt);outline:none}
+
+.puntos{display:grid;gap:14px}
+.punto{background:var(--barra) left/5px 100% no-repeat,var(--card);
+  border:1px solid var(--rule);border-radius:var(--radio);box-shadow:var(--sombra);
+  overflow:hidden}
+.punto > summary{list-style:none;cursor:pointer;padding:17px 20px 17px 26px;
+  display:grid;grid-template-columns:auto minmax(200px,1fr) auto;gap:8px 14px;align-items:center}
+.punto > summary::-webkit-details-marker{display:none}
+.punto > summary:hover{background:color-mix(in srgb,var(--izt) 4%,transparent)}
+.clave{font-family:var(--m);font-weight:700;font-size:.95rem;color:var(--izt);
+  font-variant-numeric:tabular-nums}
+.punto h2{margin:0;font-size:1.02rem;font-weight:700;line-height:1.33}
+/* Los distintivos no pueden estrujar el titulo: con cuatro tipos encima, la
+   columna del medio se quedaba en dos palabras por renglon. */
+.estado{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;align-items:center;
+  max-width:min(52%,440px)}
+.chip{font-family:var(--m);font-size:.68rem;font-weight:700;letter-spacing:.05em;
+  text-transform:uppercase;padding:4px 9px;border-radius:999px;white-space:nowrap;
+  border:1px solid var(--rule);color:var(--muted)}
+.chip.t-concreto{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 50%,var(--rule))}
+.chip.t-sin-plazo,.chip.t-remision{color:var(--medio);border-color:color-mix(in srgb,var(--medio) 50%,var(--rule))}
+.chip.t-existente,.chip.t-negacion,.chip.t-silencio{color:var(--malo);border-color:color-mix(in srgb,var(--malo) 50%,var(--rule))}
+.val{font-family:var(--m);font-size:.7rem;font-weight:700;letter-spacing:.07em;
+  text-transform:uppercase;padding:5px 11px;border-radius:999px;color:#fff;white-space:nowrap}
+.val.suficiente{background:var(--ok)}
+.val.parcial{background:var(--medio)}
+.val.insuficiente{background:var(--malo)}
+.val.sin{background:transparent;color:var(--muted);border:1px dashed var(--rule)}
+
+.cuerpo{padding:4px 20px 22px 26px;border-top:1px solid var(--rule)}
+.capa{margin:18px 0 0}
+.capa > h3{margin:0 0 9px;font-family:var(--m);font-size:.74rem;font-weight:700;
+  letter-spacing:.14em;text-transform:uppercase;display:flex;align-items:center;gap:9px}
+.capa > h3::after{content:"";flex:1;height:1px;background:var(--rule)}
+.capa.pliego > h3{color:var(--izt)}
+.capa.autoridad > h3{color:var(--azul)}
+.capa.analisis > h3{color:var(--ladrillo)}
+/* Lo transcrito se distingue de lo que escribe el eje: fondo propio y una
+   barra al margen, para que nadie lea una nota interna creyendo que es la
+   respuesta de la autoridad. */
+.cita{background:color-mix(in srgb,var(--izt) 5%,var(--card));
+  border:1px solid var(--rule);border-left:3px solid var(--izt);
+  border-radius:0 10px 10px 0;padding:14px 16px;font-size:.95rem;line-height:1.62}
+.capa.autoridad .cita{background:color-mix(in srgb,var(--azul) 5%,var(--card));
+  border-left-color:var(--azul)}
+.cita p{margin:0 0 10px;max-width:84ch}
+.cita p:last-child{margin:0}
+.sub{font-family:var(--m);font-size:.7rem;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--muted);margin:14px 0 6px}
+.vacio-cita{color:var(--muted);font-style:italic;font-size:.93rem}
+
+.aviso-local{display:flex;gap:10px;align-items:flex-start;
+  background:color-mix(in srgb,var(--ladrillo) 12%,var(--card));
+  border:1px solid color-mix(in srgb,var(--ladrillo) 36%,var(--rule));
+  border-radius:10px;padding:11px 14px;font-size:.84rem;line-height:1.5;color:var(--muted);
+  margin:0 0 14px}
+.aviso-local b{color:var(--ink)}
+
+.campos{display:grid;gap:13px}
+.campo{display:flex;flex-direction:column;gap:5px}
+.campo label{font-family:var(--m);font-size:.69rem;font-weight:700;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--muted)}
+.campo textarea,.campo select{font:400 .91rem var(--f);color:var(--ink);background:var(--paper);
+  border:1px solid var(--rule);border-radius:9px;padding:9px 11px;width:100%}
+.campo textarea{resize:vertical;min-height:62px;line-height:1.55}
+.campo textarea:focus,.campo select:focus{border-color:var(--izt);outline:none}
+.tipos-sel{display:flex;gap:7px;flex-wrap:wrap}
+.tipos-sel label{display:inline-flex;align-items:center;gap:6px;cursor:pointer;
+  border:1px solid var(--rule);border-radius:999px;padding:5px 12px;
+  font-family:var(--m);font-size:.71rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.04em;color:var(--muted);text-transform:none}
+.tipos-sel input{margin:0}
+.tipos-sel label:has(input:checked){color:var(--ink);border-color:var(--izt);
+  background:color-mix(in srgb,var(--izt) 10%,transparent)}
+.origen{font-size:.84rem;color:var(--muted);line-height:1.5;margin:0 0 12px;
+  padding-left:11px;border-left:2px solid var(--ladrillo)}
+.guardado{font-family:var(--m);font-size:.71rem;color:var(--muted)}
+
+.herramientas{display:flex;gap:10px;flex-wrap:wrap;margin:26px 0 0;
+  padding-top:20px;border-top:1px solid var(--rule)}
+.b{appearance:none;font:700 .85rem var(--f);border-radius:999px;padding:10px 20px;cursor:pointer;
+  text-decoration:none;border:1px solid var(--izt);background:transparent;color:var(--izt);
+  transition:background .2s ease,color .2s ease,transform .2s ease}
+.b:hover{background:var(--izt);color:#fff;transform:translateY(-2px)}
+.b.lleno{background:linear-gradient(103deg,var(--izt),var(--azul));color:#fff;border-color:transparent}
+.nota-pie{color:var(--muted);font-size:.85rem;line-height:1.6;margin:20px 0 0;max-width:80ch}
+.sin-resultados{color:var(--muted);padding:24px 0}
+@media (max-width:700px){
+  .punto > summary{grid-template-columns:auto minmax(0,1fr);padding:15px 16px 15px 22px}
+  .estado{grid-column:1 / -1;justify-content:flex-start;margin-top:4px}
+  .cuerpo{padding:4px 16px 20px 22px}
+}
+@media (prefers-reduced-motion: reduce){*{transition:none !important}}
+@media print{
+  .cab,.barra-sup,.herramientas,.aviso-local{display:none !important}
+  .punto{break-inside:avoid;box-shadow:none}
+  .punto > summary{cursor:default}
+}
+</style>
+</head>
+<body>
+
+<div class="cinta" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+
+<header class="cab">
+  <div class="wrap">
+    <a class="volver" href="../">← meuami.org</a>
+    <p class="et">Pliego petitorio · Mesa de trabajo</p>
+    <h1>Eje 2<br>Infraestructura básica</h1>
+    <p class="lede">Los catorce puntos del eje: lo que exigió el pliego y lo que respondió
+    la autoridad, transcritos sin tocar, con el análisis del eje al lado. El método es el
+    del <a href="#protocolo" style="color:#fff">protocolo de trabajo</a> del Movimiento.</p>
+    <div class="resumen" id="resumen"></div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="barra-sup">
+    <div class="filtros" id="filtros" role="group" aria-label="Filtrar puntos"></div>
+    <div class="busca">
+      <label for="q" class="visually-hidden" style="position:absolute;left:-9999px">Buscar en los puntos</label>
+      <input type="search" id="q" placeholder="Buscar en el texto del pliego o de la respuesta…">
+    </div>
+  </div>
+
+  <div class="puntos" id="puntos"></div>
+  <p class="sin-resultados" id="nada" hidden>Ningún punto coincide con eso.</p>
+
+  <div class="herramientas">
+    <button class="b lleno" type="button" id="exportar">Respaldar mi análisis</button>
+    <button class="b" type="button" id="importar">Cargar un respaldo</button>
+    <button class="b" type="button" id="abrirTodo">Abrir todos</button>
+    <a class="b" href="../assets/protocolo-mesas.pdf" id="protocolo">Protocolo de trabajo</a>
+    <a class="b" href="../assets/respuesta-institucional.pdf">Respuesta institucional</a>
+  </div>
+
+  <p class="nota-pie">El texto del pliego y el de la respuesta son transcripción del
+  documento oficial y no se editan desde aquí: su valor está en que nadie los haya tocado.
+  Lo que el eje escribe se guarda <b>solo en este dispositivo</b> y no sale a ningún
+  servidor. Respáldalo seguido; el respaldo sale cifrado con una contraseña que tú eliges.</p>
+</main>
+
+<script src="datos.js"></script>
+<script>
+"use strict";
+/* El analisis vive en este navegador y en ningun otro lado. Mientras no haya
+   servidor con sesion y segundo factor, esa es la unica forma honesta de
+   cumplir con "no guardar la estrategia en plataformas externas". */
+var LLAVE = "eje2-analisis-v1";
+var TIPOS = [
+  ["concreto",  "Compromiso concreto"],
+  ["sin-plazo", "Compromiso sin plazo o monto"],
+  ["existente", "Describe lo que ya hay"],
+  ["remision",  "Remite a otra instancia"],
+  ["negacion",  "Justifica o niega"],
+  ["silencio",  "Silencio u omisión"]
+];
+var CAMPOS = [
+  ["sinRespuesta", "Incisos o temas sin respuesta"],
+  ["contradice",   "Datos o documentos de la autoridad que la contradicen (con fuente y página)"],
+  ["norma",        "Norma de respaldo y quién tiene la facultad de decidir"],
+  ["exigencia",    "Exigencia: qué, quién, cuándo, cuánto y cómo se verifica"],
+  ["replica",      "Reacción previsible de la autoridad y réplica preparada"],
+  ["notas",        "Notas del eje"]
+];
+var $ = function(id){ return document.getElementById(id); };
+
+function leer(){
+  try { return JSON.parse(localStorage.getItem(LLAVE) || "{}") || {}; }
+  catch (e) { return {}; }
+}
+var trabajo = leer();
+function guardar(){
+  try { localStorage.setItem(LLAVE, JSON.stringify(trabajo)); return true; }
+  catch (e) { return false; }
+}
+function deEste(clave){
+  if (!trabajo[clave]) trabajo[clave] = {};
+  return trabajo[clave];
+}
+/* Los tipos y la valoracion que trae el archivo son del protocolo; si el eje
+   los cambia aqui, mandan los del eje. */
+function tiposDe(p){
+  var t = deEste(p.clave);
+  return t.tipos || p.tipos || [];
+}
+function valoracionDe(p){
+  var t = deEste(p.clave);
+  return t.valoracion || p.valoracion || "";
+}
+
+function el(et, clase, texto){
+  var e = document.createElement(et);
+  if (clase) e.className = clase;
+  if (texto != null) e.textContent = texto;
+  return e;
+}
+function parrafos(lista, dentro){
+  if (!lista || !lista.length) {
+    dentro.appendChild(el("p", "vacio-cita", "El documento no trae esta sección para este punto."));
+    return;
+  }
+  lista.forEach(function(t){ dentro.appendChild(el("p", null, t)); });
+}
+
+function tarjeta(p){
+  var d = document.createElement("details");
+  d.className = "punto";
+  d.dataset.clave = p.clave;
+
+  var s = document.createElement("summary");
+  s.appendChild(el("span", "clave", p.clave));
+  s.appendChild(el("h2", null, p.titulo));
+  var est = el("div", "estado");
+  tiposDe(p).forEach(function(t){
+    var nom = (TIPOS.filter(function(x){ return x[0] === t; })[0] || [t, t])[1];
+    est.appendChild(el("span", "chip t-" + t, nom));
+  });
+  var v = valoracionDe(p);
+  est.appendChild(el("span", "val " + (v || "sin"), v || "sin valorar"));
+  s.appendChild(est);
+  d.appendChild(s);
+
+  var c = el("div", "cuerpo");
+
+  var cp = el("section", "capa pliego");
+  cp.appendChild(el("h3", null, "Lo que exige el pliego"));
+  var qp = el("blockquote", "cita");
+  parrafos(p.exigencia, qp);
+  cp.appendChild(qp);
+  c.appendChild(cp);
+
+  var ca = el("section", "capa autoridad");
+  ca.appendChild(el("h3", null, "Lo que respondió la autoridad"));
+  if (p.respuesta && p.respuesta.length) {
+    ca.appendChild(el("p", "sub", "Respuesta"));
+    var qr = el("blockquote", "cita");
+    parrafos(p.respuesta, qr);
+    ca.appendChild(qr);
+  }
+  if (p.compromisos && p.compromisos.length) {
+    ca.appendChild(el("p", "sub", "Compromisos"));
+    var qc = el("blockquote", "cita");
+    parrafos(p.compromisos, qc);
+    ca.appendChild(qc);
+  }
+  if (!(p.respuesta || []).length && !(p.compromisos || []).length) {
+    ca.appendChild(el("p", "vacio-cita", "La autoridad no respondió este punto."));
+  }
+  c.appendChild(ca);
+
+  var cn = el("section", "capa analisis");
+  cn.appendChild(el("h3", null, "Análisis del eje"));
+
+  var av = el("div", "aviso-local");
+  av.innerHTML = "<span aria-hidden=\"true\">●</span><span>Lo que escribas aquí se guarda " +
+    "<b>solo en este dispositivo</b>. Todavía no se comparte con el resto del eje: " +
+    "eso llega cuando el servidor tenga sesión y segundo factor.</span>";
+  cn.appendChild(av);
+
+  if (p.origen) cn.appendChild(el("p", "origen", p.origen));
+
+  var campos = el("div", "campos");
+
+  var ct = el("div", "campo");
+  ct.appendChild(el("label", null, "Tipo de respuesta (Tabla 1 del protocolo)"));
+  var sel = el("div", "tipos-sel");
+  TIPOS.forEach(function(t){
+    var lab = document.createElement("label");
+    var chk = document.createElement("input");
+    chk.type = "checkbox";
+    chk.checked = tiposDe(p).indexOf(t[0]) !== -1;
+    chk.addEventListener("change", function(){
+      var act = tiposDe(p).slice();
+      var i = act.indexOf(t[0]);
+      if (chk.checked && i === -1) act.push(t[0]);
+      if (!chk.checked && i !== -1) act.splice(i, 1);
+      deEste(p.clave).tipos = act;
+      guardar(); refrescarEstado(d, p);
+    });
+    lab.appendChild(chk);
+    lab.appendChild(document.createTextNode(t[1]));
+    sel.appendChild(lab);
+  });
+  ct.appendChild(sel);
+  campos.appendChild(ct);
+
+  var cv = el("div", "campo");
+  cv.appendChild(el("label", null, "Valoración del eje"));
+  var sv = document.createElement("select");
+  [["", "Sin valorar"], ["suficiente", "Suficiente"], ["parcial", "Parcial"],
+   ["insuficiente", "Insuficiente"]].forEach(function(o){
+    var op = document.createElement("option");
+    op.value = o[0]; op.textContent = o[1];
+    if (valoracionDe(p) === o[0]) op.selected = true;
+    sv.appendChild(op);
+  });
+  sv.addEventListener("change", function(){
+    deEste(p.clave).valoracion = sv.value;
+    guardar(); refrescarEstado(d, p);
+  });
+  cv.appendChild(sv);
+  campos.appendChild(cv);
+
+  CAMPOS.forEach(function(f){
+    var cc = el("div", "campo");
+    cc.appendChild(el("label", null, f[1]));
+    var ta = document.createElement("textarea");
+    ta.value = deEste(p.clave)[f[0]] || "";
+    ta.addEventListener("input", function(){
+      deEste(p.clave)[f[0]] = ta.value;
+      clearTimeout(ta._t);
+      ta._t = setTimeout(function(){ guardar(); marcarGuardado(cc); }, 450);
+    });
+    cc.appendChild(ta);
+    campos.appendChild(cc);
+  });
+
+  cn.appendChild(campos);
+  c.appendChild(cn);
+  d.appendChild(c);
+  return d;
+}
+
+function marcarGuardado(donde){
+  var vieja = donde.querySelector(".guardado");
+  if (vieja) vieja.remove();
+  var g = el("span", "guardado", "guardado");
+  donde.appendChild(g);
+  setTimeout(function(){ if (g.parentNode) g.remove(); }, 1600);
+}
+
+function refrescarEstado(d, p){
+  var est = d.querySelector(".estado");
+  est.textContent = "";
+  tiposDe(p).forEach(function(t){
+    var nom = (TIPOS.filter(function(x){ return x[0] === t; })[0] || [t, t])[1];
+    est.appendChild(el("span", "chip t-" + t, nom));
+  });
+  var v = valoracionDe(p);
+  est.appendChild(el("span", "val " + (v || "sin"), v || "sin valorar"));
+  pintarResumen();
+}
+
+function pintarResumen(){
+  var datos = window.EJE2 || [];
+  var cuenta = {suficiente:0, parcial:0, insuficiente:0, sin:0, conNotas:0};
+  datos.forEach(function(p){
+    var v = valoracionDe(p);
+    cuenta[v || "sin"]++;
+    var t = deEste(p.clave);
+    if (CAMPOS.some(function(f){ return (t[f[0]] || "").trim(); })) cuenta.conNotas++;
+  });
+  var caja = $("resumen");
+  caja.textContent = "";
+  [[datos.length, "puntos del eje"],
+   [cuenta.insuficiente, "insuficientes"],
+   [cuenta.parcial, "parciales"],
+   [cuenta.suficiente, "suficientes"],
+   [cuenta.sin, "sin valorar"],
+   [cuenta.conNotas, "con análisis tuyo"]].forEach(function(x){
+    var r = el("div", "res");
+    r.appendChild(el("b", null, String(x[0])));
+    r.appendChild(el("span", null, x[1]));
+    caja.appendChild(r);
+  });
+}
+
+/* ---------- Filtros y busca ---------- */
+var filtroActivo = "todos";
+function aplicar(){
+  var q = ($("q").value || "").trim().toLowerCase();
+  var vistos = 0;
+  (window.EJE2 || []).forEach(function(p){
+    var d = document.querySelector('.punto[data-clave="' + p.clave + '"]');
+    if (!d) return;
+    var v = valoracionDe(p);
+    var porEstado =
+      filtroActivo === "todos" ? true :
+      filtroActivo === "sin"   ? !v :
+      filtroActivo === "mias"  ? CAMPOS.some(function(f){ return (deEste(p.clave)[f[0]] || "").trim(); }) :
+      v === filtroActivo;
+    var texto = (p.clave + " " + p.titulo + " " +
+      (p.exigencia || []).join(" ") + " " + (p.respuesta || []).join(" ") + " " +
+      (p.compromisos || []).join(" ")).toLowerCase();
+    var porTexto = !q || texto.indexOf(q) !== -1;
+    var va = porEstado && porTexto;
+    d.hidden = !va;
+    if (va) vistos++;
+  });
+  $("nada").hidden = vistos > 0;
+}
+
+(function(){
+  var datos = window.EJE2 || [];
+  var caja = $("puntos");
+  datos.forEach(function(p){ caja.appendChild(tarjeta(p)); });
+
+  [["todos", "Todos"], ["insuficiente", "Insuficientes"], ["parcial", "Parciales"],
+   ["suficiente", "Suficientes"], ["sin", "Sin valorar"], ["mias", "Con análisis mío"]]
+  .forEach(function(f){
+    var b = el("button", null, f[1]);
+    b.type = "button";
+    b.setAttribute("aria-pressed", f[0] === "todos" ? "true" : "false");
+    b.addEventListener("click", function(){
+      filtroActivo = f[0];
+      $("filtros").querySelectorAll("button").forEach(function(o){ o.setAttribute("aria-pressed","false"); });
+      b.setAttribute("aria-pressed","true");
+      aplicar();
+    });
+    $("filtros").appendChild(b);
+  });
+
+  $("q").addEventListener("input", aplicar);
+  $("abrirTodo").addEventListener("click", function(){
+    var abiertos = document.querySelectorAll(".punto[open]").length;
+    document.querySelectorAll(".punto").forEach(function(d){ d.open = abiertos === 0; });
+    $("abrirTodo").textContent = abiertos === 0 ? "Cerrar todos" : "Abrir todos";
+  });
+
+  pintarResumen();
+  aplicar();
+})();
+</script>
+<script src="respaldo.js"></script>
+</body>
+</html>
